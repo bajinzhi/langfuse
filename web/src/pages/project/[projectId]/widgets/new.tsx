@@ -14,9 +14,11 @@ import { SelectDashboardDialog } from "@/src/features/dashboard/components/Selec
 import { useState } from "react";
 import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { getDefaultView } from "@/src/features/widgets/utils";
+import { useI18n } from "@/src/features/i18n";
 
 export default function NewWidget() {
   const router = useRouter();
+  const { t } = useI18n();
   const { projectId, dashboardId } = router.query as {
     projectId: string;
     dashboardId?: string;
@@ -26,8 +28,8 @@ export default function NewWidget() {
   const createWidgetMutation = api.dashboardWidgets.create.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: "Widget created successfully",
-        description: "Your widget has been created.",
+        title: t("widgets.createdTitle"),
+        description: t("widgets.createdDescription"),
       });
 
       if (dashboardId) {
@@ -40,7 +42,7 @@ export default function NewWidget() {
       }
     },
     onError: (error) => {
-      showErrorToast("Failed to save widget", error.message);
+      showErrorToast(t("widgets.saveFailed"), error.message);
     },
   });
 
@@ -56,7 +58,7 @@ export default function NewWidget() {
     minVersion: number;
   }) => {
     if (!widgetData.name.trim()) {
-      showErrorToast("Error", "Widget name is required");
+      showErrorToast(t("common.error"), t("widgets.validation.nameRequired"));
       return;
     }
 
@@ -85,9 +87,9 @@ export default function NewWidget() {
     <Page
       withPadding
       headerProps={{
-        title: "New Widget",
+        title: t("widgets.newTitle"),
         help: {
-          description: "Create a new widget",
+          description: t("widgets.createDescription"),
         },
       }}
     >

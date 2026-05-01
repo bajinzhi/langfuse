@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Info } from "lucide-react";
 import { isLegacyEvalTarget } from "@/src/features/evals/utils/typeHelpers";
+import { useI18n } from "@/src/features/i18n";
 
 interface LegacyEvalCalloutProps {
   projectId: string;
@@ -22,6 +23,7 @@ export function LegacyEvalCallout({
   targetObject,
 }: LegacyEvalCalloutProps) {
   const router = useRouter();
+  const { t } = useI18n();
   const isDeprecated = isLegacyEvalTarget(targetObject);
 
   if (!isDeprecated) return null;
@@ -43,30 +45,27 @@ export function LegacyEvalCallout({
             }
             className="text-dark-blue h-7 text-xs hover:opacity-80"
           >
-            Upgrade this evaluator
+            {t("evals.legacy.upgradeThisEvaluator")}
           </Button>
         </>
       )}
     >
-      <span>This evaluator </span>
+      <span>{t("evals.legacy.singleCalloutPrefix")} </span>
       <span className="text-dark-blue hover:opacity-80">
         <Link
           href="https://langfuse.com/faq/all/llm-as-a-judge-migration"
           target="_blank"
           rel="noopener noreferrer"
         >
-          requires changes{" "}
+          {t("evals.legacy.requiresChanges")}{" "}
         </Link>
       </span>
-      <span>to benefit from new features and performance improvements.</span>
+      <span>{t("evals.legacy.singleCalloutSuffix")}</span>
       <Tooltip>
         <TooltipTrigger asChild>
           <Info className="ml-1 inline h-4 w-4 cursor-help" />
         </TooltipTrigger>
-        <TooltipContent>
-          Your evaluator will continue to work without upgrading, but you will
-          not benefit from improvements.
-        </TooltipContent>
+        <TooltipContent>{t("evals.legacy.tooltipStillRuns")}</TooltipContent>
       </Tooltip>
     </Callout>
   );

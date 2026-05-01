@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { ErrorPageWithSentry } from "@/src/components/error-page";
 import { Spinner } from "@/src/components/layouts/spinner";
+import { useI18n } from "@/src/features/i18n";
 
 export default function SSOInitiate() {
+  const { t } = useI18n();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +21,7 @@ export default function SSOInitiate() {
 
     // If provider is missing or empty, show error
     if (!provider || provider === "") {
-      setError("No SSO provider specified. Please contact your administrator.");
+      setError(t("auth.sso.noProvider"));
       return;
     }
 
@@ -34,19 +36,22 @@ export default function SSOInitiate() {
         setError(
           error instanceof Error
             ? error.message
-            : "Failed to initiate SSO sign-in. Please try again or contact support.",
+            : t("auth.sso.initiateFailed"),
         );
       });
-  }, [router.isReady, router.query.provider]);
+  }, [router.isReady, router.query.provider, t]);
 
   // Show error page if sign-in failed
   if (error) {
     return (
       <>
         <Head>
-          <title>Sign-in Error | Langfuse</title>
+          <title>{t("auth.sso.signInErrorHead")}</title>
         </Head>
-        <ErrorPageWithSentry title="SSO Sign-in Failed" message={error} />
+        <ErrorPageWithSentry
+          title={t("auth.sso.signInFailed")}
+          message={error}
+        />
       </>
     );
   }
@@ -55,9 +60,9 @@ export default function SSOInitiate() {
   return (
     <>
       <Head>
-        <title>Signing in | Langfuse</title>
+        <title>{t("auth.sso.signingInHead")}</title>
       </Head>
-      <Spinner message="Redirecting to your identity provider..." />
+      <Spinner message={t("auth.sso.redirecting")} />
     </>
   );
 }

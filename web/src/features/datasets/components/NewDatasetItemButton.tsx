@@ -11,6 +11,7 @@ import { DialogTrigger } from "@radix-ui/react-dialog";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { ActionButton } from "@/src/components/ActionButton";
+import { useI18n } from "@/src/features/i18n";
 
 export const NewDatasetItemButton = (props: {
   projectId: string;
@@ -18,6 +19,7 @@ export const NewDatasetItemButton = (props: {
   className?: string;
 }) => {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
   const hasAccess = useHasProjectAccess({
     projectId: props.projectId,
     scope: "datasets:CUD",
@@ -33,12 +35,12 @@ export const NewDatasetItemButton = (props: {
           onClick={() => capture("dataset_item:new_form_open")}
           icon={<PlusIcon className="h-4 w-4" aria-hidden="true" />}
         >
-          New item
+          {t("datasets.newItem")}
         </ActionButton>
       </DialogTrigger>
       <DialogContent size="xl">
         <DialogHeader>
-          <DialogTitle>Create new dataset item</DialogTitle>
+          <DialogTitle>{t("datasets.createItem")}</DialogTitle>
         </DialogHeader>
         <NewDatasetItemForm
           projectId={props.projectId}

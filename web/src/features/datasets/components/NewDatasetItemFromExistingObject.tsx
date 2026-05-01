@@ -25,6 +25,7 @@ import { parseJsonPrioritised } from "@langfuse/shared";
 import { ActionButton } from "@/src/components/ActionButton";
 import { type MetadataDomainClient } from "@/src/utils/clientSideDomainTypes";
 import { type Prisma } from "@langfuse/shared";
+import { useI18n } from "@/src/features/i18n";
 
 /**
  * Component for creating a new dataset item from an existing object.
@@ -47,6 +48,7 @@ export const NewDatasetItemFromExistingObject = (props: {
   buttonVariant?: ButtonProps["variant"];
   size?: ButtonProps["size"];
 }) => {
+  const { t } = useI18n();
   const normalizePrefillValue = (
     value: Prisma.JsonValue | null,
   ): Prisma.JsonValue | null => {
@@ -95,8 +97,8 @@ export const NewDatasetItemFromExistingObject = (props: {
           variant="outline"
           size={buttonSize === "sm" ? "icon-xs" : "icon"}
           hasAccess={hasAccess}
-          title="Copy item"
-          aria-label="Copy item"
+          title={t("datasets.copyItem")}
+          aria-label={t("datasets.copyItem")}
           onClick={() => {
             setIsFormOpen(true);
           }}
@@ -113,7 +115,11 @@ export const NewDatasetItemFromExistingObject = (props: {
                 size={buttonSize}
                 disabled={!hasAccess}
               >
-                <span>{`In ${observationInDatasets.data.length} dataset(s)`}</span>
+                <span>
+                  {t("datasets.inDatasets", {
+                    count: observationInDatasets.data.length,
+                  })}
+                </span>
                 <ChevronDown className="ml-2 h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
@@ -141,7 +147,7 @@ export const NewDatasetItemFromExistingObject = (props: {
                 }}
               >
                 <PlusIcon size={16} className={cn("mr-2")} aria-hidden="true" />
-                Add to more datasets
+                {t("datasets.addToMoreDatasets")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -167,7 +173,7 @@ export const NewDatasetItemFromExistingObject = (props: {
               aria-hidden="true"
             />
           ) : null}
-          Add to datasets
+          {t("datasets.addItemToDatasets")}
           {!hasAccess ? (
             <LockIcon className={cn("ml-1.5 h-3 w-3")} aria-hidden="true" />
           ) : null}
@@ -176,7 +182,7 @@ export const NewDatasetItemFromExistingObject = (props: {
       <Dialog open={hasAccess && isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="h-[calc(100vh-5rem)] max-h-none w-[calc(100vw-5rem)] max-w-none">
           <DialogHeader>
-            <DialogTitle>Add item to datasets</DialogTitle>
+            <DialogTitle>{t("datasets.addItemToDatasets")}</DialogTitle>
           </DialogHeader>
           {isFormOpen && (
             <NewDatasetItemForm

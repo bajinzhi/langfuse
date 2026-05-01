@@ -5,6 +5,7 @@ import { api } from "@/src/utils/api";
 import { showSuccessToast } from "@/src/features/notifications/showSuccessToast";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { type SlackChannel } from "./ChannelSelector";
+import { useI18n } from "@/src/features/i18n";
 
 /**
  * Props for the SlackTestMessageButton component
@@ -48,23 +49,26 @@ export const SlackTestMessageButton: React.FC<SlackTestMessageButtonProps> = ({
   disabled = false,
   variant = "default",
   size = "default",
-  buttonText = "Send Test Message",
+  buttonText,
   onSuccess,
   onError,
   showText = true,
   hasAccess = true,
 }) => {
+  const { t } = useI18n();
+  const resolvedButtonText = buttonText ?? t("slack.sendTest");
+
   // Test message mutation
   const testMessageMutation = api.slack.sendTestMessage.useMutation({
     onSuccess: (data) => {
       showSuccessToast({
-        title: "Test Message Sent",
-        description: "Test message sent successfully to the selected channel.",
+        title: t("slack.testSentTitle"),
+        description: t("slack.testSentDescription"),
       });
       onSuccess?.(data.channelInfo);
     },
     onError: (error) => {
-      showErrorToast("Failed to Send Test Message", error.message);
+      showErrorToast(t("slack.failedSendTest"), error.message);
       onError?.(new Error(error.message));
     },
   });
@@ -99,12 +103,12 @@ export const SlackTestMessageButton: React.FC<SlackTestMessageButtonProps> = ({
       {testMessageMutation.isPending ? (
         <>
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-          {showText && <span>Sending...</span>}
+          {showText && <span>{t("slack.sending")}</span>}
         </>
       ) : (
         <>
           <Zap className="h-4 w-4" />
-          {showText && <span>{buttonText}</span>}
+          {showText && <span>{resolvedButtonText}</span>}
         </>
       )}
     </Button>

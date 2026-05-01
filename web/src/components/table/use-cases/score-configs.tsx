@@ -30,6 +30,10 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 import { ArchiveScoreConfigButton } from "@/src/features/score-configs/components/ArchiveScoreConfigButton";
 import { UpsertScoreConfigDialog } from "@/src/features/score-configs/components/UpsertScoreConfigDialog";
+import { useI18n } from "@/src/features/i18n";
+import type { MessageKey, MessageValues } from "@/src/features/i18n";
+
+type Translate = (key: MessageKey, values?: MessageValues) => string;
 
 type ScoreConfigTableRow = {
   id: string;
@@ -48,13 +52,14 @@ type ScoreConfigTableRow = {
 
 function getConfigRange(
   originalRow: ScoreConfigTableRow,
+  t: Translate,
 ): undefined | Prisma.JsonValue {
   const { range, dataType } = originalRow;
 
   if (isNumericDataType(dataType)) {
     return {
-      Minimum: range.minValue ?? "-∞",
-      Maximum: range.maxValue ?? "∞",
+      [t("scoreConfigs.minimum")]: range.minValue ?? "-∞",
+      [t("scoreConfigs.maximum")]: range.maxValue ?? "∞",
     };
   }
 
@@ -72,6 +77,7 @@ function getConfigRange(
 }
 
 export function ScoreConfigsTable({ projectId }: { projectId: string }) {
+  const { t } = useI18n();
   const [editConfigId, setEditConfigId] = useState<string | null>(null);
   const [createConfigOpen, setCreateConfigOpen] = useState(false);
   const [paginationState, setPaginationState] = usePaginationState(0, 50, {
@@ -109,24 +115,24 @@ export function ScoreConfigsTable({ projectId }: { projectId: string }) {
     {
       accessorKey: "name",
       id: "name",
-      header: "Name",
+      header: t("scoreConfigs.name"),
       enableHiding: true,
     },
     {
       accessorKey: "dataType",
       id: "dataType",
-      header: "Data Type",
+      header: t("scoreConfigs.dataType"),
       size: 80,
       enableHiding: true,
     },
     {
       accessorKey: "range",
       id: "range",
-      header: "Range",
+      header: t("scoreConfigs.range"),
       enableHiding: true,
       size: 300,
       cell: ({ row }) => {
-        const range = getConfigRange(row.original);
+        const range = getConfigRange(row.original, t);
 
         return !!range ? (
           <IOTableCell data={range} singleLine={rowHeight === "s"} />
@@ -136,7 +142,7 @@ export function ScoreConfigsTable({ projectId }: { projectId: string }) {
     {
       accessorKey: "description",
       id: "description",
-      header: "Description",
+      header: t("scoreConfigs.description"),
       enableHiding: true,
       cell: ({ row }) => {
         const value = row.original.description;
@@ -149,31 +155,33 @@ export function ScoreConfigsTable({ projectId }: { projectId: string }) {
     {
       accessorKey: "id",
       id: "id",
-      header: "Config ID",
+      header: t("scoreConfigs.configId"),
       enableHiding: true,
       defaultHidden: true,
     },
     {
       accessorKey: "createdAt",
       id: "createdAt",
-      header: "Created At",
+      header: t("scoreConfigs.createdAt"),
       enableHiding: true,
       defaultHidden: true,
     },
     {
       accessorKey: "isArchived",
       id: "isArchived",
-      header: "Status",
+      header: t("common.status"),
       size: 80,
       enableHiding: true,
       cell: ({ row }) => {
         const { isArchived } = row.original;
-        return isArchived ? "Archived" : "Active";
+        return isArchived
+          ? t("scoreConfigs.status.archived")
+          : t("scoreConfigs.status.active");
       },
     },
     {
       accessorKey: "action",
-      header: "Action",
+      header: t("observability.columns.action"),
       size: 70,
       isFixedPosition: true,
       enableHiding: true,
@@ -190,11 +198,11 @@ export function ScoreConfigsTable({ projectId }: { projectId: string }) {
             <DropdownMenuContent>
               <DropdownMenuItem
                 key={configId}
-                aria-label="edit"
+                aria-label={t("common.edit")}
                 onClick={() => setEditConfigId(configId)}
               >
                 <Edit className="mr-2 h-4 w-4" />
-                Edit
+                {t("common.edit")}
               </DropdownMenuItem>
               <DropdownMenuItem asChild key="archive">
                 <ArchiveScoreConfigButton

@@ -14,6 +14,7 @@ import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAcces
 import { DatasetAnalytics } from "@/src/features/datasets/components/DatasetAnalytics";
 import { CompareViewAdapter } from "@/src/features/scores/adapters";
 import {
+  getResourceMetrics,
   RESOURCE_METRICS,
   isEmptyChart,
 } from "@/src/features/dashboard/lib/score-analytics-utils";
@@ -43,8 +44,11 @@ import { NoDataOrLoading } from "@/src/components/NoDataOrLoading";
 import { useExperimentAccess } from "@/src/features/experiments/hooks/useExperimentAccess";
 import { ExperimentsBetaSwitch } from "@/src/features/experiments/components/ExperimentsBetaSwitch";
 import { toExperimentsResultsUrl } from "@/src/features/experiments/utils/experimentUrlTranslation";
+import { useI18n } from "@/src/features/i18n";
 
 export default function DatasetCompare() {
+  const { t } = useI18n();
+  const resourceMetrics = getResourceMetrics(t);
   const router = useRouter();
   const capture = usePostHogClientCapture();
   const projectId = router.query.projectId as string;
@@ -117,14 +121,16 @@ export default function DatasetCompare() {
     return (
       <Page
         headerProps={{
-          title: `Compare runs: ${dataset.data?.name ?? datasetId}`,
+          title: t("datasets.compareRunsTitle", {
+            name: dataset.data?.name ?? datasetId,
+          }),
           tabsProps: {
-            tabs: getDatasetRunCompareTabs(projectId, datasetId),
+            tabs: getDatasetRunCompareTabs(projectId, datasetId, t),
             activeTab: DATASET_RUN_COMPARE_TABS.CHARTS,
           },
           breadcrumb: [
             {
-              name: "Datasets",
+              name: t("datasets.label"),
               href: `/project/${projectId}/datasets`,
             },
             {
@@ -145,14 +151,16 @@ export default function DatasetCompare() {
   return (
     <Page
       headerProps={{
-        title: `Compare runs: ${dataset.data?.name ?? datasetId}`,
+        title: t("datasets.compareRunsTitle", {
+          name: dataset.data?.name ?? datasetId,
+        }),
         tabsProps: {
-          tabs: getDatasetRunCompareTabs(projectId, datasetId),
+          tabs: getDatasetRunCompareTabs(projectId, datasetId, t),
           activeTab: DATASET_RUN_COMPARE_TABS.CHARTS,
         },
         breadcrumb: [
           {
-            name: "Datasets",
+            name: t("datasets.label"),
             href: `/project/${projectId}/datasets`,
           },
           {
@@ -161,7 +169,7 @@ export default function DatasetCompare() {
           },
         ],
         help: {
-          description: "Compare your dataset runs side by side",
+          description: t("datasets.compareHelp"),
         },
         actionButtonsRight: (
           <>
@@ -178,7 +186,9 @@ export default function DatasetCompare() {
                   onClick={() => capture("dataset_run:new_form_open")}
                 >
                   <FlaskConical className="h-4 w-4" />
-                  <span className="ml-2 hidden md:block">New experiment</span>
+                  <span className="ml-2 hidden md:block">
+                    {t("experiments.newExperiment")}
+                  </span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-h-[90vh] overflow-y-auto">
@@ -196,9 +206,9 @@ export default function DatasetCompare() {
             </Dialog>
             <MultiSelectKeyValues
               key="select-runs"
-              title="Experiments"
+              title={t("experiments.title")}
               showSelectedValueStrings={false}
-              placeholder="Select runs to compare"
+              placeholder={t("datasets.selectRunsToCompare")}
               className="w-fit"
               variant="outline"
               hideClearButton
@@ -256,7 +266,7 @@ export default function DatasetCompare() {
                   const scoreData = scoreKeyToData.get(key);
                   const title = scoreData
                     ? `${getScoreDataTypeIcon(scoreData.dataType)} ${scoreData.name} (${scoreData.source.toLowerCase()})`
-                    : (RESOURCE_METRICS.find((metric) => metric.key === key)
+                    : (resourceMetrics.find((metric) => metric.key === key)
                         ?.label ?? key);
 
                   // TODO: remove when revamping the datasets api for it to directly return ms
@@ -268,7 +278,7 @@ export default function DatasetCompare() {
                         : (v: number) =>
                             compactNumberFormatter(
                               v,
-                              RESOURCE_METRICS.find((m) => m.key === key)
+                              resourceMetrics.find((m) => m.key === key)
                                 ?.maxFractionDigits,
                             );
 
@@ -334,8 +344,8 @@ export default function DatasetCompare() {
             ) : (
               <span className="text-muted-foreground -mt-2 text-sm">
                 {Boolean(chartDataMap?.size)
-                  ? "All charts hidden. Enable them in the Charts dropdown."
-                  : "Select more than one run to generate charts."}
+                  ? t("experiments.allChartsHidden")
+                  : t("experiments.selectMoreRuns")}
               </span>
             )}
           </div>
@@ -351,14 +361,14 @@ export default function DatasetCompare() {
           <SidePanelContent className="overflow-y-auto p-1">
             <div className="w-full space-y-4">
               <div>
-                <SubHeaderLabel title="Description" />
+                <SubHeaderLabel title={t("datasets.description")} />
                 <span className="text-muted-foreground text-sm">
-                  {dataset.data?.description ?? "No description"}
+                  {dataset.data?.description ?? t("datasets.noDescription")}
                 </span>
               </div>
               {dataset.data?.metadata && (
                 <div>
-                  <SubHeaderLabel title="Metadata" />
+                  <SubHeaderLabel title={t("datasets.metadata")} />
                   <MarkdownJsonView content={dataset.data?.metadata} />
                 </div>
               )}

@@ -5,6 +5,7 @@ import * as SliderPrimitive from "@radix-ui/react-slider";
 import { Input } from "./input";
 
 import { cn } from "@/src/utils/tailwind";
+import { useI18n } from "@/src/features/i18n";
 
 export interface SliderProps extends React.ComponentPropsWithoutRef<
   typeof SliderPrimitive.Root
@@ -24,6 +25,7 @@ const Slider = React.forwardRef<
     ref,
   ) => {
     const [inputValue, setInputValue] = React.useState<string>("");
+    const { t } = useI18n();
 
     // Calculate display value based on the first slider value
     React.useEffect(() => {
@@ -137,7 +139,7 @@ const Slider = React.forwardRef<
                     : 100
                   : props.max
               }
-              aria-label="Slider value"
+              aria-label={t("common.sliderValue")}
             />
             {displayAsPercentage && (
               <span className="text-muted-foreground text-sm">%</span>

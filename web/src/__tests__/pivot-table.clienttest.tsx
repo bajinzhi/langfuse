@@ -14,13 +14,31 @@
  */
 
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
 
 import {
   PivotTable,
   type PivotTableProps,
 } from "@/src/features/widgets/chart-library/PivotTable";
 import { type DataPoint } from "@/src/features/widgets/chart-library/chart-props";
+import { I18nContext } from "@/src/features/i18n/I18nProvider";
+import { translateMessage } from "@/src/features/i18n";
+
+const i18nValue = {
+  locale: "en" as const,
+  t: translateMessage.bind(null, "en"),
+  formatDate: (
+    value: Date | number | string,
+    options?: Intl.DateTimeFormatOptions,
+  ) => new Intl.DateTimeFormat("en", options).format(new Date(value)),
+  formatNumber: (value: number, options?: Intl.NumberFormatOptions) =>
+    new Intl.NumberFormat("en", options).format(value),
+};
+
+const render = (ui: React.ReactElement) =>
+  rtlRender(
+    <I18nContext.Provider value={i18nValue}>{ui}</I18nContext.Provider>,
+  );
 
 describe("PivotTable Component", () => {
   describe("Basic Rendering", () => {
@@ -128,7 +146,7 @@ describe("PivotTable Component", () => {
         screen.getByRole("columnheader", { name: "Request Count" }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("columnheader", { name: "Avg Duration" }),
+        screen.getByRole("columnheader", { name: "Average Duration" }),
       ).toBeInTheDocument();
     });
 

@@ -9,7 +9,6 @@ import { createColumnHelper } from "@tanstack/react-table";
 import TableLink from "@/src/components/table/table-link";
 import { LocalIsoDate } from "@/src/components/LocalIsoDate";
 import { useDetailPageLists } from "@/src/features/navigate-detail-pages/context";
-import startCase from "lodash/startCase";
 import { Button } from "@/src/components/ui/button";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 import { Trash } from "lucide-react";
@@ -22,8 +21,10 @@ import {
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { useRouter } from "next/router";
-import { getChartTypeDisplayName } from "@/src/features/widgets/chart-library/utils";
+import { getChartTypeDisplayNameKey } from "@/src/features/widgets/chart-library/utils";
 import { type DashboardWidgetChartType } from "@langfuse/shared/src/db";
+import { useI18n } from "@/src/features/i18n";
+import { getQueryViewLabel } from "@/src/features/widgets/lib/queryMetadataI18n";
 
 type WidgetTableRow = {
   id: string;
@@ -44,6 +45,7 @@ export function DeleteWidget({
   owner: "PROJECT" | "LANGFUSE";
 }) {
   const projectId = useProjectIdFromURL();
+  const { t } = useI18n();
   const utils = api.useUtils();
   const [isOpen, setIsOpen] = useState(false);
   const hasAccess =
@@ -59,11 +61,11 @@ export function DeleteWidget({
     onError: (error) => {
       if (error.data?.code === "CONFLICT") {
         showErrorToast(
-          "Widget in use",
-          "Widget is still in use. Please remove it from all dashboards before deleting it.",
+          t("widgets.delete.inUseTitle"),
+          t("widgets.delete.inUseDescription"),
         );
       } else {
-        showErrorToast("Failed to delete widget", error.message);
+        showErrorToast(t("widgets.delete.failed"), error.message);
       }
     },
   });
@@ -76,12 +78,10 @@ export function DeleteWidget({
         </Button>
       </PopoverTrigger>
       <PopoverContent>
-        <h2 className="text-md mb-3 font-semibold">Please confirm</h2>
-        <p className="mb-3 text-sm">
-          This action permanently deletes this widget. If the widget is
-          currently used in any dashboard, you will need to remove it from those
-          dashboards first.
-        </p>
+        <h2 className="text-md mb-3 font-semibold">
+          {t("common.pleaseConfirm")}
+        </h2>
+        <p className="mb-3 text-sm">{t("widgets.delete.confirmDescription")}</p>
         <div className="flex justify-end space-x-4">
           <Button
             type="button"
@@ -100,7 +100,7 @@ export function DeleteWidget({
               setIsOpen(false);
             }}
           >
-            Delete Widget
+            {t("widgets.deleteWidget")}
           </Button>
         </div>
       </PopoverContent>
@@ -110,6 +110,7 @@ export function DeleteWidget({
 
 export function DashboardWidgetTable() {
   const projectId = useProjectIdFromURL();
+  const { t } = useI18n();
   const { setDetailPageList } = useDetailPageLists();
   const router = useRouter();
 
@@ -152,7 +153,7 @@ export function DashboardWidgetTable() {
   const columnHelper = createColumnHelper<WidgetTableRow>();
   const widgetColumns = [
     columnHelper.accessor("name", {
-      header: "Name",
+      header: t("widgets.name"),
       id: "name",
       enableSorting: true,
       size: 200,
@@ -167,7 +168,7 @@ export function DashboardWidgetTable() {
       },
     }),
     columnHelper.accessor("description", {
-      header: "Description",
+      header: t("widgets.description"),
       id: "description",
       size: 300,
       cell: (row) => {
@@ -175,24 +176,28 @@ export function DashboardWidgetTable() {
       },
     }),
     columnHelper.accessor("view", {
-      header: "View Type",
+      header: t("widgets.viewType"),
       id: "view",
       enableSorting: true,
       size: 100,
       cell: (row) => {
-        return startCase(row.getValue().toLowerCase());
+        return getQueryViewLabel(row.getValue().toLowerCase(), t);
       },
     }),
     columnHelper.accessor("chartType", {
-      header: "Chart Type",
+      header: t("widgets.chartType"),
       id: "chartType",
       enableSorting: true,
       size: 100,
       cell: (row) =>
-        getChartTypeDisplayName(row.getValue() as DashboardWidgetChartType),
+        t(
+          getChartTypeDisplayNameKey(
+            row.getValue() as DashboardWidgetChartType,
+          ),
+        ),
     }),
     columnHelper.accessor("createdAt", {
-      header: "Created At",
+      header: t("widgets.columns.createdAt"),
       id: "createdAt",
       enableSorting: true,
       size: 150,
@@ -202,7 +207,7 @@ export function DashboardWidgetTable() {
       },
     }),
     columnHelper.accessor("updatedAt", {
-      header: "Updated At",
+      header: t("widgets.columns.updatedAt"),
       id: "updatedAt",
       enableSorting: true,
       size: 150,
@@ -213,7 +218,7 @@ export function DashboardWidgetTable() {
     }),
     columnHelper.display({
       id: "actions",
-      header: "Actions",
+      header: t("widgets.tableHeaders.actions"),
       size: 70,
       cell: (row) => {
         const id = row.row.original.id;

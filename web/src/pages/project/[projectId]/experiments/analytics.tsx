@@ -9,8 +9,10 @@ import {
 } from "@/src/features/navigation/utils/experiment-run-tabs";
 import useSessionStorage from "@/src/components/useSessionStorage";
 import { ExperimentsBetaSwitch } from "@/src/features/experiments/components/ExperimentsBetaSwitch";
+import { useI18n } from "@/src/features/i18n";
 
 export default function ExperimentAnalytics() {
+  const { t } = useI18n();
   const router = useRouter();
   const projectId = router.query.projectId as string;
 
@@ -47,15 +49,15 @@ export default function ExperimentAnalytics() {
 
   if (!canAccessExperiments) {
     return (
-      <Page headerProps={{ title: "Analytics" }}>
-        <div className="p-4">Experiments Pages coming soon.</div>
+      <Page headerProps={{ title: t("experiments.analytics") }}>
+        <div className="p-4">{t("experiments.pagesComingSoon")}</div>
       </Page>
     );
   }
 
   if (!isExperimentsBetaActive) {
     return (
-      <Page headerProps={{ title: "Analytics" }}>
+      <Page headerProps={{ title: t("experiments.analytics") }}>
         <div className="flex h-full items-center justify-center">
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
@@ -66,13 +68,16 @@ export default function ExperimentAnalytics() {
   return (
     <Page
       headerProps={{
-        title: "Analytics",
+        title: t("experiments.analytics"),
         itemType: "EXPERIMENT",
         breadcrumb: [
-          { name: "Experiments", href: `/project/${projectId}/experiments` },
+          {
+            name: t("experiments.title"),
+            href: `/project/${projectId}/experiments`,
+          },
         ],
         tabsProps: {
-          tabs: getExperimentRunTabs(projectId, handleResultsClick),
+          tabs: getExperimentRunTabs(projectId, t, handleResultsClick),
           activeTab: EXPERIMENT_RUN_TABS.ANALYTICS,
         },
         actionButtonsLeft: betaSwitch,
@@ -85,11 +90,10 @@ export default function ExperimentAnalytics() {
           </div>
           <div className="space-y-2">
             <h3 className="text-xl font-semibold tracking-tight">
-              Analytics Coming Soon
+              {t("experiments.analyticsComingSoon")}
             </h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              We are working on adding advanced analytics capabilities for
-              experiments.
+              {t("experiments.analyticsComingSoonDescription")}
             </p>
           </div>
         </div>

@@ -1,3 +1,7 @@
+import type { MessageKey, MessageValues } from "@/src/features/i18n";
+
+type Translate = (key: MessageKey, values?: MessageValues) => string;
+
 export const DASHBOARD_TABS = {
   DASHBOARDS: "dashboards",
   WIDGETS: "widgets",
@@ -5,15 +9,15 @@ export const DASHBOARD_TABS = {
 
 export type DashboardTab = (typeof DASHBOARD_TABS)[keyof typeof DASHBOARD_TABS];
 
-export const getDashboardTabs = (projectId: string) => [
+export const getDashboardTabs = (projectId: string, t: Translate) => [
   {
     value: DASHBOARD_TABS.DASHBOARDS,
-    label: "Dashboards",
+    label: t("nav.dashboards"),
     href: `/project/${projectId}/dashboards`,
   },
   {
     value: DASHBOARD_TABS.WIDGETS,
-    label: "Widgets",
+    label: t("nav.widgets"),
     href: `/project/${projectId}/widgets`,
   },
 ];

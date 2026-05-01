@@ -8,9 +8,10 @@ import {
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import { cn } from "@/src/utils/tailwind";
+import { useI18n } from "@/src/features/i18n";
 
 export const REFRESH_INTERVALS = [
-  { label: "Off", value: null },
+  { label: null, value: null },
   { label: "30s", value: 30_000 },
   { label: "1m", value: 60_000 },
   { label: "5m", value: 300_000 },
@@ -32,7 +33,12 @@ export function DataTableRefreshButton({
   interval,
   setInterval,
 }: DataTableRefreshButtonProps) {
+  const { t } = useI18n();
   const activeInterval = REFRESH_INTERVALS.find((i) => i.value === interval);
+  const activeIntervalLabel =
+    activeInterval?.value === null
+      ? t("table.refresh.off")
+      : activeInterval?.label;
 
   return (
     <div className="flex items-center">
@@ -42,7 +48,7 @@ export function DataTableRefreshButton({
         onClick={onRefresh}
         disabled={isRefreshing}
         className="rounded-r-none border-r-0"
-        title="Refresh"
+        title={t("table.refresh.title")}
       >
         <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
       </Button>
@@ -55,7 +61,7 @@ export function DataTableRefreshButton({
           >
             <ChevronDown className="h-4 w-4" />
             <span className="ml-1 text-sm">
-              {activeInterval?.label ?? "Off"}
+              {activeIntervalLabel ?? t("table.refresh.off")}
             </span>
           </Button>
         </DropdownMenuTrigger>
@@ -73,9 +79,9 @@ export function DataTableRefreshButton({
                 key={String(option.value)}
                 value={String(option.value)}
               >
-                {option.label === "Off"
-                  ? "Auto-refresh off"
-                  : `Every ${option.label}`}
+                {option.value === null
+                  ? t("table.refresh.autoOff")
+                  : t("table.refresh.every", { interval: option.label ?? "" })}
               </DropdownMenuRadioItem>
             ))}
           </DropdownMenuRadioGroup>

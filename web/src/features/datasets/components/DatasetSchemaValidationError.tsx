@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
 import { Button } from "@/src/components/ui/button";
 import Link from "next/link";
+import { useI18n } from "@/src/features/i18n";
 
 type ValidationError = {
   datasetItemId: string;
@@ -23,6 +24,7 @@ type DatasetSchemaValidationErrorProps = {
 export const DatasetSchemaValidationError: React.FC<
   DatasetSchemaValidationErrorProps
 > = ({ projectId, datasetId, errors }) => {
+  const { t } = useI18n();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const errorCount = errors.length;
@@ -31,13 +33,16 @@ export const DatasetSchemaValidationError: React.FC<
   return (
     <Alert variant="destructive" className="mt-4">
       <AlertTitle className="text-base font-semibold">
-        Schema Validation Failed
+        {t("datasets.schemaValidationFailedTitle")}
       </AlertTitle>
       <AlertDescription className="mt-2 space-y-3">
         <p className="text-sm">
           {hasMoreThan10
-            ? `More than 10 items failed validation. Showing first 10 errors.`
-            : `${errorCount} item${errorCount === 1 ? "" : "s"} failed validation.`}
+            ? t("datasets.schemaValidationSummaryLimited")
+            : t("datasets.csvValidationSummary", {
+                count: errorCount,
+                plural: errorCount === 1 ? "" : "s",
+              })}
         </p>
 
         <Button
@@ -52,7 +57,9 @@ export const DatasetSchemaValidationError: React.FC<
           ) : (
             <ChevronRight className="mr-1 h-4 w-4" />
           )}
-          {isExpanded ? "Hide" : "Show"} error details
+          {isExpanded
+            ? t("datasets.hideErrorDetails")
+            : t("datasets.showErrorDetails")}
         </Button>
 
         {isExpanded && (
@@ -73,12 +80,14 @@ export const DatasetSchemaValidationError: React.FC<
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-sm font-medium hover:underline"
                     >
-                      Item: {error.datasetItemId}
+                      {t("datasets.itemLabel", { id: error.datasetItemId })}
                       <ExternalLink className="h-3 w-3" />
                     </Link>
                   </div>
                   <span className="bg-destructive/20 rounded px-2 py-0.5 text-xs font-medium">
-                    {error.field === "input" ? "Input" : "Expected Output"}
+                    {error.field === "input"
+                      ? t("datasets.input")
+                      : t("datasets.expectedOutputColumn")}
                   </span>
                 </div>
 
@@ -86,7 +95,7 @@ export const DatasetSchemaValidationError: React.FC<
                   {error.errors.map((err, errIdx) => (
                     <li key={errIdx} className="text-destructive">
                       <span className="text-muted-foreground font-mono text-xs">
-                        Path {err.path}
+                        {t("datasets.itemPath", { path: err.path })}
                       </span>
                       : {err.message}
                     </li>
@@ -97,8 +106,7 @@ export const DatasetSchemaValidationError: React.FC<
 
             {hasMoreThan10 && (
               <p className="text-muted-foreground pt-2 text-xs">
-                Fix these errors to see if there are additional validation
-                issues.
+                {t("datasets.fixErrorsAdditional")}
               </p>
             )}
           </div>

@@ -7,6 +7,7 @@ import {
   isExperimentTarget,
   isDatasetTarget,
 } from "@/src/features/evals/utils/typeHelpers";
+import { useI18n, type MessageKey } from "@/src/features/i18n";
 
 interface EvalVersionCalloutProps {
   targetObject: string;
@@ -22,6 +23,7 @@ interface CalloutContent {
 const getCalloutContent = (
   targetObject: string,
   evalCapabilities: EvalCapabilities,
+  t: (key: MessageKey) => string,
 ): CalloutContent => {
   const hidden = { visible: false, title: "", description: "" };
 
@@ -33,19 +35,17 @@ const getCalloutContent = (
 
     return {
       visible: true,
-      title: "Please verify your SDK version",
+      title: t("evals.versionCallout.verifySdk"),
       description: (
         <>
-          This evaluator targets observations, which require JS SDK v4+ or
-          Python SDK v3+. You can still configure this evaluator now—it will
-          start running once you upgrade.{" "}
+          {t("evals.versionCallout.observationsDescription")}{" "}
           <a
             href="https://langfuse.com/docs/observability/sdk/upgrade-path"
             target="_blank"
             rel="noopener noreferrer"
             className="text-dark-blue font-medium hover:opacity-80"
           >
-            Learn more
+            {t("evals.versionCallout.learnMore")}
           </a>
           .
         </>
@@ -58,19 +58,17 @@ const getCalloutContent = (
     if (!evalCapabilities.isNewCompatible) {
       return {
         visible: true,
-        title: "Please verify you are using the Experiment Runner SDK",
+        title: t("evals.versionCallout.verifyExperimentRunner"),
         description: (
           <>
-            The Experiment Runner SDK requires JS SDK v4.4+ or Python SDK v3.9+.
-            You can still configure this evaluator now—it will start running
-            once you upgrade.{" "}
+            {t("evals.versionCallout.experimentRunnerDescription")}{" "}
             <a
               href="https://langfuse.com/docs/evaluation/experiments/experiments-via-sdk#experiment-runner-sdk"
               target="_blank"
               rel="noopener noreferrer"
               className="text-dark-blue font-medium hover:opacity-80"
             >
-              Learn more about the Experiment Runner SDK.
+              {t("evals.versionCallout.learnExperimentRunner")}
             </a>
             .
           </>
@@ -85,20 +83,17 @@ const getCalloutContent = (
   if (isDatasetTarget(targetObject)) {
     return {
       visible: true,
-      title: "Legacy low-level SDK methods",
+      title: t("evals.versionCallout.legacyLowLevel"),
       description: (
         <>
-          This evaluator targets traces from legacy low-level SDK methods for
-          dataset runs that manually linked dataset items to traces. Consider
-          upgrading to the Experiment Runner SDK for improved performance and
-          features.{" "}
+          {t("evals.versionCallout.legacyLowLevelDescription")}{" "}
           <a
             href="https://langfuse.com/docs/evaluation/experiments/experiments-via-sdk#experiment-runner-sdk"
             target="_blank"
             rel="noopener noreferrer"
             className="text-dark-blue font-medium hover:opacity-80"
           >
-            Learn more
+            {t("evals.versionCallout.learnMore")}
           </a>
           .
         </>
@@ -110,18 +105,17 @@ const getCalloutContent = (
   if (isTraceTarget(targetObject)) {
     return {
       visible: true,
-      title: "Consider upgrading to observation evaluators",
+      title: t("evals.versionCallout.considerObservation"),
       description: (
         <>
-          Observation evaluators provide more granular control and an easier
-          workflow. We strongly recommend upgrading to observation evaluators.{" "}
+          {t("evals.versionCallout.considerObservationDescription")}{" "}
           <a
             href="https://langfuse.com/faq/all/llm-as-a-judge-migration"
             target="_blank"
             rel="noopener noreferrer"
             className="text-dark-blue font-medium hover:opacity-80"
           >
-            Learn more
+            {t("evals.versionCallout.learnMore")}
           </a>
           .
         </>
@@ -136,7 +130,8 @@ export function EvalVersionCallout({
   targetObject,
   evalCapabilities,
 }: EvalVersionCalloutProps) {
-  const content = getCalloutContent(targetObject, evalCapabilities);
+  const { t } = useI18n();
+  const content = getCalloutContent(targetObject, evalCapabilities, t);
 
   if (!content.visible) {
     return null;

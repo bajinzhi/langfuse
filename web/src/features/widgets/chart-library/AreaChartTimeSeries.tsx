@@ -13,6 +13,7 @@ import {
 } from "@/src/features/widgets/chart-library/utils";
 import { compactNumberFormatter } from "@/src/utils/numbers";
 import { cn } from "@/src/utils/tailwind";
+import { useI18n } from "@/src/features/i18n";
 
 export const AreaChartTimeSeries: React.FC<ChartProps> = ({
   data,
@@ -32,8 +33,13 @@ export const AreaChartTimeSeries: React.FC<ChartProps> = ({
   const [highlightedDimension, setHighlightedDimension] = useState<
     string | null
   >(null);
+  const { t } = useI18n();
+  const unknownLabel = t("common.unknown");
 
-  const groupedData = useMemo(() => groupDataByTimeDimension(data), [data]);
+  const groupedData = useMemo(
+    () => groupDataByTimeDimension(data, unknownLabel),
+    [data, unknownLabel],
+  );
   const dimensions = useMemo(() => getUniqueDimensions(data), [data]);
 
   const tooltipFormatter = valueFormatter ?? compactNumberFormatter;
@@ -64,7 +70,11 @@ export const AreaChartTimeSeries: React.FC<ChartProps> = ({
                   )}
                   aria-pressed={isHighlighted}
                   aria-label={
-                    isHighlighted ? `Show only ${dimension}` : "Show all series"
+                    isHighlighted
+                      ? t("widgets.chart.showOnlySeries", {
+                          dimension,
+                        })
+                      : t("widgets.chart.showAllSeries")
                   }
                 >
                   <div

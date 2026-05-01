@@ -2,6 +2,7 @@ import { api } from "@/src/utils/api";
 import { useUniqueNameValidation } from "@/src/hooks/useUniqueNameValidation";
 import { type UseFormReturn } from "react-hook-form";
 import { useMemo } from "react";
+import { useI18n } from "@/src/features/i18n";
 
 type ExperimentNameValidationProps = {
   projectId: string;
@@ -14,6 +15,7 @@ export function useExperimentNameValidation({
   datasetId,
   form,
 }: ExperimentNameValidationProps) {
+  const { t } = useI18n();
   const runNamesByDatasetId = api.datasets.baseRunDataByDatasetId.useQuery(
     { projectId, datasetId },
     { enabled: Boolean(datasetId) },
@@ -31,6 +33,6 @@ export function useExperimentNameValidation({
     currentName: form.watch("name"),
     allNames: allExperimentNames,
     form,
-    errorMessage: "Experiment name already exists for this dataset.",
+    errorMessage: t("experiments.validation.nameExists"),
   });
 }

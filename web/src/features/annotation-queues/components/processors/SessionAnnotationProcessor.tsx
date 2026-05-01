@@ -17,6 +17,7 @@ import { Card } from "@/src/components/ui/card";
 import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { api } from "@/src/utils/api";
 import { JsonSkeleton } from "@/src/components/ui/CodeJsonViewer";
+import { useI18n } from "@/src/features/i18n";
 
 interface SessionAnnotationProcessorProps {
   item: AnnotationQueueItem & {
@@ -37,6 +38,7 @@ const EMPTY_FILTER_STATE: [] = [];
 export const SessionAnnotationProcessor: React.FC<
   SessionAnnotationProcessorProps
 > = ({ item, data, configs, projectId }) => {
+  const { t } = useI18n();
   const [visibleTraces, setVisibleTraces] = useState(PAGE_SIZE);
   const { isBetaEnabled } = useV4Beta();
 
@@ -106,7 +108,9 @@ export const SessionAnnotationProcessor: React.FC<
               {item.objectId}
             </span>
             <CopyIdsPopover
-              idItems={[{ id: item.objectId, name: "Session ID" }]}
+              idItems={[
+                { id: item.objectId, name: t("annotationQueues.sessionId") },
+              ]}
             />
           </div>
         </div>
@@ -114,10 +118,14 @@ export const SessionAnnotationProcessor: React.FC<
           <div className="flex max-w-full min-w-0 shrink flex-col">
             <div className="flex max-w-full min-w-0 flex-wrap items-center gap-1">
               {data?.environment && (
-                <Badge variant="tertiary">Env: {data.environment}</Badge>
+                <Badge variant="tertiary">
+                  {t("table.filter.environmentShort")}: {data.environment}
+                </Badge>
               )}
               <Badge variant="outline">
-                Total traces: {totalTracesForBadge}
+                {t("annotationQueues.totalTraces", {
+                  count: totalTracesForBadge,
+                })}
               </Badge>
             </div>
           </div>
@@ -147,7 +155,7 @@ export const SessionAnnotationProcessor: React.FC<
           {/* Error state for v4 beta traces */}
           {isBetaEnabled && tracesFromEventsQuery.isError && (
             <div className="text-destructive p-2 text-sm">
-              Failed to load traces for this session.
+              {t("annotationQueues.failedLoadSessionTraces")}
             </div>
           )}
           {/* Trace list - v4 path uses LazyTraceEventsRow for deferred loading */}
@@ -181,7 +189,8 @@ export const SessionAnnotationProcessor: React.FC<
                     href={`/project/${projectId}/traces/${trace.id}`}
                     className="text-xs hover:underline"
                   >
-                    Trace: {trace.name} ({trace.id})&nbsp;↗
+                    {t("datasets.traceLabel", { id: trace.name })} ({trace.id})
+                    &nbsp;↗
                   </Link>
                   <div className="text-muted-foreground text-xs">
                     {trace.timestamp.toLocaleString()}
@@ -202,7 +211,9 @@ export const SessionAnnotationProcessor: React.FC<
                   onClick={() => setVisibleTraces((prev) => prev + PAGE_SIZE)}
                   variant="ghost"
                 >
-                  {`Load ${Math.min(traces.length - visibleTraces, PAGE_SIZE)} More`}
+                  {t("annotationQueues.loadMore", {
+                    count: Math.min(traces.length - visibleTraces, PAGE_SIZE),
+                  })}
                 </Button>
               </div>
             )}

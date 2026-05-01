@@ -10,6 +10,7 @@ import { type FullEventsObservations } from "@langfuse/shared/src/server";
 import { showSuccessToast } from "@/src/features/notifications/showSuccessToast";
 import { joinTableCoreAndMetrics } from "@/src/components/table/utils/joinTableCoreAndMetrics";
 import { type EventBatchIOOutput } from "@/src/features/events/server/eventsRouter";
+import { useI18n } from "@/src/features/i18n";
 
 type FullEventsObservation = FullEventsObservations[number] & {
   scores?: ScoreAggregate;
@@ -45,6 +46,7 @@ export function useEventsTableData({
   selectAll,
   setSelectedRows,
 }: UseEventsTableDataParams) {
+  const { t } = useI18n();
   // Prepare query payloads
   const getCountPayload = useMemo(
     () => ({
@@ -166,12 +168,17 @@ export function useEventsTableData({
   // Add to queue mutation
   const addToQueueMutation = api.annotationQueueItems.createMany.useMutation({
     onSuccess: (data) => {
+      const queueName = data.queueName ?? t("common.unknown");
       showSuccessToast({
-        title: "Observations added to queue",
-        description: `Selected observations will be added to queue "${data.queueName}". This may take a minute.`,
+        title: t("observability.observations.addedToQueueTitle"),
+        description: t("observability.observations.addedToQueueDescription", {
+          queueName,
+        }),
         link: {
           href: `/project/${projectId}/annotation-queues/${data.queueId}`,
-          text: `View queue "${data.queueName}"`,
+          text: t("observability.observations.viewQueue", {
+            queueName,
+          }),
         },
       });
     },

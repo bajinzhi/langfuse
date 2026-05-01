@@ -13,6 +13,7 @@ import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { V4IntroDialog } from "@/src/features/events/components/V4IntroDialog";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
+import { useI18n, type MessageKey } from "@/src/features/i18n";
 
 const CHANGELOG_URL =
   "https://langfuse.com/changelog/2026-03-10-simplify-for-scale";
@@ -20,16 +21,17 @@ const DISMISSED_STORAGE_KEY = "v4-beta-promo-banner:v1:dismissed";
 const V4_BETA_PROMO_BANNER_ID = "v4-beta-promo-banner";
 const V4_BETA_PROMO_BANNER_ORDER = 25;
 
-const PAGE_MESSAGES: Record<string, string> = {
-  "/project/[projectId]": "Faster dashboards available.",
-  "/project/[projectId]/dashboards": "Faster dashboards available.",
+const PAGE_MESSAGE_KEYS: Record<string, MessageKey> = {
+  "/project/[projectId]": "events.v4.promo.dashboardsAvailable",
+  "/project/[projectId]/dashboards": "events.v4.promo.dashboardsAvailable",
   "/project/[projectId]/dashboards/[dashboardId]":
-    "Faster dashboards available.",
-  "/project/[projectId]/traces": "Faster trace UI available.",
-  "/project/[projectId]/traces/[traceId]": "Faster trace UI available.",
+    "events.v4.promo.dashboardsAvailable",
+  "/project/[projectId]/traces": "events.v4.promo.tracesAvailable",
+  "/project/[projectId]/traces/[traceId]": "events.v4.promo.tracesAvailable",
 };
 
 export function V4PromoBanner() {
+  const { t } = useI18n();
   const router = useRouter();
   const session = useSession();
   const {
@@ -54,7 +56,8 @@ export function V4PromoBanner() {
 
   // Match the v4BetaToggleVisible logic from navigationFilters.ts.
   const isToggleVisible = canToggleV4 && isLangfuseCloud;
-  const pageMessage = PAGE_MESSAGES[router.pathname];
+  const pageMessageKey = PAGE_MESSAGE_KEYS[router.pathname];
+  const pageMessage = pageMessageKey ? t(pageMessageKey) : undefined;
 
   const isVisible =
     isAuthenticated &&
@@ -94,13 +97,17 @@ export function V4PromoBanner() {
         <ZapIcon className="h-4 w-4 shrink-0" />
         <p
           className="flex flex-1 gap-1 overflow-hidden text-sm"
-          title={`${pageMessage} Enable the Fast (Preview) toggle for a more performant experience.`}
+          title={
+            pageMessage
+              ? t("events.v4.promo.title", { pageMessage })
+              : undefined
+          }
         >
           <span className="truncate">
             <span className="hidden font-semibold md:inline">
               {pageMessage}
             </span>{" "}
-            Enable the{" "}
+            {t("events.v4.promo.enableThe")}{" "}
             <button
               className="inline cursor-pointer font-semibold underline underline-offset-2"
               onClick={() => {
@@ -112,9 +119,9 @@ export function V4PromoBanner() {
               }}
               disabled={isLoading}
             >
-              Fast (Preview)
+              {t("events.v4.fastPreview")}
             </button>{" "}
-            toggle for a more performant experience.{" "}
+            {t("events.v4.promo.toggleSuffix")}{" "}
           </span>
 
           <Link
@@ -122,7 +129,7 @@ export function V4PromoBanner() {
             target="_blank"
             className="flex flex-row items-center gap-1 whitespace-nowrap underline underline-offset-2"
           >
-            Learn more
+            {t("events.v4.learnMore")}
             <ExternalLink className="h-3 w-3 shrink-0" />
           </Link>
         </p>
@@ -131,8 +138,8 @@ export function V4PromoBanner() {
           size="sm"
           className="h-6 w-6 shrink-0 p-0"
           onClick={() => setIsDismissed(true)}
-          aria-label="Dismiss banner"
-          title="Dismiss"
+          aria-label={t("events.v4.dismissBanner")}
+          title={t("events.v4.dismiss")}
         >
           <X className="h-4 w-4 shrink-0" />
         </Button>

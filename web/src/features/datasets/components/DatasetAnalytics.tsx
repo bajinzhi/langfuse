@@ -1,5 +1,6 @@
 import { DropdownMenuItem } from "@/src/components/ui/dropdown-menu";
-import { RESOURCE_METRICS } from "@/src/features/dashboard/lib/score-analytics-utils";
+import { getResourceMetrics } from "@/src/features/dashboard/lib/score-analytics-utils";
+import { useI18n } from "@/src/features/i18n";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { MultiSelectKeyValues } from "@/src/features/scores/components/multi-select-key-values";
 
@@ -9,11 +10,12 @@ export function DatasetAnalytics(props: {
   setSelectedMetrics: (metrics: string[]) => void;
 }) {
   const capture = usePostHogClientCapture();
+  const { t } = useI18n();
   return (
     <MultiSelectKeyValues
       className="max-w-fit focus:ring-0! focus:ring-offset-0!"
-      placeholder="Search..."
-      title="Charts"
+      placeholder={t("datasets.search")}
+      title={t("datasets.charts")}
       variant="outline"
       hideClearButton
       showSelectedValueStrings={false}
@@ -33,15 +35,17 @@ export function DatasetAnalytics(props: {
         }
       }}
       values={props.selectedMetrics}
-      options={RESOURCE_METRICS}
-      groupedOptions={[{ label: "Scores", options: props.scoreOptions }]}
+      options={getResourceMetrics(t)}
+      groupedOptions={[
+        { label: t("datasets.scores"), options: props.scoreOptions },
+      ]}
       controlButtons={
         <DropdownMenuItem
           onSelect={() => {
             props.setSelectedMetrics([]);
           }}
         >
-          Hide all charts
+          {t("datasets.hideAllCharts")}
         </DropdownMenuItem>
       }
     />

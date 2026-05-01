@@ -65,6 +65,7 @@ import {
 } from "@/src/components/ui/input-command";
 import { useQueryProject } from "@/src/features/projects/hooks";
 import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
+import { useI18n } from "@/src/features/i18n";
 
 /**
  * Extended ColumnDefinition with optional alert for UI display.
@@ -98,6 +99,7 @@ export function PopoverFilterBuilder({
   filterWithAI?: boolean;
   buttonType?: "default" | "icon";
 }) {
+  const { t } = useI18n();
   const capture = usePostHogClientCapture();
   const [wipFilterState, _setWipFilterState] =
     useState<WipFilterState>(filterState);
@@ -173,7 +175,7 @@ export function PopoverFilterBuilder({
         <PopoverTrigger asChild>
           {buttonType === "default" ? (
             <Button variant="outline" type="button">
-              <span>Filters</span>
+              <span>{t("common.filters")}</span>
               {filterState.length > 0 && filterState.length < 3 ? (
                 <InlineFilterState
                   filterState={filterState}
@@ -241,7 +243,9 @@ export function PopoverFilterBuilder({
                 <X className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Clear all filters</TooltipContent>
+            <TooltipContent>
+              {t("table.filters.clearAllTooltip")}
+            </TooltipContent>
           </Tooltip>
         ) : (
           <Tooltip>
@@ -256,7 +260,9 @@ export function PopoverFilterBuilder({
                 <X className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Clear all filters</TooltipContent>
+            <TooltipContent>
+              {t("table.filters.clearAllTooltip")}
+            </TooltipContent>
           </Tooltip>
         )
       ) : null}
@@ -271,6 +277,8 @@ export function InlineFilterState({
   filterState: FilterState;
   className?: string;
 }) {
+  const { t } = useI18n();
+
   return filterState.map((filter, i) => {
     return (
       <span
@@ -291,7 +299,7 @@ export function InlineFilterState({
             ? new Date(filter.value).toLocaleString()
             : filter.type === "stringOptions" || filter.type === "arrayOptions"
               ? filter.value.length > 2
-                ? `${filter.value.length} selected`
+                ? t("table.filters.selected", { count: filter.value.length })
                 : filter.value.join(", ")
               : filter.type === "number" || filter.type === "numberObject"
                 ? filter.value
@@ -425,6 +433,7 @@ function FilterBuilderForm({
   filterWithAI?: boolean;
 }) {
   const { isLangfuseCloud } = useLangfuseCloudRegion();
+  const { t } = useI18n();
   const [showAiFilter, setShowAiFilter] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiError, setAiError] = useState<string | null>(null);
@@ -473,7 +482,7 @@ function FilterBuilderForm({
 
         if (result && Array.isArray(result.filters)) {
           if (result.filters.length === 0) {
-            setAiError("Failed to generate filters, try again");
+            setAiError(t("table.filters.failedGenerateTryAgain"));
             return;
           }
 
@@ -483,12 +492,14 @@ function FilterBuilderForm({
           setShowAiFilter(false);
         } else {
           console.error(result);
-          setAiError("Invalid response format from API");
+          setAiError(t("table.filters.invalidAIResponse"));
         }
       } catch (error) {
         console.error("Error calling tRPC API:", error);
         setAiError(
-          error instanceof Error ? error.message : "Failed to generate filters",
+          error instanceof Error
+            ? error.message
+            : t("table.filters.failedGenerate"),
         );
       }
     }
@@ -516,7 +527,7 @@ function FilterBuilderForm({
             disabled={false}
             title={
               !organization?.aiFeaturesEnabled
-                ? "AI features are disabled for your organization. Click to enable them in organization settings."
+                ? t("table.filters.aiDisabled")
                 : undefined
             }
             className="text-muted-foreground w-full justify-start"
@@ -524,13 +535,13 @@ function FilterBuilderForm({
             <WandSparkles className="mr-2 h-4 w-4" />
             {!organization?.aiFeaturesEnabled ? (
               <>
-                AI Filters: Enable in Organization Settings (Admin Only)
+                {t("table.filters.aiDisabledButton")}
                 <ExternalLink className="ml-2 h-4 w-4" />
               </>
             ) : showAiFilter ? (
-              "Cancel"
+              t("common.cancel")
             ) : (
-              "Create Filter with AI"
+              t("table.filters.createWithAI")
             )}
           </Button>
           {showAiFilter && (
@@ -541,7 +552,7 @@ function FilterBuilderForm({
                   setAiPrompt(e.target.value);
                   if (aiError) setAiError(null); // Clear error when user starts typing
                 }}
-                placeholder="Describe the filters you want to apply..."
+                placeholder={t("table.filters.aiPromptPlaceholder")}
                 className="min-h-[80px] min-w-112 resize-none"
                 disabled={createFilterMutation.isPending}
                 onKeyDown={(e) => {
@@ -563,18 +574,15 @@ function FilterBuilderForm({
                   disabled={createFilterMutation.isPending || !aiPrompt.trim()}
                 >
                   {createFilterMutation.isPending
-                    ? "Loading..."
-                    : "Generate filters"}
+                    ? t("table.filters.loading")
+                    : t("table.filters.generate")}
                 </Button>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="text-muted-foreground h-4 w-4" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="text-xs">
-                      We convert natural language into deterministic filters
-                      which you can adjust afterwards
-                    </p>
+                    <p className="text-xs">{t("table.filters.aiInfo")}</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -603,7 +611,11 @@ function FilterBuilderForm({
                 );
                 return (
                   <tr key={i}>
-                    <td className="p-1 text-sm">{i === 0 ? "Where" : "And"}</td>
+                    <td className="p-1 text-sm">
+                      {i === 0
+                        ? t("table.filters.where")
+                        : t("table.filters.and")}
+                    </td>
                     <td className="flex gap-2 p-1">
                       {/* selector of the column to be filtered */}
                       <Popover>
@@ -616,7 +628,9 @@ function FilterBuilderForm({
                             className="flex w-full min-w-32 items-center justify-between gap-2"
                           >
                             <span className="truncate">
-                              {column ? column.name : "Column"}
+                              {column
+                                ? column.name
+                                : t("table.filters.selectColumn")}
                             </span>
                             <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -632,12 +646,12 @@ function FilterBuilderForm({
                         >
                           <InputCommand>
                             <InputCommandInput
-                              placeholder="Search for column"
+                              placeholder={t("table.filters.searchColumn")}
                               variant="bottom"
                             />
                             <InputCommandList>
                               <InputCommandEmpty>
-                                No options found.
+                                {t("table.filters.noOptions")}
                               </InputCommandEmpty>
                               <InputCommandGroup>
                                 {columns.map((option) => {
@@ -748,7 +762,7 @@ function FilterBuilderForm({
                           // Case 2: object without keyOptions - text input
                           <Input
                             value={filter.key ?? ""}
-                            placeholder="key"
+                            placeholder={t("table.filters.key")}
                             disabled={disabled}
                             onChange={(e) =>
                               handleFilterChange(
@@ -807,13 +821,17 @@ function FilterBuilderForm({
                             <SelectValue placeholder="" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="first">1st</SelectItem>
-                            <SelectItem value="last">last</SelectItem>
+                            <SelectItem value="first">
+                              {t("table.filters.first")}
+                            </SelectItem>
+                            <SelectItem value="last">
+                              {t("table.filters.last")}
+                            </SelectItem>
                             <SelectItem value="nthFromStart">
-                              nth from start
+                              {t("table.filters.nthFromStart")}
                             </SelectItem>
                             <SelectItem value="nthFromEnd">
-                              nth from end
+                              {t("table.filters.nthFromEnd")}
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -860,7 +878,7 @@ function FilterBuilderForm({
                         <Input
                           disabled={disabled}
                           value={filter.value ?? ""}
-                          placeholder="string"
+                          placeholder={t("table.filters.string")}
                           onChange={(e) =>
                             handleFilterChange(
                               { ...filter, value: e.target.value },
@@ -880,7 +898,7 @@ function FilterBuilderForm({
                           min={
                             column?.type === "number" ? column.min : undefined
                           }
-                          placeholder="number"
+                          placeholder={t("table.filters.number")}
                           lang="en-US"
                           onChange={(e) =>
                             handleFilterChange(
@@ -915,7 +933,7 @@ function FilterBuilderForm({
                       ) : filter.type === "stringOptions" ||
                         filter.type === "arrayOptions" ? (
                         <MultiSelect
-                          title="Value"
+                          title={t("table.filters.value")}
                           className="min-w-[100px]"
                           options={
                             column?.type === filter.type ? column.options : []
@@ -935,7 +953,7 @@ function FilterBuilderForm({
                       ) : filter.type === "categoryOptions" &&
                         column?.type === "categoryOptions" ? (
                         <MultiSelect
-                          title="Value"
+                          title={t("table.filters.value")}
                           className="min-w-[100px]"
                           options={
                             column?.options
@@ -1033,7 +1051,7 @@ function FilterBuilderForm({
               size="sm"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Add filter
+              {t("table.filters.add")}
             </Button>
           ) : null}
         </>

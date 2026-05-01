@@ -11,11 +11,13 @@ import {
   EVALS_TABS,
 } from "@/src/features/navigation/utils/evals-tabs";
 import { ManageDefaultEvalModel } from "@/src/features/evals/components/manage-default-eval-model";
+import { useI18n } from "@/src/features/i18n";
 
 export default function TemplatesPage() {
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const capture = usePostHogClientCapture();
+  const { t } = useI18n();
   const hasWriteAccess = useHasProjectAccess({
     projectId,
     scope: "evalTemplate:CUD",
@@ -33,13 +35,13 @@ export default function TemplatesPage() {
   return (
     <Page
       headerProps={{
-        title: "LLM-as-a-Judge Evaluators",
+        title: t("evals.page.title"),
         help: {
-          description: "View all langfuse managed and custom evaluators.",
+          description: t("evals.page.libraryHelp"),
           href: "https://langfuse.com/docs/evaluation/evaluation-methods/llm-as-a-judge",
         },
         tabsProps: {
-          tabs: getEvalsTabs(projectId),
+          tabs: getEvalsTabs(projectId, t),
           activeTab: EVALS_TABS.TEMPLATES,
         },
         actionButtonsRight: (
@@ -63,7 +65,7 @@ export default function TemplatesPage() {
                 ) : (
                   <Lock className="mr-2 h-4 w-4" />
                 )}
-                Custom Evaluator
+                {t("evals.page.customEvaluator")}
               </Link>
             </Button>
           </>

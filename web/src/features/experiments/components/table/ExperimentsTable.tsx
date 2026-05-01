@@ -53,6 +53,7 @@ import { type ExperimentsTableRow, type ExperimentsTableProps } from "./types";
 import { useExperimentFilterOptions } from "../../hooks/useExperimentFilterOptions";
 import { RunEvaluationDialog } from "@/src/features/batch-actions/components/RunEvaluationDialog";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
+import { useI18n } from "@/src/features/i18n";
 
 export default function ExperimentsTable({
   projectId,
@@ -60,6 +61,7 @@ export default function ExperimentsTable({
   fixedFilter = [],
   sessionFilterContextId,
 }: ExperimentsTableProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const filterConfig = useMemo(
     () =>
@@ -202,6 +204,7 @@ export default function ExperimentsTable({
           })
         : [],
     prefix: "Trace",
+    headerPrefix: t("experiments.columns.trace"),
     isFilterDataPending: experiments.status === "loading",
     defaultHidden: true,
   });
@@ -239,6 +242,7 @@ export default function ExperimentsTable({
         : [],
     rawKey: true,
     prefix: "Experiment",
+    headerPrefix: t("experiments.columns.experiment"),
     isFilterDataPending: experiments.status === "loading",
   });
 
@@ -393,7 +397,7 @@ export default function ExperimentsTable({
       size: 100,
       enableHiding: true,
       headerTooltip: {
-        description: "Average duration of the root span per experiment item.",
+        description: t("experiments.columns.latencyTooltip"),
       },
       cell: ({ row }) => {
         const value: number | undefined = row.getValue("latencyAvg");
@@ -415,7 +419,7 @@ export default function ExperimentsTable({
     },
     {
       accessorKey: "traceItemScores",
-      header: "Trace Item Scores",
+      header: t("experiments.columns.traceItemScores"),
       id: "traceItemScores",
       enableHiding: true,
       defaultHidden: true,
@@ -428,7 +432,7 @@ export default function ExperimentsTable({
     },
     {
       accessorKey: "observationItemScores",
-      header: "Observation Item Scores",
+      header: t("experiments.columns.observationItemScores"),
       id: "observationItemScores",
       enableHiding: true,
       defaultHidden: true,
@@ -441,7 +445,7 @@ export default function ExperimentsTable({
     },
     {
       accessorKey: "experimentScores",
-      header: "Experiment-Level Scores",
+      header: t("experiments.columns.experimentLevelScores"),
       id: "experimentScores",
       enableHiding: true,
       defaultHidden: true,
@@ -560,13 +564,13 @@ export default function ExperimentsTable({
     actions.push({
       id: ActionId.ExperimentCompare,
       type: BatchActionType.Create,
-      label: "Compare",
-      description: "Compare selected experiments",
+      label: t("experiments.actions.compare"),
+      description: t("experiments.actions.compareDescription"),
       icon: <GitCompareArrows className="h-4 w-4 sm:mr-2" />,
       customDialog: true,
       disabled: tooManySelected,
       disabledReason: tooManySelected
-        ? "Select only up to 5 experiments to compare"
+        ? t("experiments.actions.compareLimit")
         : undefined,
       accessCheck: {
         scope: "project:read",
@@ -578,8 +582,8 @@ export default function ExperimentsTable({
       actions.push({
         id: ActionId.ObservationBatchEvaluation,
         type: BatchActionType.Create,
-        label: "Run Evaluator",
-        description: "Run evaluators on selected experiments",
+        label: t("experiments.actions.runEvaluator"),
+        description: t("experiments.actions.runEvaluatorDescription"),
         icon: <LightbulbIcon className="h-4 w-4 sm:mr-2" />,
         customDialog: true,
         accessCheck: {
@@ -589,7 +593,7 @@ export default function ExperimentsTable({
     }
 
     return actions;
-  }, [selectedExperimentIds.length, hasEvalAccess]);
+  }, [selectedExperimentIds.length, hasEvalAccess, t]);
 
   const shouldShowActions =
     selectedExperimentIds.length > 0 && tableActions.length > 0;

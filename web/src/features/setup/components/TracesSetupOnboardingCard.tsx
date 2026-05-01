@@ -12,9 +12,8 @@ import { Check, Copy, LockIcon, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useI18n } from "@/src/features/i18n";
 
-const SKILLS_INSTALL_COMMAND =
-  "Install the Langfuse AI skill from github.com/langfuse/skills and use it to add tracing to this application with Langfuse following best practices.";
 const MANUAL_TRACING_DOCS_URL =
   "https://langfuse.com/docs/observability/get-started";
 
@@ -25,6 +24,7 @@ function CopyableSnippet({
   value: string;
   onCopy?: () => void;
 }) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -34,7 +34,7 @@ function CopyableSnippet({
       setCopied(true);
       setTimeout(() => setCopied(false), 1000);
     } catch {
-      toast.error("Failed to copy to clipboard");
+      toast.error(t("common.failedToCopy"));
     }
   };
 
@@ -50,7 +50,7 @@ function CopyableSnippet({
         onClick={() => void handleCopy()}
       >
         {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-        {copied ? "Copied" : "Copy prompt"}
+        {copied ? t("common.copied") : t("common.copyPrompt")}
       </Button>
     </div>
   );
@@ -61,6 +61,7 @@ export function TracesSetupOnboardingCard({
 }: {
   projectId: string;
 }) {
+  const { t } = useI18n();
   const capture = usePostHogClientCapture();
   const hasApiKeyCreateAccess = useHasProjectAccess({
     projectId,
@@ -82,22 +83,23 @@ export function TracesSetupOnboardingCard({
       await mutCreateApiKey.mutateAsync({ projectId });
     } catch (error) {
       console.error("Error creating API key:", error);
-      toast.error("Failed to create API key");
+      toast.error(t("observability.traces.onboarding.createApiKeyFailed"));
     }
   };
 
   return (
     <SplashScreen
-      waitingFor="Waiting for first trace"
-      title="Time to log your first trace, it only takes a minute"
-      description="Get your API keys first, then ask your coding agent to add observability with Langfuse to your application."
+      waitingFor={t("observability.traces.onboarding.waiting")}
+      title={t("observability.traces.onboarding.title")}
+      description={t("observability.traces.onboarding.description")}
       videoSrc="https://static.langfuse.com/prod-assets/onboarding/traces-overview-v1.mp4"
       videoPosition="bottom"
       steps={[
         {
-          title: "Create API keys",
-          description:
-            "Your application needs API keys to send traces to Langfuse.",
+          title: t("observability.traces.onboarding.stepApiKeys.title"),
+          description: t(
+            "observability.traces.onboarding.stepApiKeys.description",
+          ),
           content: apiKeys ? (
             <ApiKeyRender
               generatedKeys={apiKeys}
@@ -112,7 +114,7 @@ export function TracesSetupOnboardingCard({
                   loading={mutCreateApiKey.isPending}
                   className="self-start"
                 >
-                  Create new API key
+                  {t("observability.traces.onboarding.createApiKey")}
                 </Button>
               ) : (
                 <Button disabled className="self-start">
@@ -120,32 +122,33 @@ export function TracesSetupOnboardingCard({
                     className="mr-2 -ml-0.5 h-4 w-4"
                     aria-hidden="true"
                   />
-                  Create new API key
+                  {t("observability.traces.onboarding.createApiKey")}
                 </Button>
               )}
               <ActionButton
                 href={`/project/${projectId}/settings/api-keys`}
                 variant="secondary"
               >
-                Manage API keys
+                {t("observability.traces.onboarding.manageApiKeys")}
               </ActionButton>
             </div>
           ),
         },
         {
-          title: "Add tracing with your coding agent",
+          title: t("observability.traces.onboarding.stepAgent.title"),
           badge: (
             <Badge variant="tertiary" className="gap-1">
               <Sparkles className="h-3 w-3" />
-              Recommended
+              {t("observability.traces.onboarding.recommended")}
             </Badge>
           ),
-          description:
-            "Paste this prompt into Claude, Cursor, Copilot, or another coding agent.",
+          description: t(
+            "observability.traces.onboarding.stepAgent.description",
+          ),
           content: (
             <>
               <CopyableSnippet
-                value={SKILLS_INSTALL_COMMAND}
+                value={t("observability.traces.onboarding.agentPrompt")}
                 onCopy={() =>
                   capture("onboarding:tracing_agent_prompt_copy_clicked", {
                     projectId,
@@ -165,16 +168,15 @@ export function TracesSetupOnboardingCard({
                     })
                   }
                 >
-                  or follow our docs to set up tracing manually
+                  {t("observability.traces.onboarding.docsLink")}
                 </Link>
               </div>
             </>
           ),
         },
         {
-          title: "Run your app — traces will appear here",
-          description:
-            "Once your app makes an LLM call, traces show up within seconds.",
+          title: t("observability.traces.onboarding.stepRun.title"),
+          description: t("observability.traces.onboarding.stepRun.description"),
         },
       ]}
     />

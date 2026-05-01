@@ -14,6 +14,7 @@ import {
   MessageSearchToolbar,
 } from "@/src/components/ChatMessages/MessageSearch";
 import useProjectIdFromURL from "@/src/hooks/useProjectIdFromURL";
+import { useI18n } from "@/src/features/i18n";
 
 /**
  * PlaygroundPage Component
@@ -37,6 +38,7 @@ import useProjectIdFromURL from "@/src/hooks/useProjectIdFromURL";
  * - Clean single-header design
  */
 export default function PlaygroundPage() {
+  const { t } = useI18n();
   const [isMac, setIsMac] = useState(false);
 
   useEffect(() => {
@@ -95,8 +97,10 @@ export default function PlaygroundPage() {
 
   const getMessageSearchPageLabel = useCallback(
     (_pageId: string, pageIndex: number) =>
-      windowIds.length > 1 ? `Window ${pageIndex + 1}` : null,
-    [windowIds.length],
+      windowIds.length > 1
+        ? t("playground.windowLabel", { number: pageIndex + 1 })
+        : null,
+    [t, windowIds.length],
   );
 
   // Don't render until window IDs are loaded
@@ -105,10 +109,9 @@ export default function PlaygroundPage() {
       <Page
         withPadding={false}
         headerProps={{
-          title: "Playground",
+          title: t("playground.title"),
           help: {
-            description:
-              "A sandbox to test and iterate your prompts across multiple windows",
+            description: t("playground.help"),
             href: "https://langfuse.com/docs/prompt-management/features/playground",
           },
         }}
@@ -123,7 +126,10 @@ export default function PlaygroundPage() {
   // Execution status and control states
   const executionStatus = globalIsExecutingAll
     ? getExecutionStatus() ||
-      `Executing ${windowIds.length} window${windowIds.length === 1 ? "" : "s"}`
+      t("playground.executingWindowCount", {
+        count: windowIds.length,
+        plural: windowIds.length === 1 ? "" : "s",
+      })
     : getExecutionStatus();
   const isRunAllDisabled = globalIsExecutingAll || !hasAnyModelConfigured;
 
@@ -141,10 +147,9 @@ export default function PlaygroundPage() {
         scrollable={false}
         withPadding={false}
         headerProps={{
-          title: "Playground",
+          title: t("playground.title"),
           help: {
-            description:
-              "A sandbox to test and iterate your prompts across multiple windows",
+            description: t("playground.help"),
             href: "https://langfuse.com/docs/prompt-management/features/playground",
           },
           actionButtonsRight: (
@@ -154,8 +159,10 @@ export default function PlaygroundPage() {
               {/* Window Count Display - Hidden on mobile */}
               <div className="text-muted-foreground hidden items-center gap-2 text-sm md:flex">
                 <span className="whitespace-nowrap">
-                  {windowIds.length} window
-                  {windowIds.length === 1 ? "" : "s"}
+                  {t("playground.windowCount", {
+                    count: windowIds.length,
+                    plural: windowIds.length === 1 ? "" : "s",
+                  })}
                 </span>
                 {executionStatus && (
                   <>
@@ -178,8 +185,8 @@ export default function PlaygroundPage() {
                 className="hidden shrink-0 gap-1 md:flex"
                 title={
                   !hasAnyModelConfigured
-                    ? "Please configure a model in Project Settings first"
-                    : "Execute all playground windows simultaneously"
+                    ? t("playground.configureModelFirst")
+                    : t("playground.executeAllTooltip")
                 }
               >
                 {globalIsExecutingAll ? (
@@ -188,7 +195,7 @@ export default function PlaygroundPage() {
                   <Play className="h-3 w-3" />
                 )}
                 <span className="hidden items-center gap-1 lg:inline-flex">
-                  <span>Run All</span>
+                  <span>{t("playground.runAll")}</span>
                   <kbd className="bg-muted text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none">
                     {isMac ? (
                       <span className="text-xs">⌘</span>

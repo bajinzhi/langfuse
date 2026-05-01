@@ -13,6 +13,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/src/components/ui/hover-card";
+import { useI18n } from "@/src/features/i18n";
 
 export interface ScoreAnalyticsHeaderProps {
   scoreOptions: ScoreOption[];
@@ -43,6 +44,7 @@ export function ScoreAnalyticsHeader({
   onTimeRangeChange,
   compatibleScore2DataTypes,
 }: ScoreAnalyticsHeaderProps) {
+  const { t } = useI18n();
   const urlStateHook = useAnalyticsUrlState();
   const { state: urlState, setScore2, setObjectType } = urlStateHook;
 
@@ -67,14 +69,14 @@ export function ScoreAnalyticsHeader({
           value={urlState.score1}
           onChange={setScore1}
           options={scoreOptions}
-          placeholder="First score"
+          placeholder={t("scoreAnalytics.firstScore")}
           className="h-8 w-[200px]"
         />
         <ScoreCombobox
           value={urlState.score2}
           onChange={setScore2}
           options={scoreOptions}
-          placeholder="Second score"
+          placeholder={t("scoreAnalytics.secondScore")}
           filterByDataType={compatibleScore2DataTypes}
           disabled={!urlState.score1}
           className="h-8 w-[200px]"
@@ -82,15 +84,16 @@ export function ScoreAnalyticsHeader({
         <HoverCard>
           <HoverCardTrigger asChild>
             <Badge variant="warning" className="cursor-help">
-              Beta Feature
+              {t("scoreAnalytics.betaFeature")}
             </Badge>
           </HoverCardTrigger>
           <HoverCardContent className="w-80">
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold">Beta Feature</h4>
+              <h4 className="text-sm font-semibold">
+                {t("scoreAnalytics.betaFeature")}
+              </h4>
               <p className="text-muted-foreground text-sm">
-                Score analytics is currently in beta. We&apos;re actively
-                improving this feature and would love to hear your feedback.
+                {t("scoreAnalytics.betaFeatureDescription")}
               </p>
               <a
                 href="https://langfuse.com/discussions"
@@ -98,7 +101,7 @@ export function ScoreAnalyticsHeader({
                 rel="noopener noreferrer"
                 className="text-primary inline-flex items-center gap-1 text-sm font-medium hover:underline"
               >
-                Share feedback on GitHub Discussions
+                {t("scoreAnalytics.shareFeedback")}
                 <ExternalLink className="h-3 w-3" />
               </a>
             </div>

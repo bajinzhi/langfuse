@@ -24,6 +24,7 @@ import { MultiStepExperimentForm } from "@/src/features/experiments/components/M
 import { RemoteExperimentUpsertForm } from "@/src/features/experiments/components/RemoteExperimentUpsertForm";
 import { RemoteExperimentTriggerModal } from "@/src/features/experiments/components/RemoteExperimentTriggerModal";
 import { Skeleton } from "@/src/components/ui/skeleton";
+import { useI18n } from "@/src/features/i18n";
 
 export const CreateExperimentsForm = ({
   projectId,
@@ -56,6 +57,7 @@ export const CreateExperimentsForm = ({
   showSDKRunInfoPage?: boolean;
 }) => {
   const capture = usePostHogClientCapture();
+  const { t } = useI18n();
   const [showPromptForm, setShowPromptForm] = useState(false);
   const [showRemoteExperimentUpsertForm, setShowRemoteExperimentUpsertForm] =
     useState(false);
@@ -97,16 +99,15 @@ export const CreateExperimentsForm = ({
     return (
       <>
         <DialogHeader>
-          <DialogTitle>Run Experiment</DialogTitle>
+          <DialogTitle>{t("experiments.run.title")}</DialogTitle>
           <DialogDescription>
-            Experiments allow you to test iterations of your application or
-            prompt on a dataset. Learn more about experiments{" "}
+            {t("experiments.entry.descriptionBeforeLink")}{" "}
             <Link
               href="https://langfuse.com/docs/evaluation/dataset-runs/datasets"
               target="_blank"
               className="underline"
             >
-              here
+              {t("common.here")}
             </Link>
             .
           </DialogDescription>
@@ -117,17 +118,17 @@ export const CreateExperimentsForm = ({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Wand2 className="size-4" />
-                  via User Interface
+                  {t("experiments.entry.viaUi")}
                 </CardTitle>
                 <CardDescription>
-                  Test single prompts and model configurations via Langfuse UI.
+                  {t("experiments.entry.uiDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="text-muted-foreground list-disc space-y-2 pl-4 text-sm">
-                  <li>Compare prompt versions</li>
-                  <li>Compare model configurations</li>
-                  <li>No code required</li>
+                  <li>{t("experiments.entry.uiComparePrompts")}</li>
+                  <li>{t("experiments.entry.uiCompareModels")}</li>
+                  <li>{t("experiments.entry.uiNoCode")}</li>
                 </ul>
               </CardContent>
               <CardFooter className="mt-auto flex flex-row gap-2">
@@ -135,7 +136,7 @@ export const CreateExperimentsForm = ({
                   className="w-full"
                   onClick={() => setShowPromptForm(true)}
                 >
-                  Configure
+                  {t("experiments.evaluators.configure")}
                 </Button>
                 <Button
                   variant="outline"
@@ -146,7 +147,7 @@ export const CreateExperimentsForm = ({
                   }
                 >
                   <Link href="https://langfuse.com/docs/evaluation/dataset-runs/native-run">
-                    View Docs
+                    {t("experiments.entry.viewDocs")}
                   </Link>
                 </Button>
               </CardFooter>
@@ -156,18 +157,17 @@ export const CreateExperimentsForm = ({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Code2 className="size-4" />
-                  via SDK / API
+                  {t("experiments.entry.viaSdkApi")}
                 </CardTitle>
                 <CardDescription>
-                  Start any dataset run via the Langfuse SDKs. To configure runs
-                  via webhook, use the button below.
+                  {t("experiments.entry.sdkDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="text-muted-foreground list-disc space-y-2 pl-4 text-sm">
-                  <li>Full control over dataset run execution</li>
-                  <li>Custom evaluation logic</li>
-                  <li>Integration with your codebase</li>
+                  <li>{t("experiments.entry.sdkFullControl")}</li>
+                  <li>{t("experiments.entry.sdkCustomEvaluation")}</li>
+                  <li>{t("experiments.entry.sdkIntegration")}</li>
                 </ul>
               </CardContent>
               <CardFooter className="mt-auto flex flex-row gap-2">
@@ -178,16 +178,16 @@ export const CreateExperimentsForm = ({
                       disabled={existingRemoteExperiment.data.enabled === false}
                       title={
                         existingRemoteExperiment.data.enabled === false
-                          ? "Enable in settings to run"
+                          ? t("experiments.entry.enableInSettings")
                           : undefined
                       }
                       onClick={() => setShowRemoteExperimentTriggerModal(true)}
                     >
-                      Run
+                      {t("experiments.entry.run")}
                     </Button>
                     <Button
                       className="rounded-l-none rounded-r-md border-l-2 px-2"
-                      title="Edit remote trigger settings"
+                      title={t("experiments.entry.editRemoteTrigger")}
                       onClick={() => setShowRemoteExperimentUpsertForm(true)}
                     >
                       <span className="relative mr-1 text-xs">
@@ -208,13 +208,13 @@ export const CreateExperimentsForm = ({
                     href="https://langfuse.com/docs/evaluation/dataset-runs/remote-run"
                     target="_blank"
                   >
-                    View Docs
+                    {t("experiments.entry.viewDocs")}
                   </Link>
                 </Button>
                 {!existingRemoteExperiment.data && (
                   <Button
                     variant="outline"
-                    title="Set up remote dataset run in UI trigger"
+                    title={t("experiments.entry.setupRemoteTrigger")}
                     className="h-8 w-8 shrink-0"
                     size="icon"
                     onClick={() => setShowRemoteExperimentUpsertForm(true)}

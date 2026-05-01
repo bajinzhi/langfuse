@@ -30,6 +30,7 @@ import { useFolderPagination } from "@/src/features/folders/hooks/useFolderPagin
 import { FolderBreadcrumb } from "@/src/features/folders/components/FolderBreadcrumb";
 import { buildFullPath } from "@/src/features/folders/utils";
 import { FolderBreadcrumbLink } from "@/src/features/folders/components/FolderBreadcrumbLink";
+import { useI18n } from "@/src/features/i18n";
 
 type DatasetTableRow = {
   key: {
@@ -73,6 +74,7 @@ function createRow(
 
 export function DatasetsTable(props: { projectId: string }) {
   const { setDetailPageList } = useDetailPageLists();
+  const { t } = useI18n();
   const [rowHeight, setRowHeight] = useRowHeightLocalStorage("datasets", "s");
 
   const {
@@ -125,7 +127,7 @@ export function DatasetsTable(props: { projectId: string }) {
   const columns: LangfuseColumnDef<DatasetTableRow>[] = [
     {
       accessorKey: "key",
-      header: "Name",
+      header: t("datasets.name"),
       id: "key",
       size: 150,
       isFixedPosition: true,
@@ -152,7 +154,7 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "description",
-      header: "Description",
+      header: t("datasets.description"),
       id: "description",
       enableHiding: true,
       size: 200,
@@ -164,21 +166,21 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "countItems",
-      header: "Items",
+      header: t("datasets.items"),
       id: "countItems",
       enableHiding: true,
       size: 60,
     },
     {
       accessorKey: "countRuns",
-      header: "Experiments",
+      header: t("datasets.experiments"),
       id: "countRuns",
       enableHiding: true,
       size: 60,
     },
     {
       accessorKey: "createdAt",
-      header: "Created",
+      header: t("datasets.created"),
       id: "createdAt",
       enableHiding: true,
       size: 150,
@@ -189,7 +191,7 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "lastRunAt",
-      header: "Last Run",
+      header: t("datasets.lastRun"),
       id: "lastRunAt",
       enableHiding: true,
       size: 150,
@@ -200,7 +202,7 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "inputSchema",
-      header: "Input Schema",
+      header: t("datasets.inputSchema"),
       id: "inputSchema",
       enableHiding: true,
       size: 80,
@@ -217,7 +219,7 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "expectedOutputSchema",
-      header: "Expected Output Schema",
+      header: t("datasets.expectedOutputSchema"),
       id: "expectedOutputSchema",
       enableHiding: true,
       size: 90,
@@ -237,7 +239,7 @@ export function DatasetsTable(props: { projectId: string }) {
     },
     {
       accessorKey: "metadata",
-      header: "Metadata",
+      header: t("datasets.metadata"),
       id: "metadata",
       enableHiding: true,
       size: 300,
@@ -251,7 +253,7 @@ export function DatasetsTable(props: { projectId: string }) {
     {
       id: "actions",
       accessorKey: "actions",
-      header: "Actions",
+      header: t("datasets.tableActions"),
       size: 70,
       cell: ({ row }) => {
         const key: DatasetTableRow["key"] = row.getValue("key");
@@ -264,7 +266,7 @@ export function DatasetsTable(props: { projectId: string }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">{t("common.openMenu")}</span>
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -272,7 +274,7 @@ export function DatasetsTable(props: { projectId: string }) {
               align="end"
               className="flex flex-col *:w-full *:justify-start"
             >
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>{t("datasets.tableActions")}</DropdownMenuLabel>
               <DropdownMenuItem asChild>
                 <DatasetActionButton
                   mode="update"
@@ -391,7 +393,7 @@ export function DatasetsTable(props: { projectId: string }) {
         rowHeight={rowHeight}
         setRowHeight={setRowHeight}
         searchConfig={{
-          metadataSearchFields: ["Name"],
+          metadataSearchFields: [t("datasets.name")],
           updateQuery: setSearchQuery,
           currentQuery: searchQuery ?? undefined,
           tableAllowsFullTextSearch: false,

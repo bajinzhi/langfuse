@@ -47,7 +47,7 @@ import { useParsedTrace } from "@/src/hooks/useParsedTrace";
 import useLocalStorage from "@/src/components/useLocalStorage";
 import { Switch } from "@/src/components/ui/switch";
 import { LazyTraceEventsRow } from "@/src/components/session/TraceEventsRow";
-import { observationEventsFilterConfig } from "@/src/features/events/config/filter-config";
+import { getObservationEventsFilterConfig } from "@/src/features/events/config/filter-config";
 import { useEventsFilterOptions } from "@/src/features/events/hooks/useEventsFilterOptions";
 import { normalizeLegacySessionPositionInTraceFilters } from "@/src/components/session/session-position-in-trace";
 import {
@@ -72,6 +72,7 @@ import {
   type SessionDetailSystemPreset,
   getSessionDetailPresetToApply,
 } from "@/src/components/session/session-detail-presets";
+import { useI18n } from "@/src/features/i18n";
 
 // some projects have thousands of users in a session, paginate to avoid rendering all at once
 const INITIAL_USERS_DISPLAY_COUNT = 10;
@@ -99,6 +100,7 @@ export function SessionUsers({
   users?: string[];
 }) {
   const [page, setPage] = useState(0);
+  const { t } = useI18n();
 
   if (!users) return null;
 
@@ -115,7 +117,9 @@ export function SessionUsers({
           rel="noopener noreferrer"
         >
           <Badge className="max-w-[300px]">
-            <span className="truncate">User ID: {userId}</span>
+            <span className="truncate">
+              {t("sessions.userId", { userId })}
+            </span>
             <ExternalLinkIcon className="ml-1 h-3 w-3" />
           </Badge>
         </Link>
@@ -125,11 +129,11 @@ export function SessionUsers({
         <Popover modal>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="mt-0.5">
-              +{remainingUsers.length} more users
+              {t("sessions.moreUsers", { count: remainingUsers.length })}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[300px]">
-            <Label className="text-base capitalize">Session Users</Label>
+            <Label className="text-base capitalize">{t("sessions.users")}</Label>
             <ScrollArea className="h-[300px]">
               <div className="flex flex-col gap-2 p-2">
                 {remainingUsers
@@ -146,7 +150,9 @@ export function SessionUsers({
                       rel="noopener noreferrer"
                     >
                       <Badge className="max-w-[260px]">
-                        <span className="truncate">User ID: {userId}</span>
+                        <span className="truncate">
+                          {t("sessions.userId", { userId })}
+                        </span>
                         <ExternalLinkIcon className="ml-1 h-3 w-3" />
                       </Badge>
                     </Link>
@@ -161,11 +167,15 @@ export function SessionUsers({
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
                 >
-                  Previous
+                  {t("common.previous")}
                 </Button>
                 <span className="text-muted-foreground text-sm">
-                  Page {page + 1} of{" "}
-                  {Math.ceil(remainingUsers.length / USERS_PER_PAGE_IN_POPOVER)}
+                  {t("common.pageOf", {
+                    page: page + 1,
+                    total: Math.ceil(
+                      remainingUsers.length / USERS_PER_PAGE_IN_POPOVER,
+                    ),
+                  })}
                 </span>
                 <Button
                   variant="outline"
@@ -176,7 +186,7 @@ export function SessionUsers({
                     remainingUsers.length
                   }
                 >
-                  Next
+                  {t("common.next")}
                 </Button>
               </div>
             )}
@@ -203,6 +213,7 @@ export const SessionPage: React.FC<{
   projectId: string;
 }> = ({ sessionId, projectId }) => {
   const router = useRouter();
+  const { t } = useI18n();
   const { setDetailPageList, detailPagelists } = useDetailPageLists();
   const userSession = useSession();
   const capture = usePostHogClientCapture();
@@ -334,15 +345,15 @@ export const SessionPage: React.FC<{
   });
 
   if (session.error?.data?.code === "UNAUTHORIZED")
-    return <ErrorPage message="You do not have access to this session." />;
+    return <ErrorPage message={t("sessions.noAccess")} />;
 
   if (session.error?.data?.code === "NOT_FOUND")
     return (
       <ErrorPage
-        title="Session not found"
-        message="The session is either still being processed or has been deleted."
+        title={t("sessions.notFound")}
+        message={t("sessions.notFoundMessage")}
         additionalButton={{
-          label: "Retry",
+          label: t("common.retry"),
           onClick: () => void window.location.reload(),
         }}
       />
@@ -355,7 +366,7 @@ export const SessionPage: React.FC<{
         itemType: "SESSION",
         breadcrumb: [
           {
-            name: "Sessions",
+            name: t("nav.sessions"),
             href: `/project/${projectId}/sessions`,
           },
         ],
@@ -393,7 +404,7 @@ export const SessionPage: React.FC<{
               variant="outline"
               size="icon"
               onClick={downloadSessionAsJson}
-              title="Download session as JSON"
+              title={t("sessions.downloadJson")}
             >
               <Download className="h-4 w-4" />
             </Button>
@@ -433,7 +444,7 @@ export const SessionPage: React.FC<{
                 className="scale-75"
               />
               <span className="text-muted-foreground text-xs">
-                Show corrections
+                {t("sessions.showCorrections")}
               </span>
             </div>
           </>
@@ -446,11 +457,15 @@ export const SessionPage: React.FC<{
             <SessionUsers projectId={projectId} users={session.data.users} />
           ) : null}
           <Badge variant="outline">
-            Total traces: {session.data?.traces.length}
+            {t("sessions.totalTraces", {
+              count: session.data?.traces.length ?? 0,
+            })}
           </Badge>
           {session.data && (
             <Badge variant="outline">
-              Total cost: {usdFormatter(session.data.totalCost, 2)}
+              {t("sessions.totalCost", {
+                cost: usdFormatter(session.data.totalCost, 2),
+              })}
             </Badge>
           )}
           <SessionScores scores={session.data?.scores ?? []} />
@@ -519,6 +534,7 @@ export const SessionEventsPage: React.FC<{
   projectId: string;
 }> = ({ sessionId, projectId }) => {
   const router = useRouter();
+  const { t } = useI18n();
   const { setDetailPageList, detailPagelists } = useDetailPageLists();
   const userSession = useSession();
   const parentRef = useRef<HTMLDivElement>(null);
@@ -617,14 +633,15 @@ export const SessionEventsPage: React.FC<{
   });
   const positionInTraceColumn: ColumnDefinition = React.useMemo(
     () => ({
-      name: "Position in Trace",
+      name: t("observability.columns.positionInTrace"),
       id: "positionInTrace",
       type: "positionInTrace",
       internal: "positionInTrace",
     }),
-    [],
+    [t],
   );
   const sessionEventsFilterConfig = React.useMemo(() => {
+    const observationEventsFilterConfig = getObservationEventsFilterConfig([], t);
     return {
       ...observationEventsFilterConfig,
       tableName: sessionEventsTableName,
@@ -637,7 +654,7 @@ export const SessionEventsPage: React.FC<{
           facet.column !== "sessionId" && facet.column !== "environment",
       ),
     };
-  }, [positionInTraceColumn, sessionEventsTableName]);
+  }, [positionInTraceColumn, sessionEventsTableName, t]);
   const [urlFiltersQuery] = useQueryParam("filter", StringParam);
   const filtersQuery = React.useMemo(
     () =>
@@ -831,15 +848,15 @@ export const SessionEventsPage: React.FC<{
   });
 
   if (session.error?.data?.code === "UNAUTHORIZED")
-    return <ErrorPage message="You do not have access to this session." />;
+    return <ErrorPage message={t("sessions.noAccess")} />;
 
   if (session.error?.data?.code === "NOT_FOUND")
     return (
       <ErrorPage
-        title="Session not found"
-        message="The session is either still being processed or has been deleted."
+        title={t("sessions.notFound")}
+        message={t("sessions.notFoundMessage")}
         additionalButton={{
-          label: "Retry",
+          label: t("common.retry"),
           onClick: () => void window.location.reload(),
         }}
       />
@@ -852,7 +869,7 @@ export const SessionEventsPage: React.FC<{
         itemType: "SESSION",
         breadcrumb: [
           {
-            name: "Sessions",
+            name: t("nav.sessions"),
             href: `/project/${projectId}/sessions`,
           },
         ],
@@ -922,7 +939,7 @@ export const SessionEventsPage: React.FC<{
                 className="scale-75"
               />
               <span className="text-muted-foreground text-xs">
-                Show corrections
+                {t("sessions.showCorrections")}
               </span>
             </div>
           </>
@@ -961,11 +978,15 @@ export const SessionEventsPage: React.FC<{
 
           {/* Stats */}
           <Badge variant="outline">
-            Total traces: {session.data?.countTraces ?? 0}
+            {t("sessions.totalTraces", {
+              count: session.data?.countTraces ?? 0,
+            })}
           </Badge>
           {session.data && (
             <Badge variant="outline">
-              Total cost: {usdFormatter(session.data.totalCost ?? 0, 2)}
+              {t("sessions.totalCost", {
+                cost: usdFormatter(session.data.totalCost ?? 0, 2),
+              })}
             </Badge>
           )}
 

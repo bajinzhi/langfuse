@@ -37,6 +37,7 @@ import {
   useOptionalMessageSearchActions,
   useOptionalMessageSearchPageId,
 } from "./MessageSearch";
+import { useI18n, type MessageKey } from "@/src/features/i18n";
 
 type ChatMessageProps = Pick<
   MessagesContext,
@@ -55,22 +56,28 @@ const ROLES: ChatMessageRole[] = [
   ChatMessageRole.Tool,
 ] as const;
 
-const getRoleNamePlaceholder = (role: string) => {
+const getRoleNamePlaceholder = (
+  role: string,
+  t: (
+    key: MessageKey,
+    values?: Record<string, string | number | boolean | null>,
+  ) => string,
+) => {
   switch (role) {
     case ChatMessageRole.System:
-      return "a system message";
+      return t("playground.chat.roleSystem");
     case ChatMessageRole.Developer:
-      return "a developer message";
+      return t("playground.chat.roleDeveloper");
     case ChatMessageRole.Assistant:
-      return "an assistant message";
+      return t("playground.chat.roleAssistant");
     case ChatMessageRole.User:
-      return "a user message";
+      return t("playground.chat.roleUser");
     case ChatMessageRole.Tool:
-      return "a tool response message";
+      return t("playground.chat.roleTool");
     case "placeholder":
-      return "placeholder name (e.g. chat_history)";
+      return t("playground.chat.rolePlaceholder");
     default:
-      return `a ${role}`;
+      return t("playground.chat.roleGeneric", { role });
   }
 };
 
@@ -95,6 +102,7 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
   index: _index,
   toolCallIds,
 }) => {
+  const { t } = useI18n();
   const [roleIndex, setRoleIndex] = useState(1);
   const playgroundContext = useOptionalPlaygroundContext();
   const searchPageId = useOptionalMessageSearchPageId();
@@ -308,10 +316,12 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                   }
                 >
                   <SelectTrigger
-                    title="Select Tool Call ID"
+                    title={t("playground.chat.selectToolCallId")}
                     className="bg-muted h-[25px] w-[96px] border-0 text-[9px]"
                   >
-                    <SelectValue placeholder="Select Call ID" />
+                    <SelectValue
+                      placeholder={t("playground.chat.selectCallId")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {toolCallIds?.map((id) => (
@@ -352,7 +362,8 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
             size="icon"
             onClick={() => deleteMessage(message.id)}
             className="h-5 w-5 shrink-0 rounded-full p-0 opacity-60 transition-all hover:opacity-100"
-            aria-label="Delete message"
+            aria-label={t("playground.chat.deleteMessage")}
+            title={t("playground.chat.deleteMessage")}
           >
             <MinusCircleIcon size={14} />
           </Button>
@@ -370,6 +381,7 @@ const MemoizedEditor = memo(function MemoizedEditor(props: {
   onEditorMount: () => void;
   enableSearchKeymap: boolean;
 }) {
+  const { t } = useI18n();
   const {
     value,
     role,
@@ -378,7 +390,9 @@ const MemoizedEditor = memo(function MemoizedEditor(props: {
     onEditorMount,
     enableSearchKeymap,
   } = props;
-  const placeholder = `Enter ${getRoleNamePlaceholder(role)} here.`;
+  const placeholder = t("playground.chat.enterRoleHere", {
+    role: getRoleNamePlaceholder(role, t),
+  });
 
   return (
     <CodeMirrorEditor

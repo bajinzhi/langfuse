@@ -5,6 +5,7 @@ import {
   PLAYGROUND_EVENTS,
 } from "../types";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
+import { translateClientMessage } from "@/src/features/i18n";
 
 /**
  * Playground window registry for coordinating actions across multiple playground windows
@@ -141,8 +142,8 @@ export const useWindowCoordination = (): WindowCoordinationReturn => {
       if (!anyExecuting) {
         // No windows are executing - they must all be empty
         showErrorToast(
-          "No content to execute",
-          "Please add at least one message with content to any window.",
+          translateClientMessage("playground.noContentToExecute"),
+          translateClientMessage("playground.noContentToExecuteDescription"),
         );
         setIsExecutingAll(false);
       } else {
@@ -226,10 +227,15 @@ export const useWindowCoordination = (): WindowCoordinationReturn => {
     }
 
     if (executingCount === totalCount) {
-      return `Executing all ${totalCount} windows`;
+      return translateClientMessage("playground.executingAllWindows", {
+        count: totalCount,
+      });
     }
 
-    return `Executing ${executingCount} of ${totalCount} windows`;
+    return translateClientMessage("playground.executingWindows", {
+      count: executingCount,
+      total: totalCount,
+    });
   }, []);
 
   // Listen for model configuration changes

@@ -14,6 +14,7 @@ import {
   mapLegacyUiTableFilterToView,
 } from "@/src/features/query";
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
+import { useI18n } from "@/src/features/i18n";
 
 export const ModelCostTable = ({
   className,
@@ -34,6 +35,7 @@ export const ModelCostTable = ({
   metricsVersion?: ViewVersion;
   schedulerId?: string;
 }) => {
+  const { t } = useI18n();
   const modelCostQuery: QueryType = {
     view: "observations",
     dimensions: [{ field: "providedModelName" }],
@@ -106,14 +108,18 @@ export const ModelCostTable = ({
   return (
     <DashboardCard
       className={className}
-      title="Model costs"
+      title={t("dashboard.modelCosts.title")}
       isLoading={isLoading || metrics.isLoading}
     >
       <DashboardTable
         headers={[
-          "Model",
-          <RightAlignedCell key="tokens">Tokens</RightAlignedCell>,
-          <RightAlignedCell key="cost">USD</RightAlignedCell>,
+          t("dashboard.modelCosts.model"),
+          <RightAlignedCell key="tokens">
+            {t("dashboard.modelCosts.tokens")}
+          </RightAlignedCell>,
+          <RightAlignedCell key="cost">
+            {t("dashboard.modelCosts.usd")}
+          </RightAlignedCell>,
         ]}
         rows={metricsData}
         isLoading={isLoading || metrics.isLoading}
@@ -121,10 +127,10 @@ export const ModelCostTable = ({
       >
         <TotalMetric
           metric={totalCostDashboardFormatted(totalTokenCost)}
-          description="Total cost"
+          description={t("dashboard.modelCosts.totalCost")}
         >
           <DocPopup
-            description="Calculated multiplying the number of tokens with cost per token for each model."
+            description={t("dashboard.modelCosts.totalCostTooltip")}
             href="https://langfuse.com/docs/model-usage-and-cost"
           />
         </TotalMetric>

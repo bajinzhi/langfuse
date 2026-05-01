@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/src/components/ui/button";
 import { ExperimentComparisonSelector } from "./ExperimentComparisonSelector";
 import { ExperimentBaselineControls } from "./ExperimentBaselineControls";
+import { useI18n } from "@/src/features/i18n";
 
 type ExperimentOverviewPanelProps = {
   projectId: string;
@@ -35,6 +36,7 @@ export function ExperimentOverviewPanel({
   onBaselineChange,
   onBaselineClear,
 }: ExperimentOverviewPanelProps) {
+  const { t } = useI18n();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const provider = experiment?.metadata?.provider;
@@ -58,19 +60,25 @@ export function ExperimentOverviewPanel({
     <div className="space-y-4">
       {hasBaseline && experiment ? (
         <>
-          <h3 className="text-lg font-semibold">Experiment Details</h3>
+          <h3 className="text-lg font-semibold">
+            {t("experiments.overview.details")}
+          </h3>
 
           <div className="space-y-3 text-sm">
             {/* Name */}
             <div>
-              <div className="text-muted-foreground text-xs">Name</div>
+              <div className="text-muted-foreground text-xs">
+                {t("experiments.overview.name")}
+              </div>
               <div className="font-medium">{experiment.name}</div>
             </div>
 
             {/* Description */}
             {experiment.description && (
               <div>
-                <div className="text-muted-foreground text-xs">Description</div>
+                <div className="text-muted-foreground text-xs">
+                  {t("experiments.overview.description")}
+                </div>
                 <div className="break-words">{displayDescription}</div>
                 {isLongDescription && (
                   <Button
@@ -81,7 +89,9 @@ export function ExperimentOverviewPanel({
                       setIsDescriptionExpanded(!isDescriptionExpanded)
                     }
                   >
-                    {isDescriptionExpanded ? "Show less" : "Show more"}
+                    {isDescriptionExpanded
+                      ? t("dashboard.seeLess")
+                      : t("dashboard.seeMore")}
                   </Button>
                 )}
               </div>
@@ -89,7 +99,9 @@ export function ExperimentOverviewPanel({
 
             {/* Dataset */}
             <div>
-              <div className="text-muted-foreground text-xs">Dataset</div>
+              <div className="text-muted-foreground text-xs">
+                {t("experiments.steps.dataset")}
+              </div>
               <Link
                 href={`/project/${projectId}/datasets/${encodeURIComponent(experiment.datasetId)}`}
                 className="text-primary hover:underline"
@@ -101,7 +113,9 @@ export function ExperimentOverviewPanel({
             {/* Prompt */}
             {promptName && (
               <div>
-                <div className="text-muted-foreground text-xs">Prompt</div>
+                <div className="text-muted-foreground text-xs">
+                  {t("prompts.prompt")}
+                </div>
                 <Link
                   href={`/project/${projectId}/prompts/${encodeURIComponent(promptName)}${promptVersion !== null ? `?version=${promptVersion}` : ""}`}
                   className="text-primary hover:underline"
@@ -119,7 +133,9 @@ export function ExperimentOverviewPanel({
             {/* Model Configuration */}
             {(provider || model) && (
               <div>
-                <div className="text-muted-foreground text-xs">Model</div>
+                <div className="text-muted-foreground text-xs">
+                  {t("experiments.promptModel.model")}
+                </div>
                 <div>
                   {provider && model
                     ? `${provider}/${model}`
@@ -130,7 +146,9 @@ export function ExperimentOverviewPanel({
 
             {/* Start Time */}
             <div>
-              <div className="text-muted-foreground text-xs">Start Time</div>
+              <div className="text-muted-foreground text-xs">
+                {t("experiments.overview.startTime")}
+              </div>
               <LocalIsoDate date={experiment.startTime} />
             </div>
           </div>
@@ -139,7 +157,9 @@ export function ExperimentOverviewPanel({
 
       {/* Baseline Controls */}
       <div className={hasBaseline ? "border-t pt-4" : undefined}>
-        <h4 className="mb-2 text-sm font-medium">Baseline</h4>
+        <h4 className="mb-2 text-sm font-medium">
+          {t("experiments.overview.baseline")}
+        </h4>
         <ExperimentBaselineControls
           projectId={projectId}
           baselineId={experiment?.id}
@@ -152,7 +172,9 @@ export function ExperimentOverviewPanel({
 
       {/* Comparison Selector */}
       <div className="border-t pt-4">
-        <h4 className="mb-2 text-sm font-medium">Compare with</h4>
+        <h4 className="mb-2 text-sm font-medium">
+          {t("experiments.overview.compareWith")}
+        </h4>
         <ExperimentComparisonSelector
           projectId={projectId}
           baselineExperimentId={experiment?.id}

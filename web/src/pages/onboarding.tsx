@@ -3,12 +3,15 @@
 
 import Head from "next/head";
 import { OnboardingSurvey } from "@/src/features/onboarding/components/OnboardingSurvey";
+import { useI18n } from "@/src/features/i18n";
 
 export default function OnboardingPage() {
+  const { t } = useI18n();
+
   return (
     <>
       <Head>
-        <title>Onboarding | Langfuse</title>
+        <title>{t("onboarding.headTitle")}</title>
       </Head>
       <OnboardingSurvey />
     </>

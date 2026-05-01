@@ -15,6 +15,7 @@ import { cn } from "@/src/utils/tailwind";
 import { type JSONTableViewProps } from "./json-table-view-types";
 import { JSONTableViewHeader } from "./JSONTableViewHeader";
 import { JSONTableViewRow } from "./JSONTableViewRow";
+import { useI18n } from "@/src/features/i18n";
 
 // Default row heights for virtualization
 const DEFAULT_COLLAPSED_ROW_HEIGHT = 28;
@@ -40,6 +41,7 @@ export function JSONTableView<T>({
   overscan = 100,
   className,
 }: JSONTableViewProps<T>) {
+  const { t } = useI18n();
   // Internal expand state (uncontrolled mode)
   const [internalExpandedKeys, setInternalExpandedKeys] = useState<Set<string>>(
     new Set(),
@@ -251,7 +253,9 @@ export function JSONTableView<T>({
       {/* Empty state */}
       {!hasItems && (
         <div className="flex flex-1 items-center justify-center">
-          <div className="text-muted-foreground text-sm">No items</div>
+          <div className="text-muted-foreground text-sm">
+            {t("trace.noItems")}
+          </div>
         </div>
       )}
     </div>

@@ -64,6 +64,7 @@ import {
   getDescendantIds,
 } from "@/src/components/trace2/lib/trace-aggregation";
 import TagList from "@/src/features/tag/components/TagList";
+import { useI18n } from "@/src/features/i18n";
 
 export interface ObservationDetailViewProps {
   observation: ObservationReturnTypeWithMetadata;
@@ -76,6 +77,7 @@ export function ObservationDetailView({
   projectId,
   traceId,
 }: ObservationDetailViewProps) {
+  const { t } = useI18n();
   // Tab and view state from URL (via SelectionContext)
   const {
     selectedTab: globalSelectedTab,
@@ -289,18 +291,20 @@ export function ObservationDetailView({
       >
         <TooltipProvider>
           <TabsBarList>
-            <TabsBarTrigger value="preview">Preview</TabsBarTrigger>
-            <TabsBarTrigger value="scores">Scores</TabsBarTrigger>
+            <TabsBarTrigger value="preview">{t("trace.preview")}</TabsBarTrigger>
+            <TabsBarTrigger value="scores">{t("trace.scores")}</TabsBarTrigger>
             {showLogViewTab && (
               <TabsBarTrigger value="log">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span>Log View</span>
+                    <span>{t("trace.logView")}</span>
                   </TooltipTrigger>
                   <TooltipContent className="text-xs">
                     {isLogViewVirtualized
-                      ? `Shows all ${observations.length} observations with virtualization enabled.`
-                      : "Shows all observations concatenated. Great for quickly scanning through them."}
+                      ? t("trace.logViewVirtualizedTooltip", {
+                          count: observations.length,
+                        })
+                      : t("trace.logViewTooltip")}
                   </TooltipContent>
                 </Tooltip>
               </TabsBarTrigger>
@@ -332,7 +336,7 @@ export function ObservationDetailView({
                 >
                   <TabsList className="h-fit py-0.5">
                     <TabsTrigger value="pretty" className="h-fit px-1 text-xs">
-                      Formatted
+                      {t("trace.formatted")}
                     </TabsTrigger>
                     {selectedTab === "log" && isLogViewVirtualized ? (
                       <HoverCard openDelay={200}>
@@ -343,7 +347,7 @@ export function ObservationDetailView({
                               className="h-fit px-1 text-xs"
                               disabled
                             >
-                              JSON
+                              {t("trace.json")}
                             </TabsTrigger>
                           </span>
                         </HoverCardTrigger>
@@ -352,17 +356,21 @@ export function ObservationDetailView({
                           className="w-64 text-sm"
                           sideOffset={8}
                         >
-                          <p className="font-medium">JSON view unavailable</p>
+                          <p className="font-medium">
+                            {t("trace.jsonViewUnavailable")}
+                          </p>
                           <p className="text-muted-foreground mt-1">
-                            Disabled for traces with{" "}
-                            {TRACE_VIEW_CONFIG.logView.virtualizationThreshold}+
-                            observations to maintain performance.
+                            {t("trace.jsonViewUnavailableDescription", {
+                              count:
+                                TRACE_VIEW_CONFIG.logView
+                                  .virtualizationThreshold,
+                            })}
                           </p>
                         </HoverCardContent>
                       </HoverCard>
                     ) : (
                       <TabsTrigger value="json" className="h-fit px-1 text-xs">
-                        JSON
+                        {t("trace.json")}
                       </TabsTrigger>
                     )}
                   </TabsList>
@@ -377,7 +385,7 @@ export function ObservationDetailView({
                         onCheckedChange={handleBetaToggle}
                       />
                       <span className="text-muted-foreground text-xs">
-                        Beta
+                        {t("trace.beta")}
                       </span>
                     </div>
                   )}
@@ -405,7 +413,7 @@ export function ObservationDetailView({
                   <div
                     className={`px-2 pt-2 text-sm font-medium ${currentView !== "pretty" ? "shrink-0" : ""}`}
                   >
-                    Tags
+                    {t("trace.tags")}
                   </div>
                   <div
                     className={`flex flex-wrap gap-x-1 gap-y-1 px-2 pb-2 ${currentView !== "pretty" ? "shrink-0" : ""}`}

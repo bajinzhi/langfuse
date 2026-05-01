@@ -3,6 +3,7 @@ import { Button } from "@/src/components/ui/button";
 import useLocalStorage from "@/src/components/useLocalStorage";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useI18n } from "@/src/features/i18n";
 
 const DEFAULT_STORAGE_KEY = "dismissed-callouts";
 const DEFAULT_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -31,6 +32,7 @@ export function Callout({
   onDismiss,
   actions,
 }: CalloutProps) {
+  const { t } = useI18n();
   const [dismissedCallouts, setDismissedCallouts] = useLocalStorage<Callout[]>(
     id + "-" + DEFAULT_STORAGE_KEY,
     [],
@@ -99,7 +101,7 @@ export function Callout({
             size="sm"
             onClick={handleDismiss}
             className="text-muted-foreground hover:text-foreground h-6 w-6 p-0"
-            aria-label="Dismiss"
+            aria-label={t("common.dismiss")}
           >
             <X className="h-4 w-4" />
           </Button>

@@ -14,6 +14,7 @@ import {
   DropzoneEmptyState,
 } from "@/src/components/ui/shadcn-io/dropzone";
 import type { CsvPreviewResult } from "@/src/features/datasets/lib/csv/types";
+import { useI18n } from "@/src/features/i18n";
 
 export const MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1 * 10; // 10MB
 const ACCEPTED_FILE_TYPES = ["text/csv"] as const;
@@ -30,18 +31,23 @@ export const UploadDatasetCsv = ({
   setPreview: (preview: CsvPreviewResult | null) => void;
   setCsvFile: (file: File | null) => void;
 }) => {
+  const { t } = useI18n();
+
   const handleFiles = async (files: File[]) => {
     const file = files[0];
     if (!file) return;
 
     const result = FileSchema.safeParse(file);
     if (!result.success) {
-      showErrorToast("Invalid file type", "Please select a valid CSV file");
+      showErrorToast(
+        t("datasets.invalidFileType"),
+        t("datasets.invalidFileDescription"),
+      );
       return;
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      showErrorToast("File too large", "Maximum file size is 10MB");
+      showErrorToast(t("datasets.fileTooLarge"), t("datasets.maximumFileSize"));
       return;
     }
 
@@ -53,15 +59,18 @@ export const UploadDatasetCsv = ({
       });
 
       if (!Boolean(preview.columns.length)) {
-        showErrorToast("Invalid CSV", "CSV must have at least 1 column");
+        showErrorToast(
+          t("datasets.invalidCsv"),
+          t("datasets.invalidCsvDescription"),
+        );
         return;
       }
 
       setPreview(preview);
     } catch (error) {
       showErrorToast(
-        "Failed to parse CSV",
-        error instanceof Error ? error.message : "Unknown error",
+        t("datasets.failedToParseCsv"),
+        error instanceof Error ? error.message : t("datasets.unknownError"),
       );
     }
   };
@@ -70,10 +79,11 @@ export const UploadDatasetCsv = ({
     <DialogBody className="border-t">
       <Card className="h-full items-center justify-center border-none">
         <CardHeader className="text-center">
-          <CardTitle className="text-lg">Add items to dataset</CardTitle>
+          <CardTitle className="text-lg">
+            {t("datasets.addItemsToDataset")}
+          </CardTitle>
           <CardDescription>
-            Add items to dataset by uploading a file, add items manually or via
-            our SDKs/API
+            {t("datasets.addItemsDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>

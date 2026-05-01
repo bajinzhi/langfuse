@@ -19,8 +19,10 @@ import {
   EXPERIMENT_RUN_TABS,
   getExperimentRunTabs,
 } from "@/src/features/navigation/utils/experiment-run-tabs";
+import { useI18n } from "@/src/features/i18n";
 
 export default function ExperimentResults() {
+  const { t } = useI18n();
   const router = useRouter();
   const projectId = router.query.projectId as string;
 
@@ -80,7 +82,7 @@ export default function ExperimentResults() {
   // Show spinner while redirecting when beta is off
   if (!isExperimentsBetaActive) {
     return (
-      <Page headerProps={{ title: "Experiments" }}>
+      <Page headerProps={{ title: t("experiments.title") }}>
         <div className="flex h-full items-center justify-center">
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
         </div>
@@ -101,14 +103,14 @@ export default function ExperimentResults() {
     <Page
       headerProps={{
         title: hasBaseline
-          ? (experiment?.name ?? baselineId ?? "Results")
-          : "Results",
+          ? (experiment?.name ?? baselineId ?? t("experiments.results"))
+          : t("experiments.results"),
         itemType: "EXPERIMENT",
         breadcrumb: [
-          { name: "Experiments", href: `/project/${projectId}/experiments` },
+          { name: t("experiments.title"), href: `/project/${projectId}/experiments` },
         ],
         tabsProps: {
-          tabs: getExperimentRunTabs(projectId),
+          tabs: getExperimentRunTabs(projectId, t),
           activeTab: EXPERIMENT_RUN_TABS.RESULTS,
         },
         actionButtonsLeft: canUseExperimentsBetaToggle ? (
@@ -122,7 +124,9 @@ export default function ExperimentResults() {
             {hasBaseline && comparisonIds.length > 0 && (
               <Button variant="outline" onClick={clearBaseline}>
                 <X className="h-4 w-4" />
-                <span className="ml-2 hidden md:inline">Clear baseline</span>
+                <span className="ml-2 hidden md:inline">
+                  {t("experiments.clearBaseline")}
+                </span>
               </Button>
             )}
 

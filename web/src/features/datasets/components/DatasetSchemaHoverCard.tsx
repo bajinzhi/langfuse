@@ -11,6 +11,7 @@ import { Separator } from "@/src/components/ui/separator";
 import { useEffect, useState } from "react";
 import { generateSchemaExample } from "../lib/generateSchemaExample";
 import { copyTextToClipboard } from "@/src/utils/clipboard";
+import { useI18n } from "@/src/features/i18n";
 
 type DatasetSchemaHoverCardProps = {
   schema: Prisma.JsonValue;
@@ -23,8 +24,11 @@ export const DatasetSchemaHoverCard: React.FC<DatasetSchemaHoverCardProps> = ({
   schemaType,
   showLabel = false,
 }) => {
+  const { t } = useI18n();
   const title =
-    schemaType === "input" ? "Input Schema" : "Expected Output Schema";
+    schemaType === "input"
+      ? t("datasets.inputSchema")
+      : t("datasets.expectedOutputSchema");
 
   const schemaString = JSON.stringify(schema, null, 2);
 
@@ -58,11 +62,11 @@ export const DatasetSchemaHoverCard: React.FC<DatasetSchemaHoverCardProps> = ({
         <Button
           variant="ghost"
           className="text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-flex items-center gap-1.5 rounded p-1 text-xs transition-colors"
-          aria-label={`View ${title}`}
+          aria-label={t("datasets.viewSchema", { title })}
           size="sm"
         >
           <LockIcon className={showLabel ? "h-3 w-3" : "h-4 w-4"} />
-          {showLabel && <span>Schema enforced</span>}
+          {showLabel && <span>{t("datasets.schemaEnforced")}</span>}
         </Button>
       </HoverCardTrigger>
       <HoverCardContent
@@ -71,7 +75,7 @@ export const DatasetSchemaHoverCard: React.FC<DatasetSchemaHoverCardProps> = ({
       >
         <p className="text-sm font-medium">{title}</p>
         <p className="text-muted-foreground pt-2 text-sm">
-          Learn more about{" "}
+          {t("datasets.schemaLearnMore")}{" "}
           <a
             href="https://json-schema.org/learn/miscellaneous-examples"
             target="_blank"
@@ -96,7 +100,9 @@ export const DatasetSchemaHoverCard: React.FC<DatasetSchemaHoverCardProps> = ({
           <>
             <Separator className="my-4" />
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">Example Object</p>
+              <p className="text-sm font-medium">
+                {t("datasets.exampleObject")}
+              </p>
               <Button
                 variant="ghost"
                 size="sm"

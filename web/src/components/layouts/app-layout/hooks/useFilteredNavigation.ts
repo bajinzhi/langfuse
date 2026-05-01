@@ -19,6 +19,7 @@ import type { NavigationItem } from "@/src/components/layouts/utilities/routes";
 import { applyNavigationFilters } from "../utils/navigationFilters";
 import type { NavigationFilterContext } from "../utils/navigationFilters.types";
 import { isPathActive } from "../utils/pathClassification";
+import { useI18n } from "@/src/features/i18n";
 
 /** Organization type from user session (can be null when not in project/org context) */
 type Organization = User["organizations"][number] | null | undefined;
@@ -84,6 +85,7 @@ export function useFilteredNavigation(
   const entitlements = useEntitlements();
   const uiCustomization = useUiCustomization();
   const { isLangfuseCloud, region } = useLangfuseCloudRegion();
+  const { t } = useI18n();
 
   const routerProjectId = router.query.projectId as string | undefined;
   const routerOrganizationId = router.query.organizationId as
@@ -138,6 +140,8 @@ export function useFilteredNavigation(
 
       return {
         ...route,
+        title: route.titleKey ? t(route.titleKey) : route.title,
+        label: route.labelKey ? t(route.labelKey) : route.label,
         url,
         isActive: isPathActive(route.pathname, router.pathname),
         items: items && items.length > 0 ? items : undefined,
@@ -166,5 +170,11 @@ export function useFilteredNavigation(
         ...secondaryNavigation.flattened,
       ],
     };
-  }, [filteredRoutes, routerProjectId, routerOrganizationId, router.pathname]);
+  }, [
+    filteredRoutes,
+    routerProjectId,
+    routerOrganizationId,
+    router.pathname,
+    t,
+  ]);
 }

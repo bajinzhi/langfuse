@@ -10,6 +10,7 @@ import { generateJobExecutionCounts } from "@/src/features/evals/utils/job-execu
 import { EvaluatorPausedCallout } from "@/src/features/evals/components/evaluator-paused-callout";
 import { type EvaluatorExecutionStatusCount } from "@langfuse/shared";
 import { useLazyEvaluatorExecutionCounts } from "@/src/features/evals/hooks/useLazyEvaluatorExecutionCounts";
+import { useI18n } from "@/src/features/i18n";
 
 const JobExecutionCounts = ({
   isLoading,
@@ -28,6 +29,7 @@ const JobExecutionCounts = ({
 
 export const EvaluatorDetail = () => {
   const router = useRouter();
+  const { t } = useI18n();
   const projectId = router.query.projectId as string;
   const evaluatorId = router.query.evaluatorId as string;
 
@@ -60,11 +62,11 @@ export const EvaluatorDetail = () => {
     allTemplates.isLoading ||
     !allTemplates.data
   ) {
-    return <div className="p-3">Loading...</div>;
+    return <div className="p-3">{t("common.loading")}...</div>;
   }
 
   if (evaluator.data && evaluator.data.evalTemplate === null) {
-    return <div>Evaluator not found</div>;
+    return <div>{t("evals.detail.notFound")}</div>;
   }
 
   const existingEvaluator =
@@ -85,11 +87,11 @@ export const EvaluatorDetail = () => {
       headerProps={{
         title: evaluator.data
           ? `${evaluator.data.scoreName}: ${evaluator.data.id}`
-          : "Loading...",
+          : `${t("common.loading")}...`,
         itemType: "EVALUATOR",
         breadcrumb: [
           {
-            name: "LLM-as-a-Judge Evaluators",
+            name: t("evals.page.title"),
             href: `/project/${router.query.projectId as string}/evals`,
           },
         ],

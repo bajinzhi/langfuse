@@ -11,6 +11,7 @@ import {
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
 import { PlusIcon } from "lucide-react";
+import { useI18n } from "@/src/features/i18n";
 import {
   Table,
   TableHeader,
@@ -19,9 +20,9 @@ import {
   TableBody,
   TableCell,
 } from "@/src/components/ui/table";
-import startCase from "lodash/startCase";
-import { getChartTypeDisplayName } from "@/src/features/widgets/chart-library/utils";
+import { getChartTypeDisplayNameKey } from "@/src/features/widgets/chart-library/utils";
 import { type DashboardWidgetChartType } from "@langfuse/shared/src/db";
+import { getQueryViewLabel } from "@/src/features/widgets/lib/queryMetadataI18n";
 
 export type WidgetItem = {
   id: string;
@@ -49,6 +50,7 @@ export function SelectWidgetDialog({
   dashboardId,
 }: SelectWidgetDialogProps) {
   const router = useRouter();
+  const { t } = useI18n();
   const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
 
   // Fetch widgets
@@ -85,29 +87,31 @@ export function SelectWidgetDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>Select widget to add</DialogTitle>
+          <DialogTitle>{t("widgets.selectDialog.title")}</DialogTitle>
         </DialogHeader>
 
         <DialogBody>
           <div className="max-h-[400px] overflow-y-auto">
             {widgets.isPending ? (
-              <div className="py-8 text-center">Loading widgets...</div>
+              <div className="py-8 text-center">
+                {t("widgets.loadingWidgets")}
+              </div>
             ) : widgets.isError ? (
               <div className="text-destructive py-8 text-center">
-                Error: {widgets.error.message}
+                {t("common.error")}: {widgets.error.message}
               </div>
             ) : widgets.data?.widgets.length === 0 ? (
               <div className="text-muted-foreground py-8 text-center">
-                No widgets found. Create a new widget to get started.
+                {t("widgets.noWidgetsFound")}
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>View Type</TableHead>
-                    <TableHead>Chart Type</TableHead>
+                    <TableHead>{t("widgets.name")}</TableHead>
+                    <TableHead>{t("widgets.description")}</TableHead>
+                    <TableHead>{t("widgets.viewType")}</TableHead>
+                    <TableHead>{t("widgets.chartType")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -130,11 +134,13 @@ export function SelectWidgetDialog({
                         {widget.description}
                       </TableCell>
                       <TableCell density="comfortable">
-                        {startCase(widget.view.toLowerCase())}
+                        {getQueryViewLabel(widget.view.toLowerCase(), t)}
                       </TableCell>
                       <TableCell density="comfortable">
-                        {getChartTypeDisplayName(
-                          widget.chartType as DashboardWidgetChartType,
+                        {t(
+                          getChartTypeDisplayNameKey(
+                            widget.chartType as DashboardWidgetChartType,
+                          ),
                         )}
                       </TableCell>
                     </TableRow>
@@ -148,14 +154,14 @@ export function SelectWidgetDialog({
         <DialogFooter className="mt-4 flex justify-between">
           <Button onClick={handleNavigateToNewWidget} variant="outline">
             <PlusIcon className="mr-2 h-4 w-4" />
-            Create New Widget
+            {t("widgets.createNew")}
           </Button>
           <div className="flex gap-2">
             <Button onClick={() => onOpenChange(false)} variant="outline">
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleAddWidget} disabled={!selectedWidgetId}>
-              Add Selected Widget
+              {t("widgets.addSelected")}
             </Button>
           </div>
         </DialogFooter>

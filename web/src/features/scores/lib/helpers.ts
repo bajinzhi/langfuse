@@ -1,4 +1,5 @@
 import { type ScoreData } from "./types";
+import { type MessageKey } from "@/src/features/i18n";
 import {
   type ScoreDataTypeType,
   type ScoreTargetTrace,
@@ -32,12 +33,14 @@ export const isSessionScore = (
   scoreTarget: ScoreTarget,
 ): scoreTarget is ScoreTargetSession => scoreTarget.type === "session";
 
-export const formatAnnotateDescription = <Target extends ScoreTarget>(
+export const getAnnotateTargetKey = <Target extends ScoreTarget>(
   scoreTarget: Target,
-): string => {
-  let sourceEntity = "session";
+): MessageKey => {
+  let targetKey: MessageKey = "scores.target.session";
   if (isTraceScore(scoreTarget)) {
-    sourceEntity = scoreTarget.observationId ? "observation" : "trace";
+    targetKey = scoreTarget.observationId
+      ? "scores.target.observation"
+      : "scores.target.trace";
   }
-  return `Annotate ${sourceEntity} with scores to capture human evaluation across different dimensions.`;
+  return targetKey;
 };

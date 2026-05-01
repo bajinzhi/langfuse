@@ -13,6 +13,7 @@ import {
 import { showSuccessToast } from "@/src/features/notifications/showSuccessToast";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { api } from "@/src/utils/api";
+import { useI18n } from "@/src/features/i18n";
 
 /**
  * Props for the SlackDisconnectButton component
@@ -74,12 +75,14 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
   disabled = false,
   variant = "destructive",
   size = "sm",
-  buttonText = "Disconnect",
+  buttonText,
   onSuccess,
   onError,
   showConfirmation = true,
   showText = true,
 }) => {
+  const { t } = useI18n();
+  const resolvedButtonText = buttonText ?? t("slack.disconnect");
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -90,8 +93,8 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
       setIsDialogOpen(false);
 
       showSuccessToast({
-        title: "Slack Disconnected",
-        description: "Successfully disconnected from your Slack workspace.",
+        title: t("slack.disconnectedTitle"),
+        description: t("slack.disconnectedDescription"),
       });
 
       onSuccess?.();
@@ -99,9 +102,9 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
     onError: (error: any) => {
       setIsDisconnecting(false);
 
-      const errorMessage = error.message || "Failed to disconnect from Slack";
+      const errorMessage = error.message || t("slack.disconnectFailed");
 
-      showErrorToast("Disconnection Failed", errorMessage);
+      showErrorToast(t("slack.disconnectionFailed"), errorMessage);
 
       onError?.(new Error(errorMessage));
     },
@@ -117,7 +120,7 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
       await disconnectMutation.mutateAsync({ projectId });
     } catch (error) {
       // Error handling is done in the mutation callbacks
-      console.error("Disconnect error:", error);
+      console.error(t("slack.disconnectionError"), error);
     }
   };
 
@@ -141,7 +144,8 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
       ) : (
         <Unlink className={showText ? "mr-2 h-4 w-4" : "h-4 w-4"} />
       )}
-      {showText && (isDisconnecting ? "Disconnecting..." : buttonText)}
+      {showText &&
+        (isDisconnecting ? t("slack.disconnecting") : resolvedButtonText)}
     </>
   );
 
@@ -162,25 +166,25 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="text-destructive h-5 w-5" />
-              Disconnect Slack Integration
+              {t("slack.disconnectTitle")}
             </DialogTitle>
             <DialogDescription className="space-y-2">
               <p>
-                Are you sure you want to disconnect your Slack workspace from
-                this project?
+                {t("slack.disconnectConfirm")}
               </p>
               <div className="bg-muted space-y-2 rounded-md p-3">
-                <p className="text-sm font-medium">This will:</p>
+                <p className="text-sm font-medium">
+                  {t("slack.disconnectThisWill")}
+                </p>
                 <ul className="ml-4 space-y-1 text-sm">
-                  <li>• Remove the bot from your Slack workspace</li>
-                  <li>• Disable all existing Slack automations</li>
-                  <li>• Stop all future Slack notifications</li>
-                  <li>• Delete stored workspace credentials</li>
+                  <li>• {t("slack.disconnectRemoveBot")}</li>
+                  <li>• {t("slack.disconnectDisableAutomations")}</li>
+                  <li>• {t("slack.disconnectStopNotifications")}</li>
+                  <li>• {t("slack.disconnectDeleteCredentials")}</li>
                 </ul>
               </div>
               <p className="text-muted-foreground text-sm">
-                You can reconnect at any time, but you&apos;ll need to
-                reconfigure your automations.
+                {t("slack.disconnectReconnectHelp")}
               </p>
             </DialogDescription>
           </DialogHeader>
@@ -190,7 +194,7 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
               onClick={() => setIsDialogOpen(false)}
               disabled={isDisconnecting}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="destructive"
@@ -200,12 +204,12 @@ export const SlackDisconnectButton: React.FC<SlackDisconnectButtonProps> = ({
               {isDisconnecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Disconnecting...
+                  {t("slack.disconnecting")}
                 </>
               ) : (
                 <>
                   <Unlink className="mr-2 h-4 w-4" />
-                  Disconnect
+                  {t("slack.disconnect")}
                 </>
               )}
             </Button>

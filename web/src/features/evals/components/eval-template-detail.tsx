@@ -25,9 +25,11 @@ import {
   SidePanelTitle,
 } from "@/src/components/ui/side-panel";
 import { LangfuseIcon } from "@/src/components/LangfuseLogo";
+import { useI18n } from "@/src/features/i18n";
 
 export const EvalTemplateDetail = () => {
   const router = useRouter();
+  const { t, formatDate } = useI18n();
   const projectId = router.query.projectId as string;
   const templateId = router.query.id as string;
   const mode = router.query.mode;
@@ -93,7 +95,7 @@ export const EvalTemplateDetail = () => {
         itemType: "EVALUATOR",
         breadcrumb: [
           {
-            name: "Evaluator Library",
+            name: t("evals.tabs.library"),
             href: `/project/${router.query.projectId as string}/evals/templates`,
           },
         ],
@@ -123,7 +125,7 @@ export const EvalTemplateDetail = () => {
       }}
     >
       {allTemplates.isLoading || !allTemplates.data || !template.data ? (
-        <div className="p-3">Loading...</div>
+        <div className="p-3">{t("common.loading")}...</div>
       ) : isEditing ? (
         <div className="overflow-y-auto p-3 pt-1">
           <EvalTemplateForm
@@ -145,10 +147,13 @@ export const EvalTemplateDetail = () => {
               setIsEditing={setIsEditing}
             />
           </div>
-          <SidePanel mobileTitle="Change history" id="change-history">
+          <SidePanel
+            mobileTitle={t("evals.detail.changeHistory")}
+            id="change-history"
+          >
             <SidePanelHeader>
               <SidePanelTitle className="text-base font-semibold">
-                Change history
+                {t("evals.detail.changeHistory")}
               </SidePanelTitle>
             </SidePanelHeader>
             <SidePanelContent>
@@ -183,7 +188,7 @@ export const EvalTemplateDetail = () => {
                           )}
                         </div>
                         <span className="text-muted-foreground text-xs">
-                          {template.createdAt.toLocaleDateString()}
+                          {formatDate(template.createdAt)}
                         </span>
                       </div>
                     </div>
@@ -205,6 +210,7 @@ export function EvalVersionDropdown(props: {
   onSelect?: (template: EvalTemplate) => void;
 }) {
   const capture = usePostHogClientCapture();
+  const { t, formatDate } = useI18n();
   const handleSelect = (value: string) => {
     const selectedTemplate = props.options?.find(
       (template) => template.id === value,
@@ -222,13 +228,13 @@ export function EvalVersionDropdown(props: {
       defaultValue={props.defaultOption ? props.defaultOption.id : undefined}
     >
       <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Version" />
+        <SelectValue placeholder={t("evals.detail.version")} />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
           {props.options?.map((template) => (
             <SelectItem key={template.id} value={template.id}>
-              v{template.version} - {template.createdAt.toLocaleDateString()}
+              v{template.version} - {formatDate(template.createdAt)}
             </SelectItem>
           ))}
         </SelectGroup>
@@ -253,6 +259,7 @@ export function UpdateTemplate({
     scope: "evalTemplate:CUD",
   });
   const capture = usePostHogClientCapture();
+  const { t } = useI18n();
 
   const handlePromptEdit = (checked: boolean) => {
     setIsEditing(checked);
@@ -264,7 +271,7 @@ export function UpdateTemplate({
       <div className="flex items-center gap-2">
         <LangfuseIcon size={16} />
         <span className="text-muted-foreground text-sm font-medium">
-          View only
+          {t("evals.detail.viewOnly")}
         </span>
       </div>
     );
@@ -272,7 +279,7 @@ export function UpdateTemplate({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm font-medium">Edit mode</span>
+      <span className="text-sm font-medium">{t("evals.detail.editMode")}</span>
       <Switch
         checked={isEditing}
         onCheckedChange={handlePromptEdit}

@@ -12,6 +12,7 @@ import {
   groupDataByTimeDimension,
 } from "@/src/features/widgets/chart-library/utils";
 import { compactNumberFormatter } from "@/src/utils/numbers";
+import { useI18n } from "@/src/features/i18n";
 
 /**
  * VerticalBarChartTimeSeries component
@@ -33,7 +34,12 @@ export const VerticalBarChartTimeSeries: React.FC<ChartProps> = ({
   valueFormatter = compactNumberFormatter,
   subtleFill = false,
 }) => {
-  const groupedData = useMemo(() => groupDataByTimeDimension(data), [data]);
+  const { t } = useI18n();
+  const unknownLabel = t("common.unknown");
+  const groupedData = useMemo(
+    () => groupDataByTimeDimension(data, unknownLabel),
+    [data, unknownLabel],
+  );
   const dimensions = useMemo(() => getUniqueDimensions(data), [data]);
 
   return (

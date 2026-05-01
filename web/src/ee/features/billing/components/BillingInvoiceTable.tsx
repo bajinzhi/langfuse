@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useBillingInformation } from "./useBillingInformation";
 import { useIsCloudBillingAvailable } from "@/src/ee/features/billing/utils/isCloudBilling";
+import { useI18n } from "@/src/features/i18n";
 
 type InvoiceRow = {
   id: string;
@@ -29,6 +30,7 @@ type InvoiceRow = {
 };
 
 export function BillingInvoiceTable() {
+  const { t, formatDate } = useI18n();
   const { organization } = useBillingInformation();
   const isCloudBillingAvailable = useIsCloudBillingAvailable();
   const shouldShowTable =
@@ -113,22 +115,22 @@ export function BillingInvoiceTable() {
     {
       accessorKey: "created",
       id: "created",
-      header: "Date",
+      header: t("billing.invoice.date"),
       cell: ({ row }) => {
         const value = row.getValue("created") as InvoiceRow["created"];
         if (!value) return undefined;
-        const date = new Date(value);
-        const year = date.getFullYear();
-        const month = date.toLocaleDateString("en-US", { month: "short" });
-        const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
+        return formatDate(value, {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
       },
       size: 90,
     },
     {
       accessorKey: "status",
       id: "status",
-      header: "Status",
+      header: t("common.status"),
       size: 100,
       cell: ({ row }) => {
         const status = (row.getValue("status") as string | null)?.toLowerCase();
@@ -145,7 +147,7 @@ export function BillingInvoiceTable() {
     {
       accessorKey: "breakdown.subscriptionCents",
       id: "subscription",
-      header: "Subscription",
+      header: t("billing.invoice.subscription"),
       size: 100,
       cell: ({ row }) => {
         const cents = row.original.breakdown?.subscriptionCents ?? 0;
@@ -155,7 +157,7 @@ export function BillingInvoiceTable() {
     {
       accessorKey: "breakdown.usageCents",
       id: "usage",
-      header: "Usage",
+      header: t("billing.invoice.usage"),
       size: 90,
       cell: ({ row }) => {
         const cents = row.original.breakdown?.usageCents ?? 0;
@@ -165,7 +167,7 @@ export function BillingInvoiceTable() {
     {
       accessorKey: "breakdown.discountCents",
       id: "discounts",
-      header: "Discounts",
+      header: t("billing.discounts"),
       size: 90,
       cell: ({ row }) => {
         const cents = row.original.breakdown?.discountCents ?? 0;
@@ -175,7 +177,7 @@ export function BillingInvoiceTable() {
     {
       accessorKey: "breakdown.taxCents",
       id: "tax",
-      header: "Tax",
+      header: t("billing.invoice.tax"),
       size: 90,
       cell: ({ row }) => {
         const cents = row.original.breakdown?.taxCents ?? 0;
@@ -185,7 +187,7 @@ export function BillingInvoiceTable() {
     {
       accessorKey: "breakdown.totalCents",
       id: "total",
-      header: "Total",
+      header: t("billing.invoice.total"),
       size: 90,
       cell: ({ row }) => {
         const cents = row.original.breakdown?.totalCents ?? 0;
@@ -195,7 +197,7 @@ export function BillingInvoiceTable() {
     {
       accessorKey: "actions",
       id: "actions",
-      header: "Actions",
+      header: t("billing.invoice.actions"),
       size: 160,
       cell: ({ row }) => {
         const { hostedInvoiceUrl, invoicePdfUrl } = row.original;
@@ -204,7 +206,8 @@ export function BillingInvoiceTable() {
             {hostedInvoiceUrl ? (
               <a href={hostedInvoiceUrl} target="_blank" rel="noreferrer">
                 <Button size="sm" variant="ghost">
-                  <ExternalLink className="mr-1 h-4 w-4" /> View
+                  <ExternalLink className="mr-1 h-4 w-4" />{" "}
+                  {t("billing.invoice.view")}
                 </Button>
               </a>
             ) : null}
@@ -282,7 +285,9 @@ export function BillingInvoiceTable() {
   return (
     <div className="space-y-0">
       <div className="flex items-center justify-between pt-4">
-        <h3 className="text-large font-medium">Invoice History</h3>
+        <h3 className="text-large font-medium">
+          {t("billing.invoiceHistory")}
+        </h3>
       </div>
       <DataTableToolbar columns={columns} />
       <DataTable

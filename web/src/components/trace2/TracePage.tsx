@@ -17,6 +17,7 @@ import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { useEventsTraceData } from "@/src/features/events/hooks/useEventsTraceData";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { useEffect } from "react";
+import { useI18n } from "@/src/features/i18n";
 
 export function TracePage({
   traceId,
@@ -25,6 +26,7 @@ export function TracePage({
   traceId: string;
   timestamp?: Date;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const session = useSession();
   const routeProjectId = (router.query.projectId as string) ?? "";
@@ -75,8 +77,8 @@ export function TracePage({
   useEffect(() => {
     if (isBetaEnabled && eventsData.cutoffObservationsAfterMaxCount) {
       showErrorToast(
-        "Trace truncated",
-        "This trace has too many observations for the detail view. Only a subset is shown.",
+        t("trace.truncatedTitle"),
+        t("trace.truncatedDescription"),
         "WARNING",
       );
     }
@@ -84,15 +86,15 @@ export function TracePage({
 
   // Handle errors - for events path, we check if there's no data after loading
   if (!isBetaEnabled && tracesQuery.error?.data?.code === "UNAUTHORIZED")
-    return <ErrorPage message="You do not have access to this trace." />;
+    return <ErrorPage message={t("trace.noAccess")} />;
 
   if (!isBetaEnabled && tracesQuery.error?.data?.code === "NOT_FOUND")
     return (
       <ErrorPage
-        title="Trace not found"
-        message="The trace is either still being processed or has been deleted."
+        title={t("trace.redirect.notFoundTitle")}
+        message={t("trace.notFoundMessage")}
         additionalButton={{
-          label: "Retry",
+          label: t("common.retry"),
           onClick: () => void window.location.reload(),
         }}
       />
@@ -102,16 +104,16 @@ export function TracePage({
   if (isBetaEnabled && !eventsData.isLoading && !eventsData.data)
     return (
       <ErrorPage
-        title="Trace not found"
-        message="No observations found for this trace. The trace may still be processing or has been deleted."
+        title={t("trace.redirect.notFoundTitle")}
+        message={t("trace.noObservationsFound")}
         additionalButton={{
-          label: "Retry",
+          label: t("common.retry"),
           onClick: () => void window.location.reload(),
         }}
       />
     );
 
-  if (!trace.data) return <div className="p-3">Loading...</div>;
+  if (!trace.data) return <div className="p-3">{t("common.loadingDots")}</div>;
 
   const isSharedTrace = trace.data.public;
   const showPublicIndicators = isSharedTrace && !hasProjectAccess;
@@ -124,28 +126,28 @@ export function TracePage({
         asChild
         size="sm"
         variant="outline"
-        title="Back to Langfuse"
+        title={t("trace.backToLangfuse")}
         className="px-3"
       >
-        <Link href="/">Langfuse</Link>
+        <Link href="/">{t("trace.langfuse")}</Link>
       </Button>
     ) : (
       <Button
         asChild
         size="sm"
         variant="default"
-        title="Sign in to Langfuse"
+        title={t("trace.signInToLangfuse")}
         className="px-3"
       >
         <Link href={`/auth/sign-in?targetPath=${encodedTargetPath}`}>
-          Sign in
+          {t("auth.signIn")}
         </Link>
       </Button>
     )
   ) : undefined;
   const sharedBadge = showPublicIndicators ? (
     <Badge variant="outline" className="text-xs font-medium">
-      Public
+      {t("trace.public")}
     </Badge>
   ) : undefined;
 
@@ -158,7 +160,7 @@ export function TracePage({
         itemType: "TRACE",
         breadcrumb: [
           {
-            name: "Traces",
+            name: t("nav.traces"),
             href: `/project/${router.query.projectId as string}/traces`,
           },
         ],

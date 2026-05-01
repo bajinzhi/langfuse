@@ -27,8 +27,10 @@ import { AnnotationPanel } from "@/src/features/datasets/components/AnnotationPa
 import { toExperimentsResultsUrl } from "@/src/features/experiments/utils/experimentUrlTranslation";
 import { useExperimentAccess } from "@/src/features/experiments/hooks/useExperimentAccess";
 import { ExperimentsBetaSwitch } from "@/src/features/experiments/components/ExperimentsBetaSwitch";
+import { useI18n } from "@/src/features/i18n";
 
 function DatasetCompareInternal() {
+  const { t } = useI18n();
   const router = useRouter();
   const capture = usePostHogClientCapture();
   const projectId = router.query.projectId as string;
@@ -123,10 +125,12 @@ function DatasetCompareInternal() {
     return (
       <Page
         headerProps={{
-          title: `Compare runs: ${dataset.data?.name ?? datasetId}`,
+          title: t("datasets.compareRunsTitle", {
+            name: dataset.data?.name ?? datasetId,
+          }),
           breadcrumb: [
             {
-              name: "Datasets",
+              name: t("datasets.label"),
               href: `/project/${projectId}/datasets`,
             },
             {
@@ -135,7 +139,7 @@ function DatasetCompareInternal() {
             },
           ],
           tabsProps: {
-            tabs: getDatasetRunCompareTabs(projectId, datasetId),
+            tabs: getDatasetRunCompareTabs(projectId, datasetId, t),
             activeTab: DATASET_RUN_COMPARE_TABS.COMPARE,
           },
           actionButtonsLeft: betaSwitch,
@@ -151,10 +155,12 @@ function DatasetCompareInternal() {
   return (
     <Page
       headerProps={{
-        title: `Compare runs: ${dataset.data?.name ?? datasetId}`,
+        title: t("datasets.compareRunsTitle", {
+          name: dataset.data?.name ?? datasetId,
+        }),
         breadcrumb: [
           {
-            name: "Datasets",
+            name: t("datasets.label"),
             href: `/project/${projectId}/datasets`,
           },
           {
@@ -163,10 +169,10 @@ function DatasetCompareInternal() {
           },
         ],
         help: {
-          description: "Compare your dataset runs side by side",
+          description: t("datasets.compareHelp"),
         },
         tabsProps: {
-          tabs: getDatasetRunCompareTabs(projectId, datasetId),
+          tabs: getDatasetRunCompareTabs(projectId, datasetId, t),
           activeTab: DATASET_RUN_COMPARE_TABS.COMPARE,
         },
         actionButtonsRight: (
@@ -184,7 +190,9 @@ function DatasetCompareInternal() {
                   onClick={() => capture("dataset_run:new_form_open")}
                 >
                   <FlaskConical className="h-4 w-4" />
-                  <span className="ml-2 hidden md:block">New experiment</span>
+                  <span className="ml-2 hidden md:block">
+                    {t("experiments.newExperiment")}
+                  </span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-h-[90vh] overflow-y-auto">
@@ -202,9 +210,9 @@ function DatasetCompareInternal() {
             </Dialog>
             <MultiSelectKeyValues
               key="select-runs"
-              title="Experiments"
+              title={t("experiments.title")}
               showSelectedValueStrings={false}
-              placeholder="Select runs to compare"
+              placeholder={t("datasets.selectRunsToCompare")}
               className="w-fit"
               variant="outline"
               hideClearButton

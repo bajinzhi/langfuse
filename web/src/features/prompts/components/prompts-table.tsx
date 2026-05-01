@@ -18,7 +18,7 @@ import { TagPromptPopover } from "@/src/features/tag/components/TagPromptPopover
 import { DataTableToolbar } from "@/src/components/table/data-table-toolbar";
 import { useQueryFilterState } from "@/src/features/filters/hooks/useFilterState";
 import { useSidebarFilterState } from "@/src/features/filters/hooks/useSidebarFilterState";
-import { promptFilterConfig } from "@/src/features/filters/config/prompts-config";
+import { getPromptFilterConfig } from "@/src/features/filters/config/prompts-config";
 import { useOrderByState } from "@/src/features/orderBy/hooks/useOrderByState";
 import { joinTableCoreAndMetrics } from "@/src/components/table/utils/joinTableCoreAndMetrics";
 import { Skeleton } from "@/src/components/ui/skeleton";
@@ -29,6 +29,7 @@ import { useFolderPagination } from "@/src/features/folders/hooks/useFolderPagin
 import { buildFullPath } from "@/src/features/folders/utils";
 import { FolderBreadcrumb } from "@/src/features/folders/components/FolderBreadcrumb";
 import { FolderBreadcrumbLink } from "@/src/features/folders/components/FolderBreadcrumbLink";
+import { useI18n } from "@/src/features/i18n";
 
 type PromptTableRow = {
   id: string;
@@ -62,6 +63,8 @@ function createRow(
 
 export function PromptTable() {
   const projectId = useProjectIdFromURL() ?? "";
+  const { t } = useI18n();
+  const promptFilterConfig = useMemo(() => getPromptFilterConfig(t), [t]);
   const { setDetailPageList } = useDetailPageLists();
   const promptMetricsTimeWindow = useMemo(() => {
     const today = new Date();
@@ -271,7 +274,7 @@ export function PromptTable() {
   const promptColumns: LangfuseColumnDef<PromptTableRow>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("prompts.name"),
       id: "name",
       enableSorting: true,
       size: 250,
@@ -299,7 +302,7 @@ export function PromptTable() {
     },
     {
       accessorKey: "version",
-      header: "Versions",
+      header: t("prompts.table.versions"),
       id: "version",
       enableSorting: true,
       size: 70,
@@ -310,14 +313,20 @@ export function PromptTable() {
     },
     {
       accessorKey: "type",
-      header: "Type",
+      header: t("prompts.table.type"),
       id: "type",
       enableSorting: true,
       size: 60,
+      cell: ({ getValue }) => {
+        const type = getValue<PromptTableRow["type"]>();
+        if (type === "chat") return t("prompts.chat");
+        if (type === "text") return t("prompts.text");
+        return t("prompts.folder");
+      },
     },
     {
       accessorKey: "createdAt",
-      header: "Latest Version Created At",
+      header: t("prompts.table.latestVersionCreatedAt"),
       id: "createdAt",
       enableSorting: true,
       size: 200,
@@ -329,7 +338,7 @@ export function PromptTable() {
     },
     {
       accessorKey: "numberOfObservations",
-      header: "Number of Observations (7d)",
+      header: t("prompts.table.observations7d"),
       id: "numberOfObservations",
       size: 170,
       cell: ({ getValue, row }) => {
@@ -353,7 +362,7 @@ export function PromptTable() {
     },
     {
       accessorKey: "tags",
-      header: "Tags",
+      header: t("prompts.table.tags"),
       id: "tags",
       enableSorting: true,
       size: 120,
@@ -384,7 +393,7 @@ export function PromptTable() {
     {
       accessorKey: "id",
       id: "actions",
-      header: "Actions",
+      header: t("prompts.table.actions"),
       size: 70,
       enableSorting: false,
       cell: ({ row }) => {
@@ -422,15 +431,19 @@ export function PromptTable() {
           filterState={queryFilter.filterState}
           columnsWithCustomSelect={["labels", "tags"]}
           searchConfig={{
-            metadataSearchFields: ["Name", "Tags", "Content"],
+            metadataSearchFields: [
+              t("prompts.name"),
+              t("prompts.table.tags"),
+              t("prompts.table.content"),
+            ],
             updateQuery: useDebounce(setSearchQuery, 300),
             currentQuery: searchQuery ?? undefined,
             tableAllowsFullTextSearch: true,
             setSearchType,
             searchType,
             customDropdownLabels: {
-              metadata: "Names, Tags",
-              fullText: "Full Text",
+              metadata: t("prompts.table.namesTags"),
+              fullText: t("table.search.fullText"),
             },
             hidePerformanceWarning: true,
             availableSearchTypes: {

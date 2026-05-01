@@ -10,12 +10,12 @@ import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { V4IntroDialog } from "@/src/features/events/components/V4IntroDialog";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { ZapIcon } from "lucide-react";
+import { useI18n } from "@/src/features/i18n";
 
-const PREVIEW_FAST_DESCRIPTION =
-  "Get a more performant Langfuse experience. Upgrade SDKs to the latest major for real-time data. This is a personal setting.";
 const PREVIEW_FAST_DESCRIPTION_ID = "preview-fast-toggle-description";
 
 export function V4SidebarToggle() {
+  const { t } = useI18n();
   const {
     isBetaEnabled,
     canToggleV4,
@@ -27,6 +27,7 @@ export function V4SidebarToggle() {
     isLoading,
   } = useV4Beta();
   const capture = usePostHogClientCapture();
+  const previewFastDescription = t("events.v4.sidebar.description");
 
   if (!canToggleV4) {
     return null;
@@ -61,7 +62,7 @@ export function V4SidebarToggle() {
               htmlFor="v4-beta-toggle"
               className="block min-w-0 flex-1 cursor-pointer truncate text-sm font-normal"
             >
-              Fast (Preview)
+              {t("events.v4.fastPreview")}
             </Label>
           </div>
           <Tooltip>
@@ -74,17 +75,17 @@ export function V4SidebarToggle() {
                   onCheckedChange={handleToggle}
                   disabled={isLoading}
                   className="shrink-0"
-                  aria-label="Toggle Preview (fast)"
+                  aria-label={t("events.v4.sidebar.ariaLabel")}
                   aria-describedby={PREVIEW_FAST_DESCRIPTION_ID}
                 />
               </div>
             </TooltipTrigger>
             <TooltipContent side="right" className="max-w-xs text-xs">
-              {PREVIEW_FAST_DESCRIPTION}
+              {previewFastDescription}
             </TooltipContent>
           </Tooltip>
           <span id={PREVIEW_FAST_DESCRIPTION_ID} className="sr-only">
-            {PREVIEW_FAST_DESCRIPTION}
+            {previewFastDescription}
           </span>
         </div>
       </SidebarMenuButton>

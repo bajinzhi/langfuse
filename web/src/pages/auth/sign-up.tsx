@@ -31,6 +31,7 @@ import { useRouter } from "next/router";
 import { getSafeRedirectPath } from "@/src/utils/redirect";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import useLocalStorage from "@/src/components/useLocalStorage";
+import { useI18n } from "@/src/features/i18n";
 
 // Use the same getServerSideProps function as src/pages/auth/sign-in.tsx
 export { getServerSideProps } from "@/src/pages/auth/sign-in";
@@ -42,6 +43,7 @@ export default function SignIn({
   runningOnHuggingFaceSpaces,
 }: PageProps) {
   useHuggingFaceRedirect(runningOnHuggingFaceSpaces);
+  const { t } = useI18n();
   const { isLangfuseCloud, region } = useLangfuseCloudRegion();
   const router = useRouter();
   const capture = usePostHogClientCapture();
@@ -100,7 +102,7 @@ export default function SignIn({
 
     if (!emailResult.success) {
       form.setError("email", {
-        message: "Invalid email address",
+        message: t("auth.invalidEmail"),
       });
       setContinueLoading(false);
       return;
@@ -148,7 +150,7 @@ export default function SignIn({
       }, 100);
     } catch (error) {
       console.error(error);
-      setFormError("Unable to check SSO configuration. Please try again.");
+      setFormError(t("auth.signIn.ssoCheckFailed"));
     } finally {
       setContinueLoading(false);
     }
@@ -182,17 +184,17 @@ export default function SignIn({
             : `${env.NEXT_PUBLIC_BASE_PATH ?? ""}/`),
       });
     } catch {
-      setFormError("An error occurred. Please try again.");
+      setFormError(t("auth.signUp.error"));
     }
   }
 
   return (
     <>
       <Head>
-        <title>Sign up | Langfuse</title>
+        <title>{t("auth.signUp.headTitle")}</title>
         <meta
           name="description"
-          content="Create an account, no credit card required."
+          content={t("auth.signUp.metaDescription")}
           key="desc"
         />
       </Head>
@@ -200,12 +202,12 @@ export default function SignIn({
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <LangfuseIcon className="mx-auto" />
           <h2 className="text-primary mt-4 text-center text-2xl leading-9 font-bold tracking-tight">
-            Create new account
+            {t("auth.signUp.title")}
           </h2>
         </div>
         {isLangfuseCloud ? (
           <div className="text-center sm:mx-auto sm:w-full sm:max-w-[480px]">
-            No credit card required.
+            {t("auth.signUp.noCreditCard")}
           </div>
         ) : null}
 
@@ -230,9 +232,9 @@ export default function SignIn({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>{t("auth.name")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Jane Doe" {...field} />
+                        <Input placeholder={t("auth.namePlaceholder")} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -244,7 +246,7 @@ export default function SignIn({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t("auth.email")}</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="jsdoe@example.com"
@@ -263,7 +265,7 @@ export default function SignIn({
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t("auth.password")}</FormLabel>
                       <FormControl>
                         <PasswordInput {...field} />
                       </FormControl>
@@ -287,7 +289,9 @@ export default function SignIn({
                 }
                 data-testid="submit-email-password-sign-up-form"
               >
-                {showPasswordStep ? "Sign up" : "Continue"}
+                {showPasswordStep
+                  ? t("auth.signUp")
+                  : t("auth.signUp.continue")}
               </Button>
               {formError ? (
                 <div className="text-destructive text-center text-sm font-medium">
@@ -298,17 +302,17 @@ export default function SignIn({
           </Form>
           <SSOButtons
             authProviders={authProviders}
-            action="sign up"
+            action="signUp"
             lastUsedMethod={lastUsedAuthMethod}
             onProviderSelect={setLastUsedAuthMethod}
           />
           <p className="text-muted-foreground mt-10 text-center text-sm">
-            Already have an account?{" "}
+            {t("auth.signUp.alreadyHaveAccount")}{" "}
             <Link
               href={`/auth/sign-in${router.asPath.includes("?") ? router.asPath.substring(router.asPath.indexOf("?")) : ""}`}
               className="text-primary-accent hover:text-hover-primary-accent leading-6 font-semibold"
             >
-              Sign in
+              {t("auth.signIn")}
             </Link>
           </p>
         </div>

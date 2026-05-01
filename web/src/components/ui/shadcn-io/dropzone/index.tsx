@@ -7,6 +7,7 @@ import type { DropEvent, DropzoneOptions, FileRejection } from "react-dropzone";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/utils/tailwind";
+import { useI18n } from "@/src/features/i18n";
 
 type DropzoneContextType = {
   src?: File[];
@@ -121,6 +122,7 @@ export const DropzoneContent = ({
   className,
 }: DropzoneContentProps) => {
   const { src } = useDropzoneContext();
+  const { t, locale } = useI18n();
 
   if (!src) {
     return null;
@@ -137,13 +139,16 @@ export const DropzoneContent = ({
       </div>
       <p className="my-2 w-full truncate text-sm font-medium">
         {src.length > maxLabelItems
-          ? `${new Intl.ListFormat("en").format(
-              src.slice(0, maxLabelItems).map((file) => file.name),
-            )} and ${src.length - maxLabelItems} more`
-          : new Intl.ListFormat("en").format(src.map((file) => file.name))}
+          ? t("common.dropzoneSelectedFiles", {
+              items: new Intl.ListFormat(locale).format(
+                src.slice(0, maxLabelItems).map((file) => file.name),
+              ),
+              count: src.length - maxLabelItems,
+            })
+          : new Intl.ListFormat(locale).format(src.map((file) => file.name))}
       </p>
       <p className="text-muted-foreground w-full text-xs text-wrap">
-        Drag and drop or click to replace
+        {t("common.dropzoneReplace")}
       </p>
     </div>
   );
@@ -159,6 +164,7 @@ export const DropzoneEmptyState = ({
   className,
 }: DropzoneEmptyStateProps) => {
   const { src, accept, maxSize, minSize, maxFiles } = useDropzoneContext();
+  const { t, locale } = useI18n();
 
   if (src) {
     return null;
@@ -168,20 +174,34 @@ export const DropzoneEmptyState = ({
     return children;
   }
 
-  let caption = "";
+  const captionParts: string[] = [];
 
   if (accept) {
-    caption += "Accepts ";
-    caption += new Intl.ListFormat("en").format(Object.keys(accept));
+    captionParts.push(
+      t("common.dropzoneAccepts", {
+        types: new Intl.ListFormat(locale).format(Object.keys(accept)),
+      }),
+    );
   }
 
   if (minSize && maxSize) {
-    caption += ` between ${renderBytes(minSize)} and ${renderBytes(maxSize)}`;
+    captionParts.push(
+      t("common.dropzoneBetween", {
+        min: renderBytes(minSize),
+        max: renderBytes(maxSize),
+      }),
+    );
   } else if (minSize) {
-    caption += ` at least ${renderBytes(minSize)}`;
+    captionParts.push(
+      t("common.dropzoneAtLeast", { min: renderBytes(minSize) }),
+    );
   } else if (maxSize) {
-    caption += ` less than ${renderBytes(maxSize)}`;
+    captionParts.push(
+      t("common.dropzoneLessThan", { max: renderBytes(maxSize) }),
+    );
   }
+
+  const caption = captionParts.join(" ");
 
   return (
     <div className={cn("flex flex-col items-center justify-center", className)}>
@@ -189,10 +209,12 @@ export const DropzoneEmptyState = ({
         <UploadIcon size={16} />
       </div>
       <p className="my-2 w-full truncate text-sm font-medium text-wrap">
-        Upload {maxFiles === 1 ? "a file" : "files"}
+        {maxFiles === 1
+          ? t("common.dropzoneUploadSingle")
+          : t("common.dropzoneUploadMultiple")}
       </p>
       <p className="text-muted-foreground w-full truncate text-xs text-wrap">
-        Drag and drop or click to upload
+        {t("common.dropzoneUpload")}
       </p>
       {caption && (
         <p className="text-muted-foreground text-xs text-wrap">{caption}.</p>

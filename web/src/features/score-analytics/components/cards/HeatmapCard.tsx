@@ -15,6 +15,7 @@ import { type HeatmapCell } from "@/src/features/score-analytics/lib/heatmap-uti
 import { useCallback } from "react";
 import { SamplingDetailsHoverCard } from "../SamplingDetailsHoverCard";
 import { type ScoreDataTypeType } from "@langfuse/shared";
+import { useI18n } from "@/src/features/i18n";
 
 interface HeatmapTooltipContentProps {
   cell: HeatmapCell;
@@ -42,6 +43,7 @@ function HeatmapTooltipContent({
   score2Color,
   totalMatchedPairs,
 }: HeatmapTooltipContentProps) {
+  const { t } = useI18n();
   const percentage = (cell.metadata?.percentage as number) ?? 0;
 
   return (
@@ -50,7 +52,10 @@ function HeatmapTooltipContent({
       <div className="border-border border-b pb-2">
         <p className="text-muted-foreground text-sm font-medium">
           {dataType === "NUMERIC"
-            ? `Bin ${cell.row}×${cell.col}`
+            ? t("scoreAnalytics.bin", {
+                row: cell.row,
+                column: cell.col,
+              })
             : `${cell.metadata?.rowCategory as string} → ${cell.metadata?.colCategory as string}`}
         </p>
       </div>
@@ -58,11 +63,15 @@ function HeatmapTooltipContent({
       {/* Primary Metrics Section */}
       <div className="space-y-1">
         <p className="text-foreground text-base font-semibold">
-          {cell.value.toLocaleString()} observations
+          {t("scoreAnalytics.observations", {
+            count: cell.value.toLocaleString(),
+          })}
         </p>
         <p className="text-muted-foreground text-xs">
-          {percentage.toFixed(1)}% of {totalMatchedPairs.toLocaleString()}{" "}
-          matched pairs
+          {t("scoreAnalytics.xOfMatchedPairs", {
+            percentage: percentage.toFixed(1),
+            count: totalMatchedPairs.toLocaleString(),
+          })}
         </p>
       </div>
 
@@ -140,6 +149,7 @@ function HeatmapTooltipContent({
  */
 export function HeatmapCard() {
   const { data, isLoading, params, getColorForScore } = useScoreAnalytics();
+  const { t } = useI18n();
 
   // Compute max value for color scaling (must be before early returns)
   const maxValue =
@@ -162,8 +172,8 @@ export function HeatmapCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Score Comparison</CardTitle>
-          <CardDescription>Loading heatmap...</CardDescription>
+          <CardTitle>{t("scoreAnalytics.scoreComparison")}</CardTitle>
+          <CardDescription>{t("scoreAnalytics.loadingHeatmap")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-1 flex-col items-center justify-center pl-1">
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
@@ -177,11 +187,11 @@ export function HeatmapCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Score Comparison</CardTitle>
-          <CardDescription>No data available</CardDescription>
+          <CardTitle>{t("scoreAnalytics.scoreComparison")}</CardTitle>
+          <CardDescription>{t("scoreAnalytics.noDataAvailable")}</CardDescription>
         </CardHeader>
         <CardContent className="text-muted-foreground flex flex-1 flex-col items-center justify-center pl-0 text-sm">
-          Select a score to view comparison
+          {t("scoreAnalytics.selectScoreToViewComparison")}
         </CardContent>
       </Card>
     );
@@ -195,16 +205,22 @@ export function HeatmapCard() {
   const totalMatchedPairs = statistics.comparison?.matchedCount ?? 0;
 
   const title =
-    dataType === "NUMERIC" ? "Score Comparison Heatmap" : "Confusion Matrix";
+    dataType === "NUMERIC"
+      ? t("scoreAnalytics.heatmapTitle")
+      : t("scoreAnalytics.confusionMatrix");
 
   const description =
     mode === "single"
       ? dataType === "NUMERIC"
-        ? "Distribution of matched score pairs showing correlation patterns"
-        : "Agreement matrix between categorical scores"
+        ? t("scoreAnalytics.heatmapDescriptionNumeric")
+        : t("scoreAnalytics.heatmapDescriptionCategorical")
       : dataType === "NUMERIC"
-        ? `${totalMatchedPairs.toLocaleString()} matched pairs showing correlation patterns`
-        : `${totalMatchedPairs.toLocaleString()} matched pairs showing agreement`;
+        ? t("scoreAnalytics.heatmapMatchedCorrelation", {
+            count: totalMatchedPairs.toLocaleString(),
+          })
+        : t("scoreAnalytics.heatmapMatchedAgreement", {
+            count: totalMatchedPairs.toLocaleString(),
+          });
 
   // Single score mode - show placeholder
   if (mode === "single") {
@@ -223,7 +239,7 @@ export function HeatmapCard() {
             showAxisLabels={true}
           />
           <p className="text-muted-foreground text-center text-sm font-light">
-            Select a second score to view comparison heatmap
+            {t("scoreAnalytics.selectSecondScoreForHeatmap")}
           </p>
         </CardContent>
       </Card>

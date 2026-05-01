@@ -21,9 +21,11 @@ import {
 import { type AutomationDomain } from "@langfuse/shared";
 import { ErrorPage } from "@/src/components/error-page";
 import { getPathnameWithoutBasePath } from "@/src/utils/api";
+import { useI18n } from "@/src/features/i18n";
 
 export default function AutomationsPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const utils = api.useUtils();
   const projectId = router.query.projectId as string;
   const [webhookSecret, setWebhookSecret] = useState<string | null>(null);
@@ -238,10 +240,10 @@ export default function AutomationsPage() {
 
   const renderAutomationNotFoundError = (message: string) => (
     <ErrorPage
-      title="Webhook not found"
+      title={t("automations.webhookNotFound.title")}
       message={message}
       additionalButton={{
-        label: "Back to Webhooks",
+        label: t("automations.webhookNotFound.back"),
         onClick: () => {
           setUrlParams({
             view: "list",
@@ -257,7 +259,7 @@ export default function AutomationsPage() {
     // Handle 404 errors for edit view
     if (view === "edit" && editingAutomationError?.data?.code === "NOT_FOUND") {
       return renderAutomationNotFoundError(
-        "The webhook you're trying to edit doesn't exist or has been deleted.",
+        t("automations.webhookNotFound.edit"),
       );
     }
 
@@ -268,7 +270,7 @@ export default function AutomationsPage() {
       automationDetailError?.data?.code === "NOT_FOUND"
     ) {
       return renderAutomationNotFoundError(
-        "The webhook you're looking for doesn't exist or has been deleted.",
+        t("automations.webhookNotFound.lookup"),
       );
     }
 
@@ -318,10 +320,11 @@ export default function AutomationsPage() {
       <div className="h-full p-6">
         <div className="text-muted-foreground flex h-full items-center justify-center">
           <div className="text-center">
-            <h3 className="text-lg font-medium">Select an automation</h3>
+            <h3 className="text-lg font-medium">
+              {t("automations.selectEmpty.title")}
+            </h3>
             <p className="mt-2 text-sm">
-              Choose an automation from the sidebar to view its details and
-              execution history.
+              {t("automations.selectEmpty.description")}
             </p>
           </div>
         </div>
@@ -332,17 +335,17 @@ export default function AutomationsPage() {
   return (
     <Page
       headerProps={{
-        title: "Automations",
+        title: t("automations.title"),
         breadcrumb: [
           {
-            name: "Prompts",
+            name: t("automations.prompts"),
             href: `/project/${projectId}/prompts/`,
           },
         ],
         actionButtonsRight: (
           <Button onClick={handleCreateAutomation}>
             <Plus className="mr-2 h-4 w-4" />
-            Create Automation
+            {t("automations.createAutomation")}
           </Button>
         ),
       }}
@@ -361,10 +364,11 @@ export default function AutomationsPage() {
       <Dialog open={showSecretDialog} onOpenChange={setShowSecretDialog}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Webhook Secret Created</DialogTitle>
+            <DialogTitle>
+              {t("automations.webhook.secretCreatedTitle")}
+            </DialogTitle>
             <DialogDescription>
-              Your automation has been created successfully. Please copy the
-              webhook secret below - it will only be shown once.
+              {t("automations.webhook.secretCreatedDescription")}
             </DialogDescription>
           </DialogHeader>
           <DialogBody>
@@ -379,7 +383,7 @@ export default function AutomationsPage() {
                 setWebhookSecret(null);
               }}
             >
-              {"I've saved the secret"}
+              {t("automations.webhook.savedSecret")}
             </Button>
           </DialogFooter>
         </DialogContent>

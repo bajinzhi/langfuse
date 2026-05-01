@@ -23,6 +23,7 @@ import { type FilterOption } from "@langfuse/shared";
 import { Input } from "@/src/components/ui/input";
 import { useRef, useState, useMemo, useCallback } from "react";
 import { PropertyHoverCard } from "@/src/features/widgets/components/WidgetPropertySelectItem";
+import { useI18n } from "@/src/features/i18n";
 
 const getFreeTextInput = (
   isCustomSelectEnabled: boolean,
@@ -54,6 +55,7 @@ export function MultiSelect({
   isCustomSelectEnabled?: boolean;
   labelTruncateCutOff?: number;
 }) {
+  const { t } = useI18n();
   const selectedValues = useMemo(() => new Set(values), [values]);
   const optionValues = new Set(options.map((option) => option.value));
   const freeTextInput = getFreeTextInput(
@@ -145,7 +147,7 @@ export function MultiSelect({
           )}
           disabled={disabled}
         >
-          {label ?? "Select"}
+          {label ?? t("common.select")}
           <ChevronDown className="h-4 w-4 opacity-50" />
           {selectedValues.size > 0 && (
             <>
@@ -162,13 +164,17 @@ export function MultiSelect({
                     variant="secondary"
                     className="rounded-sm px-1 font-normal"
                   >
-                    {selectedValues.size} selected
+                    {t("table.filters.selected", {
+                      count: selectedValues.size,
+                    })}
                   </Badge>
                 ) : (
                   getSelectedOptions().map((option) => {
                     const displayValue =
                       option.displayValue ??
-                      (option.value === "" ? "(empty)" : option.value);
+                      (option.value === ""
+                        ? t("table.filters.empty")
+                        : option.value);
                     return (
                       <Badge
                         variant="secondary"
@@ -194,7 +200,9 @@ export function MultiSelect({
           <InputCommandList>
             {/* if isCustomSelectEnabled we always show custom select hence never empty */}
             {!isCustomSelectEnabled && (
-              <InputCommandEmpty>No results found.</InputCommandEmpty>
+              <InputCommandEmpty>
+                {t("table.filters.noResults")}
+              </InputCommandEmpty>
             )}
             <InputCommandGroup>
               {selectableOptions.length > 0 && (
@@ -211,7 +219,9 @@ export function MultiSelect({
                       <Check className={cn("h-4 w-4")} />
                     </div>
                     <div className="font-medium">
-                      {allSelectedState ? "Deselect All" : "Select All"}
+                      {allSelectedState
+                        ? t("table.columns.deselectAll")
+                        : t("table.columns.selectAll")}
                     </div>
                   </InputCommandItem>
                   <InputCommandSeparator />
@@ -222,10 +232,14 @@ export function MultiSelect({
                 const isSelected = selectedValues.has(option.value);
                 const displayValue =
                   option.displayValue ??
-                  (option.value === "" ? "(empty)" : option.value);
+                  (option.value === ""
+                    ? t("table.filters.empty")
+                    : option.value);
                 const displayTitle =
                   option.displayValue ??
-                  (option.value === "" ? "(empty)" : option.value);
+                  (option.value === ""
+                    ? t("table.filters.empty")
+                    : option.value);
 
                 const commandItem = (
                   <InputCommandItem
@@ -333,7 +347,7 @@ export function MultiSelect({
                     onClick={(e) => {
                       e.stopPropagation();
                     }}
-                    placeholder="Enter custom value"
+                    placeholder={t("table.filters.enterCustomValue")}
                     className="h-6 w-full rounded-none border-t-0 border-r-0 border-b-2 border-l-0 border-dotted p-0 text-sm"
                   />
                 </InputCommandItem>
@@ -347,7 +361,7 @@ export function MultiSelect({
                     onSelect={() => onValueChange([])}
                     className="justify-center text-center"
                   >
-                    Clear filters
+                    {t("table.selection.clear")}
                   </InputCommandItem>
                 </InputCommandGroup>
               </>

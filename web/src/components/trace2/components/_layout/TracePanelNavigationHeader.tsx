@@ -22,6 +22,7 @@ import { useCallback } from "react";
 import { TraceSettingsDropdown } from "../TraceSettingsDropdown";
 import { downloadTraceAsJson } from "../../lib/download-trace";
 import { TracePanelNavigationButton } from "./TracePanelNavigationButton";
+import { useI18n } from "@/src/features/i18n";
 
 interface TracePanelNavigationHeaderProps {
   isPanelCollapsed: boolean;
@@ -59,6 +60,7 @@ function TracePanelNavigationHeaderExpanded({
   onTogglePanel,
   shouldPulseToggle = false,
 }: TracePanelNavigationHeaderProps) {
+  const { t } = useI18n();
   const { searchInputValue, setSearchInputValue, setSearchQueryImmediate } =
     useSearch();
   const { expandAll, collapseAll, collapsedNodes } = useSelection();
@@ -119,7 +121,7 @@ function TracePanelNavigationHeaderExpanded({
         <div className="relative flex-1">
           <CommandInput
             showBorder={false}
-            placeholder="Search"
+            placeholder={t("table.search.placeholder")}
             className="h-7 min-w-20 border-0 pr-0 focus:ring-0"
             value={searchInputValue}
             onValueChange={setSearchInputValue}
@@ -132,7 +134,9 @@ function TracePanelNavigationHeaderExpanded({
             onClick={handleToggleTreeNodes}
             variant="ghost"
             size="icon"
-            title={isEverythingCollapsed ? "Expand all" : "Collapse all"}
+            title={
+              isEverythingCollapsed ? t("trace.expandAll") : t("trace.collapseAll")
+            }
             className="h-7 w-7"
           >
             {isEverythingCollapsed ? (
@@ -150,7 +154,7 @@ function TracePanelNavigationHeaderExpanded({
             variant="ghost"
             size="icon"
             onClick={handleDownload}
-            title="Download trace as JSON"
+            title={t("trace.downloadTraceJson")}
             className="h-7 w-7"
           >
             <Download className="h-3.5 w-3.5" />
@@ -166,7 +170,7 @@ function TracePanelNavigationHeaderExpanded({
               isTimelineView && "bg-primary text-primary-foreground",
             )}
           >
-            <span className="text-xs">Timeline</span>
+            <span className="text-xs">{t("trace.timeline")}</span>
           </Button>
         </div>
       </div>

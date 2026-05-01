@@ -32,6 +32,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/src/components/ui/tooltip";
+import { useI18n } from "@/src/features/i18n";
 
 import { LLMApiKeyComponent } from "./LLMApiKeyComponent";
 import { FormDescription } from "@/src/components/ui/form";
@@ -67,6 +68,7 @@ export const ModelParameters: React.FC<ModelParamsContext> = ({
   layout = "vertical",
   isEmbedded = false,
 }) => {
+  const { t } = useI18n();
   const projectId = useProjectIdFromURL();
   const [modelSettingsOpen, setModelSettingsOpen] = useState(false);
   const [modelSettingsUsed, setModelSettingsUsed] = useState(false);
@@ -97,10 +99,10 @@ export const ModelParameters: React.FC<ModelParamsContext> = ({
           customHeader
         ) : (
           <div className="flex items-center justify-between">
-            <p className="font-semibold">Model</p>
+            <p className="font-semibold">{t("playground.model.model")}</p>
           </div>
         )}
-        <p className="text-xs">No LLM API key set in project. </p>
+        <p className="text-xs">{t("playground.model.noApiKey")}</p>
         <CreateLLMApiKeyDialog
           open={createLlmApiKeyDialogOpen}
           setOpen={setCreateLlmApiKeyDialogOpen}
@@ -131,14 +133,16 @@ export const ModelParameters: React.FC<ModelParamsContext> = ({
         sideOffset={5}
       >
         <div className="mb-3">
-          <h4 className="mb-1 text-sm font-medium">Model Advanced Settings</h4>
+          <h4 className="mb-1 text-sm font-medium">
+            {t("playground.model.advancedSettings")}
+          </h4>
           <p className="text-muted-foreground text-xs">
-            Configure advanced parameters for your model.
+            {t("playground.model.advancedSettingsDescription")}
           </p>
         </div>
         <div className="space-y-4">
           <ModelParamsSlider
-            title="Temperature"
+            title={t("playground.model.temperature")}
             modelParamsKey="temperature"
             formDisabled={formDisabled}
             enabled={modelParams.temperature.enabled}
@@ -147,11 +151,11 @@ export const ModelParameters: React.FC<ModelParamsContext> = ({
             min={0}
             max={modelParams.maxTemperature.value}
             step={0.01}
-            tooltip="The sampling temperature. Higher values will make the output more random, while lower values will make it more focused and deterministic."
+            tooltip={t("playground.model.temperatureTooltip")}
             updateModelParam={updateModelParamValue}
           />
           <ModelParamsSlider
-            title="Output token limit"
+            title={t("playground.model.outputTokenLimit")}
             modelParamsKey="max_tokens"
             formDisabled={formDisabled}
             enabled={modelParams.max_tokens.enabled}
@@ -160,11 +164,11 @@ export const ModelParameters: React.FC<ModelParamsContext> = ({
             min={1}
             max={16384}
             step={1}
-            tooltip="The maximum number of tokens that can be generated in the chat completion."
+            tooltip={t("playground.model.outputTokenLimitTooltip")}
             updateModelParam={updateModelParamValue}
           />
           <ModelParamsSlider
-            title="Top P"
+            title={t("playground.model.topP")}
             modelParamsKey="top_p"
             formDisabled={formDisabled}
             enabled={modelParams.top_p.enabled}
@@ -173,13 +177,13 @@ export const ModelParameters: React.FC<ModelParamsContext> = ({
             min={0}
             max={1}
             step={0.01}
-            tooltip="An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. We generally recommend altering this or temperature but not both."
+            tooltip={t("playground.model.topPTooltip")}
             updateModelParam={updateModelParamValue}
           />
           {modelParams.adapter.value === LLMAdapter.VertexAI &&
             modelParams.maxReasoningTokens && (
               <ModelParamsSlider
-                title="Max. Reasoning Tokens"
+                title={t("playground.model.maxReasoningTokens")}
                 modelParamsKey="maxReasoningTokens"
                 formDisabled={formDisabled}
                 enabled={modelParams.maxReasoningTokens.enabled}
@@ -188,7 +192,7 @@ export const ModelParameters: React.FC<ModelParamsContext> = ({
                 min={-1}
                 max={24576}
                 step={1}
-                tooltip="Maximum tokens for model thinking/reasoning. Set to -1 for default (auto) thinking, 0 to disable. Only supported on Gemini 2.5+ models."
+                tooltip={t("playground.model.maxReasoningTokensTooltip")}
                 updateModelParam={updateModelParamValue}
               />
             )}
@@ -260,15 +264,15 @@ export const ModelParameters: React.FC<ModelParamsContext> = ({
 
         {modelParams.model.value?.startsWith("o1-") ? (
           <p className="text-dark-yellow mt-1 text-xs">
-            For {modelParams.model.value}, the system message and the
-            temperature, max_tokens and top_p setting are not supported while it
-            is in beta.{" "}
+            {t("playground.model.o1BetaLimitations", {
+              model: modelParams.model.value,
+            })}{" "}
             <a
               href="https://platform.openai.com/docs/guides/reasoning/beta-limitations"
               target="_blank"
               rel="noreferrer noopener"
             >
-              More info ↗
+              {t("playground.model.moreInfo")} ↗
             </a>
           </p>
         ) : null}
@@ -283,7 +287,11 @@ export const ModelParameters: React.FC<ModelParamsContext> = ({
     >
       {!isEmbedded ? (
         <div className="flex items-center justify-between">
-          {customHeader ? customHeader : <p className="font-semibold">Model</p>}
+          {customHeader ? (
+            customHeader
+          ) : (
+            <p className="font-semibold">{t("playground.model.model")}</p>
+          )}
           {SettingsButton}
         </div>
       ) : (
@@ -293,7 +301,7 @@ export const ModelParameters: React.FC<ModelParamsContext> = ({
       <div className="space-y-4">
         <div className="space-y-3">
           <ModelParamsSelect
-            title="Provider"
+            title={t("playground.model.provider")}
             modelParamsKey="provider"
             disabled={formDisabled}
             value={modelParams.provider.value}
@@ -302,7 +310,7 @@ export const ModelParameters: React.FC<ModelParamsContext> = ({
             layout="vertical"
           />
           <ModelParamsSelect
-            title="Model name"
+            title={t("playground.model.modelName")}
             modelParamsKey="model"
             disabled={formDisabled}
             value={modelParams.model.value}
@@ -455,6 +463,8 @@ const ModelParamsSlider = ({
   enabled,
   formDisabled,
 }: ModelParamsSliderProps) => {
+  const { t } = useI18n();
+
   return (
     <div className="space-y-3" title={tooltip}>
       <div className="flex flex-row">
@@ -484,7 +494,9 @@ const ModelParamsSlider = ({
           />
           {setModelParamEnabled ? (
             <Switch
-              title={`Control sending the ${title} parameter`}
+              title={t("playground.model.sendParameter", {
+                parameter: title,
+              })}
               disabled={formDisabled}
               checked={enabled}
               onCheckedChange={(checked) => {
@@ -523,6 +535,7 @@ const ProviderOptionsInput = ({
   enabled,
   formDisabled,
 }: ProviderOptionsInputProps) => {
+  const { t } = useI18n();
   const [inputValue, setInputValue] = useState<string>(
     value ? JSON.stringify(value, null, 2) : "{}",
   );
@@ -531,7 +544,7 @@ const ProviderOptionsInput = ({
   return (
     <div
       className="space-y-3"
-      title="Additional options to pass to the invocation. Please check your provider's API reference for supported values."
+      title={t("playground.model.additionalOptionsTooltip")}
     >
       <div className="flex flex-row">
         <div className="flex-1 flex-row space-x-1">
@@ -541,22 +554,23 @@ const ProviderOptionsInput = ({
               (!enabled || formDisabled) && "text-muted-foreground",
             )}
           >
-            Additional options
+            {t("playground.model.additionalOptions")}
           </span>
           <Tooltip>
             <TooltipTrigger>
               <InfoIcon className="text-muted-foreground size-3" />
             </TooltipTrigger>
             <TooltipContent className="max-w-[200px] p-2">
-              Additional options to pass to the invocation. Please check your
-              provider&apos;s API reference for supported values.
+              {t("playground.model.additionalOptionsTooltip")}
             </TooltipContent>
           </Tooltip>
         </div>
         <div className="flex flex-row space-x-3">
           {setModelParamEnabled ? (
             <Switch
-              title={`Control sending the additional options parameter`}
+              title={t("playground.model.sendParameter", {
+                parameter: t("playground.model.additionalOptions"),
+              })}
               disabled={formDisabled}
               checked={enabled}
               onCheckedChange={(checked) => {
@@ -579,7 +593,7 @@ const ProviderOptionsInput = ({
                 updateModelParam("providerOptions", parsed);
                 setError(null);
               } catch {
-                setError("Invalid JSON Object");
+                setError(t("playground.model.invalidJsonObject"));
               }
             }}
             editable={enabled && !formDisabled}

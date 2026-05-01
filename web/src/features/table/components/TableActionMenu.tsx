@@ -15,6 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/src/components/ui/tooltip";
+import { useI18n } from "@/src/features/i18n";
 
 type TableActionMenuProps = {
   projectId: string;
@@ -40,6 +41,7 @@ export function TableActionMenu({
   onClearSelection,
   onCustomAction,
 }: TableActionMenuProps) {
+  const { t } = useI18n();
   const [selectedAction, setSelectedAction] = useState<TableAction | null>(
     null,
   );
@@ -65,7 +67,12 @@ export function TableActionMenu({
         <div className="ring-dark-blue/20 dark:border-dark-blue/30 dark:ring-dark-blue/30 bg-background pointer-events-auto flex items-center gap-2 rounded-lg border px-3 py-2 opacity-95 shadow-lg ring-2 backdrop-blur-md dark:shadow-none">
           <div className="text-sm font-medium">
             {selectedCount !== null ? (
-              <span> {`${numberFormatter(selectedCount, 0)} selected`}</span>
+              <span>
+                {" "}
+                {t("table.selection.totalSelected", {
+                  count: numberFormatter(selectedCount, 0),
+                })}
+              </span>
             ) : (
               <LoaderCircle className="h-4 w-4 animate-spin" />
             )}

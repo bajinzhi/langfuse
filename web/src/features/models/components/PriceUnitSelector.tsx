@@ -15,8 +15,25 @@ import {
 } from "@/src/components/ui/select";
 import { PriceUnit } from "@/src/features/models/validation";
 import { usePriceUnitMultiplier } from "@/src/features/models/hooks/usePriceUnitMultiplier";
+import { useI18n } from "@/src/features/i18n";
+
+export function getPriceUnitLabel(
+  priceUnit: PriceUnit,
+  t: ReturnType<typeof useI18n>["t"],
+) {
+  switch (priceUnit) {
+    case PriceUnit.Per1KUnits:
+      return t("models.price.unit.per1K");
+    case PriceUnit.Per1MUnits:
+      return t("models.price.unit.per1M");
+    case PriceUnit.PerUnit:
+    default:
+      return t("models.price.unit.perUnit");
+  }
+}
 
 export const PriceUnitSelector = () => {
+  const { t } = useI18n();
   const { priceUnit, setPriceUnit } = usePriceUnitMultiplier();
 
   return (
@@ -32,12 +49,12 @@ export const PriceUnitSelector = () => {
           onValueChange={(value: PriceUnit) => setPriceUnit(value)}
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select unit" />
+            <SelectValue placeholder={t("models.price.selectUnit")} />
           </SelectTrigger>
           <SelectContent>
             {Object.values(PriceUnit).map((unit) => (
               <SelectItem key={unit} value={unit}>
-                {unit}
+                {getPriceUnitLabel(unit, t)}
               </SelectItem>
             ))}
           </SelectContent>

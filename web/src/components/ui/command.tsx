@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogHeader,
 } from "@/src/components/ui/dialog";
+import { useI18n } from "@/src/features/i18n";
 
 const Command = React.forwardRef<
   React.ComponentRef<typeof CommandPrimitive>,
@@ -35,6 +36,8 @@ const CommandDialog = ({
 }: DialogProps & {
   filter?: React.ComponentProps<typeof CommandPrimitive>["filter"];
 }) => {
+  const { t } = useI18n();
+
   return (
     <Dialog {...props}>
       <DialogContent
@@ -42,7 +45,7 @@ const CommandDialog = ({
         closeOnInteractionOutside
       >
         <DialogHeader className="sr-only p-0">
-          <DialogTitle>Search</DialogTitle>
+          <DialogTitle>{t("common.search")}</DialogTitle>
         </DialogHeader>
         <DialogBody className="p-0">
           <Command

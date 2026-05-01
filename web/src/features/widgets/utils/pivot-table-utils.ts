@@ -605,7 +605,7 @@ export function createGrandTotalRow(
     id: generateRowId(dimensionValues, "total", 0),
     type: "total",
     level: 0,
-    label: "Total",
+    label: "total",
     values: grandTotalValues,
     isTotal: true,
     dimensionValues,

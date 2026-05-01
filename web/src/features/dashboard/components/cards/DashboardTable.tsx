@@ -1,6 +1,7 @@
 import { ExpandListButton } from "@/src/features/dashboard/components/cards/ChevronButton";
 import { useState, type ReactNode } from "react";
 import { NoDataOrLoading } from "@/src/components/NoDataOrLoading";
+import { useI18n } from "@/src/features/i18n";
 
 type TableHeaders = ReactNode[];
 type TableRows = ReactNode[][];
@@ -27,6 +28,7 @@ export const DashboardTable = ({
   noDataProps,
   isLoading,
 }: DashboardTableProps) => {
+  const { t } = useI18n();
   const [isExpanded, setExpanded] = useState(false);
   return (
     <>
@@ -84,8 +86,8 @@ export const DashboardTable = ({
               maxLength={collapse.collapsed}
               expandText={
                 rows.length > collapse.expanded
-                  ? `Show top ${collapse.expanded}`
-                  : "Show all"
+                  ? t("dashboard.showTop", { count: collapse.expanded })
+                  : t("dashboard.showAll")
               }
             />
           ) : null}

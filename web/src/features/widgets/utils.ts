@@ -1,6 +1,14 @@
 import startCase from "lodash/startCase";
 import { type FilterState } from "@langfuse/shared";
 import { type DashboardWidgetChartType } from "@langfuse/shared/src/db";
+import {
+  formatQueryMetricName,
+  getQueryAggregationLabel,
+  getQueryFieldLabel,
+  getQueryViewLabel,
+  type Translate,
+} from "@/src/features/widgets/lib/queryMetadataI18n";
+import { translateClientMessage } from "@/src/features/i18n";
 
 // Shared widget chart configuration types
 export type WidgetChartConfig = {
@@ -53,20 +61,31 @@ export function sanitizePivotTableDefaultSort(
 /**
  * Formats a metric name for display, handling special cases like count_count -> Count
  */
-export function formatMetricName(metricName: string): string {
-  // Handle the count_count -> Count conversion
-  const cleanedName = metricName === "count_count" ? "Count" : metricName;
-  return startCase(cleanedName);
+export function formatMetricName(metricName: string, t?: Translate): string {
+  if (t) {
+    return formatQueryMetricName(metricName, t);
+  }
+
+  return formatQueryMetricName(metricName, translateClientMessage);
 }
 
 /**
  * Formats multiple metric names for display, showing first 3 and "+ X more" if needed
  */
-export function formatMultipleMetricNames(metricNames: string[]): string {
-  if (metricNames.length === 0) return "No Metrics";
-  if (metricNames.length === 1) return formatMetricName(metricNames[0]);
+export function formatMultipleMetricNames(
+  metricNames: string[],
+  t?: Translate,
+): string {
+  if (metricNames.length === 0) {
+    return t
+      ? t("widgets.generated.noMetrics")
+      : translateClientMessage("widgets.generated.noMetrics");
+  }
+  if (metricNames.length === 1) return formatMetricName(metricNames[0], t);
 
-  const formattedNames = metricNames.map(formatMetricName);
+  const formattedNames = metricNames.map((metricName) =>
+    formatMetricName(metricName, t),
+  );
 
   if (metricNames.length <= 3) {
     return formattedNames.join(", ");
@@ -74,6 +93,12 @@ export function formatMultipleMetricNames(metricNames: string[]): string {
 
   const firstThree = formattedNames.slice(0, 3).join(", ");
   const remaining = metricNames.length - 3;
+  if (t) {
+    return t("widgets.generated.moreMetrics", {
+      metrics: firstThree,
+      count: remaining,
+    });
+  }
   return `${firstThree} + ${remaining} more`;
 }
 
@@ -84,6 +109,7 @@ export function buildWidgetName({
   view,
   metrics,
   isMultiMetric = false,
+  t,
 }: {
   aggregation: string;
   measure: string;
@@ -91,30 +117,49 @@ export function buildWidgetName({
   view: string;
   metrics?: string[];
   isMultiMetric?: boolean;
+  t?: Translate;
 }) {
   let base: string;
 
   if (isMultiMetric && metrics && metrics.length > 0) {
     // Handle multi-metric scenarios (like pivot tables)
-    const metricDisplay = formatMultipleMetricNames(metrics);
+    const metricDisplay = formatMultipleMetricNames(metrics, t);
     base = metricDisplay;
   } else {
     // Handle single metric scenarios (existing logic)
-    const meas = formatMetricName(measure);
+    const meas = formatMetricName(measure, t);
     if (measure.toLowerCase() === "count") {
       // For count measures, ignore aggregation and only show the measure
       base = meas;
     } else {
-      const agg = startCase(aggregation.toLowerCase());
-      base = `${agg} ${meas}`;
+      const agg = t
+        ? getQueryAggregationLabel(aggregation, t)
+        : startCase(aggregation.toLowerCase());
+      base = t
+        ? t("widgets.query.metricWithAggregation", {
+            aggregation: agg,
+            measure: meas,
+          })
+        : `${agg} ${meas}`;
     }
   }
 
+  const viewLabel = t ? getQueryViewLabel(view, t) : startCase(view);
   if (dimension && dimension !== "none") {
-    base += ` by ${startCase(dimension)}`;
+    const dimensionLabel = t
+      ? getQueryFieldLabel(dimension, t)
+      : startCase(dimension);
+    return t
+      ? t("widgets.generated.nameWithDimension", {
+          base,
+          dimension: dimensionLabel,
+          view: viewLabel,
+        })
+      : `${base} by ${dimensionLabel} (${viewLabel})`;
   }
-  base += ` (${startCase(view)})`;
-  return base;
+  return t
+    ? t("widgets.generated.nameWithoutDimension", { base, view: viewLabel })
+    : `${base} (${viewLabel})`;
 }
 
 export function buildWidgetDescription({
@@ -125,6 +170,7 @@ export function buildWidgetDescription({
   filters,
   metrics,
   isMultiMetric = false,
+  t,
 }: {
   aggregation: string;
   measure: string;
@@ -133,38 +179,74 @@ export function buildWidgetDescription({
   filters: FilterState;
   metrics?: string[];
   isMultiMetric?: boolean;
+  t?: Translate;
 }) {
-  const viewLabel = startCase(view);
+  const viewLabel = t ? getQueryViewLabel(view, t) : startCase(view);
   let sentence: string;
 
   if (isMultiMetric && metrics && metrics.length > 0) {
     // Handle multi-metric scenarios
-    const metricDisplay = formatMultipleMetricNames(metrics);
-    sentence = `Shows ${metricDisplay.toLowerCase()} of ${viewLabel}`;
+    const metricDisplay = formatMultipleMetricNames(metrics, t);
+    sentence = t
+      ? t("widgets.generated.description.multi", {
+          metrics: metricDisplay,
+          view: viewLabel,
+        })
+      : `Shows ${metricDisplay.toLowerCase()} of ${viewLabel}`;
   } else {
     // Handle single metric scenarios (existing logic)
-    const measLabel = formatMetricName(measure);
+    const measLabel = formatMetricName(measure, t);
 
     if (measure.toLowerCase() === "count") {
-      sentence = `Shows the count of ${viewLabel}`;
+      sentence = t
+        ? t("widgets.generated.description.count", { view: viewLabel })
+        : `Shows the count of ${viewLabel}`;
     } else {
-      const aggLabel = startCase(aggregation.toLowerCase());
-      sentence = `Shows the ${aggLabel.toLowerCase()} ${measLabel.toLowerCase()} of ${viewLabel}`;
+      const aggLabel = t
+        ? getQueryAggregationLabel(aggregation, t)
+        : startCase(aggregation.toLowerCase());
+      sentence = t
+        ? t("widgets.generated.description.single", {
+            aggregation: aggLabel,
+            measure: measLabel,
+            view: viewLabel,
+          })
+        : `Shows the ${aggLabel.toLowerCase()} ${measLabel.toLowerCase()} of ${viewLabel}`;
     }
   }
 
   // Dimension clause
   if (dimension && dimension !== "none") {
-    sentence += ` by ${startCase(dimension).toLowerCase()}`;
+    const dimensionLabel = t
+      ? getQueryFieldLabel(dimension, t)
+      : startCase(dimension);
+    sentence = t
+      ? t("widgets.generated.description.withDimension", {
+          description: sentence,
+          dimension: dimensionLabel,
+        })
+      : `${sentence} by ${dimensionLabel.toLowerCase()}`;
   }
 
   // Filters clause
   if (filters && filters.length > 0) {
     if (filters.length <= 2) {
-      const cols = filters.map((f) => startCase(f.column)).join(" and ");
-      sentence += `, filtered by ${cols}`;
+      const cols = filters
+        .map((f) => (t ? getQueryFieldLabel(f.column, t) : startCase(f.column)))
+        .join(t ? t("common.andSeparator") : " and ");
+      sentence = t
+        ? t("widgets.generated.description.filteredByColumns", {
+            description: sentence,
+            columns: cols,
+          })
+        : `${sentence}, filtered by ${cols}`;
     } else {
-      sentence += `, filtered by ${filters.length} conditions`;
+      sentence = t
+        ? t("widgets.generated.description.filteredByCount", {
+            description: sentence,
+            count: filters.length,
+          })
+        : `${sentence}, filtered by ${filters.length} conditions`;
     }
   }
 

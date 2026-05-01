@@ -10,6 +10,7 @@ import {
 } from "@/src/components/ui/popover";
 import { Button } from "@/src/components/ui/button";
 import { Switch } from "@/src/components/ui/switch";
+import { useI18n } from "@/src/features/i18n";
 
 export function DeactivateEvalConfig({
   projectId,
@@ -19,6 +20,7 @@ export function DeactivateEvalConfig({
   evalConfig: RouterOutputs["evals"]["configById"];
 }) {
   const utils = api.useUtils();
+  const { t } = useI18n();
   const hasAccess = useHasProjectAccess({ projectId, scope: "evalJob:CUD" });
   const [isOpen, setIsOpen] = useState(false);
   const capture = usePostHogClientCapture();
@@ -69,11 +71,13 @@ export function DeactivateEvalConfig({
         </div>
       </PopoverTrigger>
       <PopoverContent>
-        <h2 className="text-md mb-3 font-semibold">Please confirm</h2>
+        <h2 className="text-md mb-3 font-semibold">
+          {t("common.pleaseConfirm")}
+        </h2>
         <p className="mb-3 text-sm">
           {evalConfig?.status === "ACTIVE"
-            ? "This action will deactivate the evaluator. No more traces will be evaluated based on this evaluator."
-            : "This action will activate the evaluator. New traces will be evaluated based on this evaluator."}
+            ? t("evals.config.deactivateConfirm")
+            : t("evals.config.activateConfirm")}
         </p>
         <div className="flex justify-end space-x-4">
           <Button
@@ -84,7 +88,9 @@ export function DeactivateEvalConfig({
             loading={mutEvaluator.isPending}
             onClick={onClick}
           >
-            {evalConfig?.status === "ACTIVE" ? "Deactivate" : "Activate"}
+            {evalConfig?.status === "ACTIVE"
+              ? t("evals.config.deactivate")
+              : t("evals.config.activate")}
           </Button>
         </div>
       </PopoverContent>

@@ -16,11 +16,24 @@ export function getSearchMode(
 export function getSearchButtonLabel(
   searchType: TracingSearchType[] | undefined,
   metadataLabel?: string,
+  labels?: {
+    fullText: string;
+    content: string;
+    input: string;
+    output: string;
+  },
 ): string {
   if (!searchType) return metadataLabel ?? "IDs / Names";
-  if (searchType.includes("content")) return "Full Text: Content";
-  if (searchType.includes("input")) return "Full Text: Input";
-  if (searchType.includes("output")) return "Full Text: Output";
+  const fullTextLabel = labels?.fullText ?? "Full Text";
+  if (searchType.includes("content")) {
+    return `${fullTextLabel}: ${labels?.content ?? "Content"}`;
+  }
+  if (searchType.includes("input")) {
+    return `${fullTextLabel}: ${labels?.input ?? "Input"}`;
+  }
+  if (searchType.includes("output")) {
+    return `${fullTextLabel}: ${labels?.output ?? "Output"}`;
+  }
   return metadataLabel ?? "IDs / Names";
 }
 

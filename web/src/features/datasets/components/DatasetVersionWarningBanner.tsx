@@ -1,6 +1,6 @@
 import { Info } from "lucide-react";
-import { format } from "date-fns";
 import { Button } from "@/src/components/ui/button";
+import { useI18n } from "@/src/features/i18n";
 
 type DatasetVersionWarningBannerProps = {
   selectedVersion: Date;
@@ -18,6 +18,7 @@ export function DatasetVersionWarningBanner({
   className = "",
   changeCounts,
 }: DatasetVersionWarningBannerProps) {
+  const { t, formatDate } = useI18n();
   const totalChanges = changeCounts
     ? changeCounts.upserts + changeCounts.deletes
     : 0;
@@ -31,9 +32,12 @@ export function DatasetVersionWarningBanner({
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex items-center justify-between gap-4">
           <p className="text-muted-foreground text-sm wrap-break-word">
-            Viewing version from{" "}
+            {t("datasets.viewingVersionFrom")}{" "}
             <span className="text-foreground font-medium">
-              {format(selectedVersion, "MMM d, yyyy 'at' h:mm a")}
+              {formatDate(selectedVersion, {
+                dateStyle: "medium",
+                timeStyle: "short",
+              })}
             </span>
           </p>
           <Button
@@ -41,17 +45,26 @@ export function DatasetVersionWarningBanner({
             variant="link"
             className="h-auto shrink-0 p-0 text-sm underline-offset-4"
           >
-            Return to latest
+            {t("datasets.returnToLatest")}
           </Button>
         </div>
         {changeCounts && hasChanges && (
           <p className="text-muted-foreground text-xs">
-            {totalChanges} change{totalChanges !== 1 ? "s" : ""} since this
-            version,
+            {t("datasets.versionChanges", {
+              count: totalChanges,
+              plural: totalChanges !== 1 ? "s" : "",
+            })}
+            ,
             {changeCounts.upserts > 0 &&
-              ` ${changeCounts.upserts} upsert${changeCounts.upserts !== 1 ? "s" : ""}`}
+              ` ${t("datasets.versionUpserts", {
+                count: changeCounts.upserts,
+                plural: changeCounts.upserts !== 1 ? "s" : "",
+              })}`}
             {changeCounts.deletes > 0 &&
-              ` ${changeCounts.deletes} delete${changeCounts.deletes !== 1 ? "s" : ""}`}
+              ` ${t("datasets.versionDeletes", {
+                count: changeCounts.deletes,
+                plural: changeCounts.deletes !== 1 ? "s" : "",
+              })}`}
           </p>
         )}
       </div>

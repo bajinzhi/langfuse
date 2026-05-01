@@ -13,6 +13,7 @@ import { api } from "@/src/utils/api";
 import { AnnotationQueueObjectType } from "@langfuse/shared";
 import { Goal, Network } from "lucide-react";
 import Page from "@/src/components/layouts/page";
+import { useI18n } from "@/src/features/i18n";
 
 export const AnnotationQueuesItem = ({
   annotationQueueId,
@@ -23,6 +24,7 @@ export const AnnotationQueuesItem = ({
   projectId: string;
   itemId?: string;
 }) => {
+  const { t } = useI18n();
   const hasAccess = useHasProjectAccess({
     projectId,
     scope: "annotationQueues:read",
@@ -74,7 +76,7 @@ export const AnnotationQueuesItem = ({
         itemType: "QUEUE_ITEM",
         breadcrumb: [
           {
-            name: "Annotation Queues",
+            name: t("annotationQueues.title"),
             href: `/project/${projectId}/annotation-queues`,
           },
           {
@@ -95,7 +97,7 @@ export const AnnotationQueuesItem = ({
               <TabsList>
                 <TabsTrigger value="hideTree">
                   <Goal className="mr-1 h-4 w-4"></Goal>
-                  Focused
+                  {t("annotationQueues.focused")}
                 </TabsTrigger>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -110,16 +112,13 @@ export const AnnotationQueuesItem = ({
                         }
                       >
                         <Network className="mr-1 h-4 w-4"></Network>
-                        Detailed
+                        {t("annotationQueues.detailed")}
                       </TabsTrigger>
                     </span>
                   </TooltipTrigger>
                   {isDetailedViewDisabled && (
                     <TooltipContent>
-                      <p>
-                        Detailed view is only available for traces and
-                        observations
-                      </p>
+                      <p>{t("annotationQueues.detailedUnavailable")}</p>
                     </TooltipContent>
                   )}
                 </Tooltip>

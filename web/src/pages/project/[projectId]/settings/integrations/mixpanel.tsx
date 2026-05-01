@@ -27,6 +27,8 @@ import {
   TooltipContent,
 } from "@/src/components/ui/tooltip";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
+import { getExportSourceOptionText } from "@/src/features/i18n/analyticsIntegrationOptions";
+import { useI18n } from "@/src/features/i18n";
 import {
   mixpanelIntegrationFormSchema,
   MIXPANEL_REGIONS,
@@ -52,6 +54,7 @@ import { Info, ExternalLink } from "lucide-react";
 export default function MixpanelIntegrationSettings() {
   const router = useRouter();
   const projectId = router.query.projectId as string;
+  const { t, formatDate } = useI18n();
 
   const hasAccess = useHasProjectAccess({
     projectId,
@@ -74,40 +77,33 @@ export default function MixpanelIntegrationSettings() {
   return (
     <ContainerPage
       headerProps={{
-        title: "Mixpanel Integration",
+        title: t("integrations.mixpanel.title"),
         breadcrumb: [
-          { name: "Settings", href: `/project/${projectId}/settings` },
+          { name: t("nav.settings"), href: `/project/${projectId}/settings` },
         ],
         actionButtonsLeft: <>{status && <StatusBadge type={status} />}</>,
         actionButtonsRight: (
           <Button asChild variant="secondary">
             <Link href="https://langfuse.com/integrations/analytics/mixpanel">
-              Integration Docs ↗
+              {t("common.integrationDocs")}
             </Link>
           </Button>
         ),
       }}
     >
       <p className="text-primary mb-4 text-sm">
-        Integrate with{" "}
+        {t("integrations.mixpanel.descriptionPrefix")}{" "}
         <Link href="https://mixpanel.com" className="underline">
           Mixpanel
         </Link>{" "}
-        to sync your Langfuse traces, generations, and scores for advanced
-        product analytics. Upon activation, all historical data from your
-        project will be synced. After the initial sync, new data is
-        automatically synced every hour to keep your Mixpanel dashboards up to
-        date.
+        {t("integrations.mixpanel.descriptionSuffix")}
       </p>
       {!hasAccess && (
-        <p className="text-sm">
-          Your current role does not grant you access to these settings, please
-          reach out to your project admin or owner.
-        </p>
+        <p className="text-sm">{t("integrations.noAccess")}</p>
       )}
       {hasAccess && (
         <>
-          <Header title="Configuration" />
+          <Header title={t("common.configuration")} />
           <Card className="p-3">
             <MixpanelLogo className="text-foreground mb-4 w-20" />
             <MixpanelIntegrationSettingsForm
@@ -120,12 +116,15 @@ export default function MixpanelIntegrationSettings() {
       )}
       {state.data?.enabled && (
         <>
-          <Header title="Status" className="mt-8" />
+          <Header title={t("common.status")} className="mt-8" />
           <p className="text-primary text-sm">
-            Data synced until:{" "}
+            {t("integrations.dataSyncedUntil")}{" "}
             {state.data?.lastSyncAt
-              ? new Date(state.data.lastSyncAt).toLocaleString()
-              : "Never (pending)"}
+              ? formatDate(state.data.lastSyncAt, {
+                  dateStyle: "short",
+                  timeStyle: "medium",
+                })
+              : t("common.neverPending")}
           </p>
         </>
       )}
@@ -144,6 +143,7 @@ const MixpanelIntegrationSettingsForm = ({
 }) => {
   const capture = usePostHogClientCapture();
   const { isBetaEnabled } = useV4Beta();
+  const { t } = useI18n();
   const mixpanelForm = useForm({
     resolver: zodResolver(mixpanelIntegrationFormSchema),
     defaultValues: {
@@ -210,23 +210,25 @@ const MixpanelIntegrationSettingsForm = ({
           name="mixpanelRegion"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mixpanel Region</FormLabel>
+              <FormLabel>{t("integrations.mixpanel.region")}</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a region" />
+                    <SelectValue
+                      placeholder={t("integrations.mixpanel.selectRegion")}
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {MIXPANEL_REGIONS.map((region) => (
                     <SelectItem key={region.subdomain} value={region.subdomain}>
-                      {region.description}
+                      {getMixpanelRegionLabel(t, region.subdomain)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <FormDescription>
-                Select the Mixpanel region where your project is hosted
+                {t("integrations.mixpanel.regionDescription")}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -237,13 +239,12 @@ const MixpanelIntegrationSettingsForm = ({
           name="mixpanelProjectToken"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mixpanel Project Token</FormLabel>
+              <FormLabel>{t("integrations.mixpanel.projectToken")}</FormLabel>
               <FormControl>
                 <PasswordInput {...field} />
               </FormControl>
               <FormDescription>
-                You can find your Project Token in your Mixpanel project
-                settings
+                {t("integrations.mixpanel.projectTokenDescription")}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -256,7 +257,7 @@ const MixpanelIntegrationSettingsForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center gap-1.5 pt-2">
-                  Export Source
+                  {t("integrations.exportSource")}
                   <Tooltip>
                     <TooltipTrigger>
                       <Info className="text-muted-foreground h-3.5 w-3.5" />
@@ -267,9 +268,14 @@ const MixpanelIntegrationSettingsForm = ({
                     >
                       {EXPORT_SOURCE_OPTIONS.map((option) => (
                         <div key={option.value} className="space-y-0.5">
-                          <div className="font-medium">{option.label}</div>
+                          <div className="font-medium">
+                            {getExportSourceOptionText(t, option.value).label}
+                          </div>
                           <div className="text-muted-foreground text-xs">
-                            {option.description}
+                            {
+                              getExportSourceOptionText(t, option.value)
+                                .description
+                            }
                           </div>
                         </div>
                       ))}
@@ -280,7 +286,7 @@ const MixpanelIntegrationSettingsForm = ({
                           rel="noopener noreferrer"
                           className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-xs hover:underline"
                         >
-                          For further information see
+                          {t("integrations.exportSourceDocs")}
                           <ExternalLink className="h-3 w-3" />
                         </a>
                       </div>
@@ -290,20 +296,23 @@ const MixpanelIntegrationSettingsForm = ({
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select data to export" />
+                      <SelectValue
+                        placeholder={t("integrations.dataToExport")}
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {EXPORT_SOURCE_OPTIONS.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                        {getExportSourceOptionText(t, option.value).label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  Choose which data sources to export to Mixpanel. Scores are
-                  always included.
+                  {t("integrations.exportSourceDescription", {
+                    destination: "Mixpanel",
+                  })}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -315,7 +324,7 @@ const MixpanelIntegrationSettingsForm = ({
           name="enabled"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Enabled</FormLabel>
+              <FormLabel>{t("common.enabled")}</FormLabel>
               <FormControl>
                 <Switch
                   id="mixpanel-integration-enabled"
@@ -337,7 +346,7 @@ const MixpanelIntegrationSettingsForm = ({
           onClick={mixpanelForm.handleSubmit(onSubmit)}
           disabled={isLoading}
         >
-          Save
+          {t("common.save")}
         </Button>
         <Button
           variant="ghost"
@@ -345,16 +354,29 @@ const MixpanelIntegrationSettingsForm = ({
           disabled={isLoading || !!!state}
           onClick={() => {
             if (
-              confirm(
-                "Are you sure you want to reset the Mixpanel integration for this project?",
-              )
+              confirm(t("integrations.mixpanel.resetConfirm"))
             )
               mutDelete.mutate({ projectId });
           }}
         >
-          Reset
+          {t("common.reset")}
         </Button>
       </div>
     </Form>
   );
+};
+
+const getMixpanelRegionLabel = (
+  t: ReturnType<typeof useI18n>["t"],
+  region: MixpanelRegion,
+) => {
+  switch (region) {
+    case "api-eu":
+      return t("integrations.mixpanel.regionEu");
+    case "api-in":
+      return t("integrations.mixpanel.regionIndia");
+    case "api":
+    default:
+      return t("integrations.mixpanel.regionUs");
+  }
 };

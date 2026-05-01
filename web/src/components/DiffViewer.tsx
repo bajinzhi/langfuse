@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { cn } from "@/src/utils/tailwind";
 import { diffLines as calculateDiffLines, diffWords } from "diff";
+import { useI18n } from "@/src/features/i18n";
 
 type DiffSegmentPart = {
   value: string;
@@ -92,12 +93,13 @@ const calculateSegmentDiff = (oldString: string, newString: string) => {
 const DiffViewer: React.FC<DiffViewerProps> = ({
   oldString,
   newString,
-  oldLabel = "Original Version",
-  newLabel = "New Version",
+  oldLabel,
+  newLabel,
   oldSubLabel,
   newSubLabel,
   className,
 }) => {
+  const { t } = useI18n();
   const [diffLines, setDiffLines] = useState<{
     left: DiffSegment[];
     right: DiffSegment[];
@@ -112,7 +114,7 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
     for (let diffIndex = 0; diffIndex < lineChanges.length; diffIndex++) {
       const part = lineChanges[diffIndex];
 
-      // No changes
+      // Unchanged segment
       if (!part.added && !part.removed) {
         left.push({ text: part.value, type: "unchanged" });
         right.push({ text: part.value, type: "unchanged" });
@@ -192,7 +194,11 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
   };
 
   if (oldString === newString) {
-    return <div className="text-muted-foreground text-sm">No changes</div>;
+    return (
+      <div className="text-muted-foreground text-sm">
+        {t("common.noChanges")}
+      </div>
+    );
   }
 
   return (
@@ -201,7 +207,7 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
         <CardContent className="p-0">
           <div className="grid grid-cols-2">
             <div className="bg-muted flex flex-row gap-1 border-r border-b px-4 py-2 text-xs font-semibold">
-              {oldLabel}
+              {oldLabel ?? t("common.originalVersion")}
               {oldSubLabel && (
                 <div
                   className="text-muted-foreground truncate text-xs"
@@ -212,7 +218,7 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
               )}
             </div>
             <div className="bg-muted flex flex-row gap-1 border-b px-4 py-2 text-xs font-semibold">
-              {newLabel}
+              {newLabel ?? t("common.newVersion")}
               {newSubLabel && (
                 <div
                   className="text-muted-foreground truncate text-xs"

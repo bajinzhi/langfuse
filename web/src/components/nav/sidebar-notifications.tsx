@@ -10,6 +10,7 @@ import { X } from "lucide-react";
 import useLocalStorage from "../useLocalStorage";
 import Link from "next/link";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
+import { useI18n } from "@/src/features/i18n";
 
 const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
 
@@ -26,27 +27,26 @@ type SidebarNotification = {
   ttlMs?: number;
 };
 
-const notifications: SidebarNotification[] = [
-  {
-    id: "github-star",
-    title: "Star Langfuse",
-    description:
-      "See the latest releases and help grow the community on GitHub",
-    link: "https://github.com/langfuse/langfuse",
-    linkContent: (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        alt="Langfuse GitHub stars"
-        src="https://img.shields.io/github/stars/langfuse/langfuse?label=langfuse&style=social"
-      />
-    ),
-  },
-];
-
 const STORAGE_KEY = "dismissed-sidebar-notifications";
 
 export function SidebarNotifications() {
   const capture = usePostHogClientCapture();
+  const { t } = useI18n();
+  const notifications: SidebarNotification[] = [
+    {
+      id: "github-star",
+      title: t("sidebarNotifications.starLangfuse"),
+      description: t("sidebarNotifications.githubDescription"),
+      link: "https://github.com/langfuse/langfuse",
+      linkContent: (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          alt={t("sidebarNotifications.githubStarsAlt")}
+          src="https://img.shields.io/github/stars/langfuse/langfuse?label=langfuse&style=social"
+        />
+      ),
+    },
+  ];
 
   const [dismissedNotifications, setDismissedNotifications] = useLocalStorage<
     string[]
@@ -88,7 +88,7 @@ export function SidebarNotifications() {
               });
               dismissNotification(notification.id);
             }}
-            title="Dismiss"
+            title={t("common.dismiss")}
           >
             <X className="h-3.5 w-3.5" />
           </Button>
@@ -128,7 +128,7 @@ export function SidebarNotifications() {
                       });
                     }}
                   >
-                    {notification.linkTitle ?? "Learn more"} &rarr;
+                    {notification.linkTitle ?? t("common.learnMore")} &rarr;
                   </Link>
                 </Button>
               ))}

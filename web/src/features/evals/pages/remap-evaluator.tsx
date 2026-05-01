@@ -22,11 +22,13 @@ import {
 import { ChevronDown } from "lucide-react";
 import { useEvalCapabilities } from "@/src/features/evals/hooks/useEvalCapabilities";
 import { DEFAULT_OBSERVATION_FILTER_WHEN_REMAPPING } from "@/src/features/evals/utils/evaluator-constants";
+import { useI18n } from "@/src/features/i18n";
 
 type LegacyEvalAction = "keep-active" | "mark-inactive" | "delete";
 
 export default function RemapEvaluatorPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const projectId = router.query.projectId as string;
   const evalConfigId = router.query.evaluator as string;
 
@@ -62,7 +64,7 @@ export default function RemapEvaluatorPage() {
       void router.push(`/project/${projectId}/evals`);
     },
     onError: (err) => {
-      setError(err.message ?? "Failed to update old eval configuration");
+      setError(err.message ?? t("evals.remap.updateOldFailed"));
     },
   });
 
@@ -73,7 +75,7 @@ export default function RemapEvaluatorPage() {
       void router.push(`/project/${projectId}/evals`);
     },
     onError: (err) => {
-      setError(err.message ?? "Failed to delete old eval configuration");
+      setError(err.message ?? t("evals.remap.deleteOldFailed"));
     },
   });
 
@@ -142,10 +144,10 @@ export default function RemapEvaluatorPage() {
       withPadding
       scrollable
       headerProps={{
-        title: "Upgrade Evaluator",
+        title: t("evals.remap.title"),
         breadcrumb: [
           {
-            name: "Running Evaluators",
+            name: t("evals.tabs.running"),
             href: `/project/${projectId}/evals`,
           },
         ],
@@ -154,17 +156,16 @@ export default function RemapEvaluatorPage() {
       <div className="space-y-4">
         <div>
           <p className="text-muted-foreground text-sm">
-            Review your legacy evaluator on the left and configure the new eval
-            settings on the right.{" "}
+            {t("evals.remap.descriptionBefore")}{" "}
             <a
               href="https://langfuse.com/faq/all/llm-as-a-judge-migration"
               target="_blank"
               rel="noopener noreferrer"
               className="text-dark-blue font-medium hover:opacity-80"
             >
-              Follow our step-by-step guide
+              {t("evals.remap.guide")}
             </a>{" "}
-            to upgrade successfully.
+            {t("evals.remap.descriptionAfter")}
           </p>
           {mappedConfig ? (
             <Alert
@@ -174,8 +175,8 @@ export default function RemapEvaluatorPage() {
               <AlertDescription>
                 <div className="flex flex-col gap-2">
                   {isEventTarget(mappedConfig.targetObject ?? "event")
-                    ? "Running observation-targeting evaluators requires JS SDK ≥ 4.0.0 or Python SDK ≥ 3.0.0."
-                    : "Running observation-targeting evaluators requires JS SDK ≥ 4.4.0 or Python SDK ≥ 3.9.0."}
+                    ? t("evals.remap.observationSdkRequirement")
+                    : t("evals.remap.experimentSdkRequirement")}
                 </div>
               </AlertDescription>
             </Alert>
@@ -190,9 +191,7 @@ export default function RemapEvaluatorPage() {
             </div>
           ) : !oldConfig || !evalTemplate ? (
             <Alert variant="destructive">
-              <AlertDescription>
-                Failed to load eval configuration or template.
-              </AlertDescription>
+              <AlertDescription>{t("evals.remap.loadFailed")}</AlertDescription>
             </Alert>
           ) : (
             <div className="grid grid-cols-[1fr_2px_1fr] items-start">
@@ -200,13 +199,13 @@ export default function RemapEvaluatorPage() {
               <div className="space-y-4 p-3">
                 <div className="flex items-center gap-2 pb-2">
                   <h3 className="text-lg font-semibold">
-                    Legacy Configuration{" "}
+                    {t("evals.remap.legacyConfiguration")}{" "}
                     {isTraceTarget(oldConfig.targetObject)
-                      ? "(runs on traces)"
+                      ? t("evals.remap.runsOnTraces")
                       : ""}
                   </h3>
                   <span className="text-muted-foreground text-xs">
-                    Read-only
+                    {t("evals.detail.viewOnly")}
                   </span>
                 </div>
                 <InnerEvaluatorForm
@@ -230,9 +229,9 @@ export default function RemapEvaluatorPage() {
               {/* RIGHT: Editable new config form */}
               <div className="space-y-4 p-3">
                 <h3 className="pb-2 text-lg font-semibold">
-                  New Configuration{" "}
+                  {t("evals.remap.newConfiguration")}{" "}
                   {isTraceTarget(oldConfig.targetObject)
-                    ? "(runs on observations)"
+                    ? t("evals.remap.runsOnObservations")
                     : ""}
                 </h3>
                 <InnerEvaluatorForm
@@ -257,10 +256,10 @@ export default function RemapEvaluatorPage() {
                           className="mt-3 rounded-l-md rounded-r-none"
                         >
                           {legacyAction === "keep-active"
-                            ? "Save & keep legacy active"
+                            ? t("evals.remap.saveKeepActive")
                             : legacyAction === "mark-inactive"
-                              ? "Save & mark legacy inactive"
-                              : "Save & delete legacy"}
+                              ? t("evals.remap.saveMarkInactive")
+                              : t("evals.remap.saveDelete")}
                         </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -277,26 +276,29 @@ export default function RemapEvaluatorPage() {
                               onClick={() => setLegacyAction("keep-active")}
                             >
                               {legacyAction === "keep-active" && "✓ "}
-                              Save & keep legacy active
+                              {t("evals.remap.saveKeepActive")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setLegacyAction("mark-inactive")}
                             >
                               {legacyAction === "mark-inactive" && "✓ "}
-                              Save & mark legacy inactive
+                              {t("evals.remap.saveMarkInactive")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setLegacyAction("delete")}
                             >
                               {legacyAction === "delete" && "✓ "}
-                              Save & delete legacy
+                              {t("evals.remap.saveDelete")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
                       {formError ? (
                         <p className="text-red w-full text-center">
-                          <span className="font-bold">Error:</span> {formError}
+                          <span className="font-bold">
+                            {t("dashboard.errorPrefix")}
+                          </span>{" "}
+                          {formError}
                         </p>
                       ) : null}
                     </div>

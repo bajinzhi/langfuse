@@ -24,6 +24,7 @@ import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAcces
 import { DeleteAnnotationQueueButton } from "@/src/features/annotation-queues/components/DeleteAnnotationQueueButton";
 import { getScoreDataTypeIcon } from "@/src/features/scores/lib/scoreColumns";
 import { type ScoreConfigDataType } from "@langfuse/shared";
+import { useI18n } from "@/src/features/i18n";
 
 type RowData = {
   key: {
@@ -39,6 +40,7 @@ type RowData = {
 };
 
 export function AnnotationQueuesTable({ projectId }: { projectId: string }) {
+  const { t } = useI18n();
   const [rowHeight, setRowHeight] = useRowHeightLocalStorage(
     "annotationQueues",
     "s",
@@ -63,7 +65,7 @@ export function AnnotationQueuesTable({ projectId }: { projectId: string }) {
   const columns: LangfuseColumnDef<RowData>[] = [
     {
       accessorKey: "key",
-      header: "Name",
+      header: t("annotationQueues.name"),
       id: "key",
       size: 150,
       isPinnedLeft: true,
@@ -80,7 +82,7 @@ export function AnnotationQueuesTable({ projectId }: { projectId: string }) {
     },
     {
       accessorKey: "description",
-      header: "Description",
+      header: t("annotationQueues.description"),
       id: "description",
       enableHiding: true,
       size: 200,
@@ -100,21 +102,21 @@ export function AnnotationQueuesTable({ projectId }: { projectId: string }) {
     },
     {
       accessorKey: "countCompletedItems",
-      header: "Completed Items",
+      header: t("annotationQueues.completedItems"),
       id: "countCompletedItems",
       enableHiding: true,
       size: 90,
     },
     {
       accessorKey: "countPendingItems",
-      header: "Pending Items",
+      header: t("annotationQueues.pendingItems"),
       id: "countPendingItems",
       enableHiding: true,
       size: 90,
     },
     {
       accessorKey: "scoreConfigs",
-      header: "Score Configs",
+      header: t("annotationQueues.scoreConfigs"),
       id: "scoreConfigs",
       enableHiding: true,
       size: 200,
@@ -141,14 +143,14 @@ export function AnnotationQueuesTable({ projectId }: { projectId: string }) {
     },
     {
       accessorKey: "createdAt",
-      header: "Created",
+      header: t("datasets.created"),
       id: "createdAt",
       enableHiding: true,
       size: 150,
     },
     {
       accessorKey: "processAction",
-      header: "Process",
+      header: t("annotationQueues.process"),
       id: "processAction",
       isFixedPosition: true,
       cell: ({ row }) => {
@@ -156,7 +158,7 @@ export function AnnotationQueuesTable({ projectId }: { projectId: string }) {
         return !hasAccess ? (
           <Button size="sm" disabled>
             <Lock className="mr-1 h-3 w-3" />
-            <span className="text-xs">Process queue</span>
+            <span className="text-xs">{t("annotationQueues.processQueue")}</span>
           </Button>
         ) : (
           <Button size="sm" asChild>
@@ -164,7 +166,7 @@ export function AnnotationQueuesTable({ projectId }: { projectId: string }) {
               href={`/project/${projectId}/annotation-queues/${key.id}/items`}
             >
               <ClipboardPen className="mr-1 h-3 w-3" />
-              <span className="text-xs">Process queue</span>
+              <span className="text-xs">{t("annotationQueues.processQueue")}</span>
             </Link>
           </Button>
         );
@@ -172,7 +174,7 @@ export function AnnotationQueuesTable({ projectId }: { projectId: string }) {
     },
     {
       accessorKey: "actions",
-      header: "Actions",
+      header: t("datasets.tableActions"),
       id: "actions",
       size: 70,
       isFixedPosition: true,
@@ -182,12 +184,12 @@ export function AnnotationQueuesTable({ projectId }: { projectId: string }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">{t("common.openMenu")}</span>
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>{t("datasets.tableActions")}</DropdownMenuLabel>
               <div className="flex flex-col space-y-0.5">
                 <CreateOrEditAnnotationQueueButton
                   projectId={projectId}

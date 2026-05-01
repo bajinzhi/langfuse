@@ -1,5 +1,6 @@
 import { type GetServerSideProps } from "next";
 import { useRouter } from "next/router";
+import { useI18n } from "@/src/features/i18n";
 
 // This url is deprecated, we keep this redirect page for backward compatibility
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -19,10 +20,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default function RedirectPage() {
+  const { t } = useI18n();
   const router = useRouter();
   if (router.isFallback) {
-    return <div className="p-3">Loading...</div>;
+    return <div className="p-3">{t("common.loadingDots")}</div>;
   }
 
-  return <div>Redirecting...</div>;
+  return <div>{t("common.redirecting")}</div>;
 }

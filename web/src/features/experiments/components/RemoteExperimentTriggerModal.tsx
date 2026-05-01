@@ -27,6 +27,7 @@ import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { Loader2 } from "lucide-react";
 import { getFormattedPayload } from "@/src/features/experiments/utils/format";
 import { type Prisma } from "@langfuse/shared";
+import { useI18n } from "@/src/features/i18n";
 
 const RemoteExperimentTriggerSchema = z.object({
   payload: z.string(),
@@ -50,6 +51,7 @@ export const RemoteExperimentTriggerModal = ({
   };
   setShowTriggerModal: (show: boolean) => void;
 }) => {
+  const { t } = useI18n();
   const hasDatasetAccess = useHasProjectAccess({
     projectId,
     scope: "datasets:CUD",
@@ -72,21 +74,19 @@ export const RemoteExperimentTriggerModal = ({
       onSuccess: (data) => {
         if (data.success && data.skipped) {
           showErrorToast(
-            "Trigger is disabled",
-            "Enable the trigger in settings to run remote experiments.",
+            t("experiments.remote.triggerDisabled"),
+            t("experiments.remote.triggerDisabledDescription"),
             "WARNING",
           );
         } else if (data.success) {
           showSuccessToast({
-            title: "Remote experiment triggered",
-            description:
-              "Your remote experiment may take a few minutes to complete.",
+            title: t("experiments.remote.triggered"),
+            description: t("experiments.remote.triggeredDescription"),
           });
         } else {
           showErrorToast(
-            "Failed to trigger remote experiment",
-            data.error ||
-              "Please try again or check your remote experiment configuration.",
+            t("experiments.remote.triggerFailed"),
+            data.error || t("experiments.remote.checkConfiguration"),
           );
         }
         setShowTriggerModal(false);
@@ -99,7 +99,7 @@ export const RemoteExperimentTriggerModal = ({
         JSON.parse(data.payload);
       } catch {
         form.setError("payload", {
-          message: "Invalid JSON format",
+          message: t("experiments.remote.invalidJson"),
         });
         return;
       }
@@ -124,11 +124,11 @@ export const RemoteExperimentTriggerModal = ({
           onClick={() => setShowTriggerModal(false)}
           className="inline-block self-start"
         >
-          ← Back
+          {t("experiments.remote.back")}
         </Button>
-        <DialogTitle>Run remote dataset run</DialogTitle>
+        <DialogTitle>{t("experiments.remote.runTitle")}</DialogTitle>
         <DialogDescription>
-          This action will send the following information to{" "}
+          {t("experiments.remote.runDescriptionPrefix")}{" "}
           <strong>{remoteExperimentConfig.url}</strong>.
         </DialogDescription>
       </DialogHeader>
@@ -142,11 +142,11 @@ export const RemoteExperimentTriggerModal = ({
                 name="payload"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Config</FormLabel>
+                    <FormLabel>{t("experiments.remote.config")}</FormLabel>
                     <FormDescription>
-                      Confirm the config you want to send to the remote dataset
-                      run URL along with the{" "}
-                      <strong>{dataset.data?.name}</strong> dataset information.
+                      {t("experiments.remote.configDescriptionPrefix")}{" "}
+                      <strong>{dataset.data?.name}</strong>{" "}
+                      {t("experiments.remote.configDescriptionSuffix")}
                     </FormDescription>
                     <FormControl>
                       <CodeMirrorEditor
@@ -173,7 +173,7 @@ export const RemoteExperimentTriggerModal = ({
                 onClick={() => setShowTriggerModal(false)}
                 disabled={runRemoteExperimentMutation.isPending}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -182,7 +182,7 @@ export const RemoteExperimentTriggerModal = ({
                 {runRemoteExperimentMutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Run
+                {t("experiments.entry.run")}
               </Button>
             </div>
           </DialogFooter>

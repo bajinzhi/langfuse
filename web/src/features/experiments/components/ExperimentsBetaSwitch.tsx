@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@/src/components/ui/tooltip";
 import { Info } from "lucide-react";
+import { useI18n } from "@/src/features/i18n";
 
 export function ExperimentsBetaSwitch({
   enabled,
@@ -15,10 +16,13 @@ export function ExperimentsBetaSwitch({
   enabled: boolean;
   onEnabledChange: (enabled: boolean) => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex items-center gap-2 px-2 py-1">
       <div className="flex items-center gap-1">
-        <Label htmlFor="experiments-beta-toggle">Experiments Beta</Label>
+        <Label htmlFor="experiments-beta-toggle">
+          {t("experiments.beta.title")}
+        </Label>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -26,8 +30,7 @@ export function ExperimentsBetaSwitch({
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">
               <p className="text-xs">
-                View experiments decoupled from Datasets, extended filtering,
-                and faster performance. Turn off anytime.
+                {t("experiments.beta.description")}
               </p>
             </TooltipContent>
           </Tooltip>

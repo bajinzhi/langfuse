@@ -22,8 +22,10 @@ import {
 } from "@/src/components/ui/popover";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
+import { useI18n } from "@/src/features/i18n";
 
 export function DefaultEvalModelSetup({ projectId }: { projectId: string }) {
+  const { t } = useI18n();
   const utils = api.useUtils();
   const [isEditing, setIsEditing] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -52,8 +54,8 @@ export function DefaultEvalModelSetup({ projectId }: { projectId: string }) {
     api.defaultLlmModel.upsertDefaultModel.useMutation({
       onSuccess: () => {
         showSuccessToast({
-          title: "Default evaluation model updated",
-          description: "All running evaluators will use the new model.",
+          title: t("evals.defaultModel.updatedTitle"),
+          description: t("evals.defaultModel.updatedDescription"),
         });
 
         utils.defaultLlmModel.fetchDefaultModel.invalidate({ projectId });
@@ -84,23 +86,21 @@ export function DefaultEvalModelSetup({ projectId }: { projectId: string }) {
       <Card className="mt-3 flex flex-col gap-6">
         <CardContent>
           <p className="my-2 text-lg font-semibold">
-            Set default evaluator model
+            {t("evals.defaultModel.setTitle")}
           </p>
           <ManageDefaultEvalModel
             projectId={projectId}
             variant="color-coded"
             setUpMessage={
               <>
-                No default model set. LLM-as-a-judge evaluations require an LLM
-                connection for scoring. This default is used by all templates
-                that don&apos;t specify their own model.{" "}
+                {t("evals.defaultModel.setupMessage")}{" "}
                 <a
                   href="https://langfuse.com/docs/evaluation/evaluation-methods/llm-as-a-judge#how-llm-as-a-judge-works"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline"
                 >
-                  Learn more.
+                  {t("common.learnMore")}
                 </a>
               </>
             }
@@ -135,14 +135,14 @@ export function DefaultEvalModelSetup({ projectId }: { projectId: string }) {
               }}
             >
               <Pencil className="mr-2 h-4 w-4" />
-              {selectedModel ? "Edit" : "Set up"}
+              {selectedModel ? t("common.edit") : t("evals.defaultModel.setUp")}
             </Button>
           </DialogTrigger>
           <DialogContent className="px-3 py-10">
             <ModelParameters
               customHeader={
                 <p className="leading-none font-medium">
-                  Default model configuration
+                  {t("evals.defaultModel.configTitle")}
                 </p>
               }
               {...{
@@ -156,12 +156,12 @@ export function DefaultEvalModelSetup({ projectId }: { projectId: string }) {
               formDisabled={!hasWriteAccess}
             />
             <div className="text-muted-foreground my-2 text-xs">
-              Select a model which supports function calling.
+              {t("evals.defaultModel.functionCallingHint")}
             </div>
             <div className="flex flex-col gap-2">
               <div className="mt-2 flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 {selectedModel ? (
                   <UpdateButton
@@ -174,13 +174,14 @@ export function DefaultEvalModelSetup({ projectId }: { projectId: string }) {
                     disabled={!hasWriteAccess || !modelParams.provider.value}
                     onClick={executeUpsertMutation}
                   >
-                    Save
+                    {t("common.save")}
                   </Button>
                 )}
               </div>
               {formError ? (
                 <p className="text-red w-full text-center">
-                  <span className="font-bold">Error:</span> {formError}
+                  <span className="font-bold">{t("common.error")}:</span>{" "}
+                  {formError}
                 </p>
               ) : null}
             </div>
@@ -200,6 +201,7 @@ function UpdateButton({
   isLoading: boolean;
   executeUpsertMutation: () => void;
 }) {
+  const { t } = useI18n();
   const [confirmationInput, setConfirmationInput] = useState("");
   const hasWriteAccess = useHasProjectAccess({
     projectId,
@@ -217,22 +219,22 @@ function UpdateButton({
             e.stopPropagation();
           }}
         >
-          Update
+          {t("common.update")}
         </Button>
       </PopoverTrigger>
       <PopoverContent
         onClick={(e) => e.stopPropagation()}
         className="w-fit max-w-[500px]"
       >
-        <h2 className="text-md mb-3 font-semibold">Please confirm</h2>
+        <h2 className="text-md mb-3 font-semibold">
+          {t("common.pleaseConfirm")}
+        </h2>
         <p className="mb-3 text-sm">
-          Updating the default model will impact any currently running
-          evaluators that use it. Please confirm that you want to proceed with
-          this change.
+          {t("evals.defaultModel.updateConfirmBody")}
         </p>
         <div className="mb-4 grid w-full gap-1.5">
           <Label htmlFor="update-confirmation">
-            Type &quot;{CONFIRMATION}&quot; to confirm
+            {t("delete.typeToConfirm", { value: CONFIRMATION })}
           </Label>
           <Input
             id="update-confirmation"
@@ -246,13 +248,13 @@ function UpdateButton({
             loading={isLoading}
             onClick={() => {
               if (confirmationInput !== CONFIRMATION) {
-                alert("Please type the correct confirmation");
+                alert(t("evals.defaultModel.correctConfirmation"));
                 return;
               }
               executeUpsertMutation();
             }}
           >
-            Confirm
+            {t("common.confirm")}
           </Button>
         </div>
       </PopoverContent>

@@ -29,6 +29,7 @@ import type {
   NumericKeyValueFilterEntry,
   StringKeyValueFilterEntry,
 } from "@/src/features/filters/hooks/useSidebarFilterState";
+import { useI18n, type MessageKey } from "@/src/features/i18n";
 
 type KeyValueFilterBuilderProps =
   | {
@@ -54,29 +55,24 @@ type KeyValueFilterBuilderProps =
       keyPlaceholder?: string;
     };
 
-// Map operators to human-readable labels
-const NUMERIC_OPERATOR_LABELS = {
-  "=": "equals",
-  ">": "greater than",
-  "<": "less than",
-  ">=": "greater than or equals",
-  "<=": "less than or equals",
-} as const;
+const NUMERIC_OPERATOR_MESSAGE_KEYS = {
+  "=": "table.filters.equals",
+  ">": "table.filters.greaterThan",
+  "<": "table.filters.lessThan",
+  ">=": "table.filters.greaterThanOrEquals",
+  "<=": "table.filters.lessThanOrEquals",
+} satisfies Record<string, MessageKey>;
 
-const STRING_OPERATOR_LABELS = {
-  "=": "equals",
-  contains: "contains",
-  "does not contain": "does not contain",
-} as const;
+const STRING_OPERATOR_MESSAGE_KEYS = {
+  "=": "table.filters.equals",
+  contains: "table.filters.contains",
+  "does not contain": "table.filters.doesNotContain",
+} satisfies Record<string, MessageKey>;
 
 export function KeyValueFilterBuilder(props: KeyValueFilterBuilderProps) {
-  const {
-    mode,
-    keyOptions,
-    activeFilters,
-    onChange,
-    keyPlaceholder = "Key",
-  } = props;
+  const { mode, keyOptions, activeFilters, onChange, keyPlaceholder } = props;
+  const { t } = useI18n();
+  const keyPlaceholderLabel = keyPlaceholder ?? t("table.filters.key");
   const availableValues = mode === "categorical" ? props.availableValues : {};
 
   // Track which popover is open (by index)
@@ -211,7 +207,7 @@ export function KeyValueFilterBuilder(props: KeyValueFilterBuilderProps) {
                       <span
                         className={cn(!filter.key && "text-muted-foreground")}
                       >
-                        {filter.key || keyPlaceholder}
+                        {filter.key || keyPlaceholderLabel}
                       </span>
                       <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -219,11 +215,13 @@ export function KeyValueFilterBuilder(props: KeyValueFilterBuilderProps) {
                   <PopoverContent className="w-[200px] p-0" align="start">
                     <InputCommand>
                       <InputCommandInput
-                        placeholder="Search keys..."
+                        placeholder={t("table.filters.searchKeys")}
                         variant="bottom"
                       />
                       <InputCommandList>
-                        <InputCommandEmpty>No keys found.</InputCommandEmpty>
+                        <InputCommandEmpty>
+                          {t("table.filters.noKeys")}
+                        </InputCommandEmpty>
                         <InputCommandGroup>
                           {keyOptions.map((option) => (
                             <InputCommandItem
@@ -256,7 +254,7 @@ export function KeyValueFilterBuilder(props: KeyValueFilterBuilderProps) {
               ) : (
                 // Text input for free-form keys
                 <Input
-                  placeholder={keyPlaceholder}
+                  placeholder={keyPlaceholderLabel}
                   value={filter.key}
                   onChange={(e) => {
                     // Only update the key, preserve the existing value
@@ -294,14 +292,18 @@ export function KeyValueFilterBuilder(props: KeyValueFilterBuilderProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="any of">any of</SelectItem>
-                    <SelectItem value="none of">none of</SelectItem>
+                    <SelectItem value="any of">
+                      {t("table.filters.anyOf")}
+                    </SelectItem>
+                    <SelectItem value="none of">
+                      {t("table.filters.noneOf")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
 
                 {/* Values multi-select */}
                 <MultiSelect
-                  title="Values"
+                  title={t("table.filters.values")}
                   options={availableValuesForKey.map((v) => ({ value: v }))}
                   values={filter.value as string[]}
                   onValueChange={(values) =>
@@ -325,10 +327,10 @@ export function KeyValueFilterBuilder(props: KeyValueFilterBuilderProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(NUMERIC_OPERATOR_LABELS).map(
-                      ([op, label]) => (
+                    {Object.entries(NUMERIC_OPERATOR_MESSAGE_KEYS).map(
+                      ([op, labelKey]) => (
                         <SelectItem key={op} value={op}>
-                          {label}
+                          {t(labelKey)}
                         </SelectItem>
                       ),
                     )}
@@ -338,7 +340,7 @@ export function KeyValueFilterBuilder(props: KeyValueFilterBuilderProps) {
                 {/* Numeric value input */}
                 <Input
                   type="number"
-                  placeholder="Value"
+                  placeholder={t("table.filters.value")}
                   value={filter.value}
                   onChange={(e) =>
                     handleFilterChange(index, {
@@ -364,10 +366,10 @@ export function KeyValueFilterBuilder(props: KeyValueFilterBuilderProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(STRING_OPERATOR_LABELS).map(
-                      ([op, label]) => (
+                    {Object.entries(STRING_OPERATOR_MESSAGE_KEYS).map(
+                      ([op, labelKey]) => (
                         <SelectItem key={op} value={op}>
-                          {label}
+                          {t(labelKey)}
                         </SelectItem>
                       ),
                     )}
@@ -377,7 +379,7 @@ export function KeyValueFilterBuilder(props: KeyValueFilterBuilderProps) {
                 {/* String value input */}
                 <Input
                   type="text"
-                  placeholder="Value"
+                  placeholder={t("table.filters.value")}
                   value={filter.value as string}
                   onChange={(e) =>
                     handleFilterChange(index, {
@@ -400,7 +402,7 @@ export function KeyValueFilterBuilder(props: KeyValueFilterBuilderProps) {
         className="w-full"
       >
         <Plus className="mr-2 h-4 w-4" />
-        Add filter
+        {t("table.filters.add")}
       </Button>
     </div>
   );

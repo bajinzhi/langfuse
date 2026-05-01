@@ -33,6 +33,7 @@ import { isCloudPlan, planLabels } from "@langfuse/shared";
 import ContainerPage from "@/src/components/layouts/container-page";
 import { type User } from "next-auth";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
+import { useI18n } from "@/src/features/i18n";
 
 const OrganizationProjectTiles = ({
   org,
@@ -41,6 +42,8 @@ const OrganizationProjectTiles = ({
   org: User["organizations"][number];
   search?: string;
 }) => {
+  const { t } = useI18n();
+
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {org.projects
@@ -57,7 +60,9 @@ const OrganizationProjectTiles = ({
             {!project.deletedAt ? (
               <CardFooter className="gap-2">
                 <Button asChild variant="secondary">
-                  <Link href={`/project/${project.id}`}>Go to project</Link>
+                  <Link href={`/project/${project.id}`}>
+                    {t("organizations.goToProject")}
+                  </Link>
                 </Button>
                 <Button asChild variant="ghost">
                   <Link href={`/project/${project.id}/settings`}>
@@ -67,7 +72,9 @@ const OrganizationProjectTiles = ({
               </CardFooter>
             ) : (
               <CardContent>
-                <CardDescription>Project is being deleted</CardDescription>
+                <CardDescription>
+                  {t("organizations.projectDeleting")}
+                </CardDescription>
               </CardContent>
             )}
           </Card>
@@ -77,16 +84,16 @@ const OrganizationProjectTiles = ({
 };
 
 const DemoOrganizationTile = () => {
+  const { t } = useI18n();
   const capture = usePostHogClientCapture();
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Try Langfuse Demo</CardTitle>
+        <CardTitle>{t("organizations.demo.title")}</CardTitle>
       </CardHeader>
       <CardContent>
-        We have built a Q&A chatbot that answers questions based on the Langfuse
-        Docs. Interact with it to see traces in Langfuse.
+        {t("organizations.demo.description")}
       </CardContent>
       <CardFooter>
         <Button asChild variant="secondary">
@@ -98,7 +105,7 @@ const DemoOrganizationTile = () => {
               })
             }
           >
-            View Demo Project
+            {t("organizations.demo.viewProject")}
           </Link>
         </Button>
       </CardFooter>
@@ -113,6 +120,7 @@ const OrganizationActionButtons = ({
   orgId: string;
   primaryButtonVariant?: "default" | "secondary";
 }) => {
+  const { t } = useI18n();
   const membersViewAccess = useHasOrganizationAccess({
     organizationId: orgId,
     scope: "organizationMembers:read",
@@ -140,13 +148,13 @@ const OrganizationActionButtons = ({
         <Button asChild variant={primaryButtonVariant}>
           <Link href={createProjectRoute(orgId)}>
             <PlusIcon className="mr-2 h-4 w-4" aria-hidden="true" />
-            New project
+            {t("organizations.newProject")}
           </Link>
         </Button>
       ) : (
         <Button disabled variant={primaryButtonVariant}>
           <LockIcon className="mr-2 h-4 w-4" aria-hidden="true" />
-          New project
+          {t("organizations.newProject")}
         </Button>
       )}
     </>
@@ -160,6 +168,7 @@ const SingleOrganizationPage = ({
   orgId: string;
   search?: string;
 }) => {
+  const { t } = useI18n();
   const session = useSession();
   const org = session.data?.user?.organizations.find((o) => o.id === orgId);
 
@@ -175,7 +184,7 @@ const SingleOrganizationPage = ({
     return (
       <ContainerPage
         headerProps={{
-          title: "Demo Organization",
+          title: t("organizations.demo.organization"),
         }}
       >
         <DemoOrganizationTile />
@@ -186,7 +195,7 @@ const SingleOrganizationPage = ({
   return (
     <ContainerPage
       headerProps={{
-        title: org?.name ?? "Organization",
+        title: org?.name ?? t("organizations.organization"),
         actionButtonsRight: <OrganizationActionButtons orgId={orgId} />,
       }}
     >
@@ -202,6 +211,7 @@ const SingleOrganizationProjectOverviewTile = ({
   orgId: string;
   search?: string;
 }) => {
+  const { t } = useI18n();
   const session = useSession();
   const org = session.data?.user?.organizations.find((o) => o.id === orgId);
 
@@ -226,7 +236,11 @@ const SingleOrganizationProjectOverviewTile = ({
       <Header
         title={org.name}
         className="truncate"
-        status={orgId === env.NEXT_PUBLIC_DEMO_ORG_ID ? "Demo Org" : undefined}
+        status={
+          orgId === env.NEXT_PUBLIC_DEMO_ORG_ID
+            ? t("organizations.demo.status")
+            : undefined
+        }
         label={
           isCloudPlan(org.plan)
             ? {
@@ -248,6 +262,7 @@ const SingleOrganizationProjectOverviewTile = ({
 };
 
 export const OrganizationProjectOverview = () => {
+  const { t } = useI18n();
   const router = useRouter();
   const queryOrgId = router.query.organizationId;
   const session = useSession();
@@ -256,7 +271,7 @@ export const OrganizationProjectOverview = () => {
   const [{ search }, setQueryParams] = useQueryParams({ search: StringParam });
 
   if (organizations === undefined) {
-    return "loading...";
+    return t("organizations.loading");
   }
 
   const showOnboarding =
@@ -278,15 +293,14 @@ export const OrganizationProjectOverview = () => {
   return (
     <ContainerPage
       headerProps={{
-        title: "Organizations",
+        title: t("organizations.title"),
         help: {
-          description:
-            "Organizations help you manage access to projects. Each organization can have multiple projects and team members with different roles.",
+          description: t("organizations.helpDescription"),
           href: "https://langfuse.com/docs/rbac",
         },
         breadcrumb: [
           {
-            name: "Organizations",
+            name: t("organizations.title"),
             href: "/",
           },
         ],
@@ -294,14 +308,14 @@ export const OrganizationProjectOverview = () => {
           <>
             <Input
               className="mr-1 w-36 lg:w-56"
-              placeholder="Search projects"
+              placeholder={t("organizations.searchProjects")}
               onChange={(e) => setQueryParams({ search: e.target.value })}
             />
             {canCreateOrg && (
               <Button data-testid="create-organization-btn" asChild>
                 <Link href={createOrganizationRoute}>
                   <PlusIcon className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                  New Organization
+                  {t("organizations.newOrganization")}
                 </Link>
               </Button>
             )}

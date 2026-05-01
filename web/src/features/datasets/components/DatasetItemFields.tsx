@@ -4,6 +4,7 @@ import { useDatasetItemValidation } from "../hooks/useDatasetItemValidation";
 import type { DatasetSchema } from "../utils/datasetItemUtils";
 import type { Control, FieldPath } from "react-hook-form";
 import { FormField } from "@/src/components/ui/form";
+import { useI18n } from "@/src/features/i18n";
 
 export type DatasetItemFormValues = {
   input: string;
@@ -43,6 +44,8 @@ export const DatasetItemFields = ({
   onExpectedOutputChange,
   onMetadataChange,
 }: DatasetItemFieldsProps) => {
+  const { t } = useI18n();
+
   // Create dataset array for validation hook
   const datasets = useMemo(() => {
     if (!dataset) return [];
@@ -76,7 +79,7 @@ export const DatasetItemFields = ({
             name={"input" as FieldPath<DatasetItemFormValues>}
             render={({ field }) => (
               <DatasetItemField
-                label="Input"
+                label={t("datasets.input")}
                 value={field.value}
                 schema={dataset?.inputSchema}
                 schemaType="input"
@@ -94,7 +97,7 @@ export const DatasetItemFields = ({
           />
         ) : (
           <DatasetItemField
-            label="Input"
+            label={t("datasets.input")}
             value={inputValue}
             schema={dataset?.inputSchema}
             schemaType="input"
@@ -111,7 +114,7 @@ export const DatasetItemFields = ({
             name={"expectedOutput" as FieldPath<DatasetItemFormValues>}
             render={({ field }) => (
               <DatasetItemField
-                label="Expected output"
+                label={t("datasets.expectedOutput")}
                 value={field.value}
                 schema={dataset?.expectedOutputSchema}
                 schemaType="expectedOutput"
@@ -129,7 +132,7 @@ export const DatasetItemFields = ({
           />
         ) : (
           <DatasetItemField
-            label="Expected output"
+            label={t("datasets.expectedOutput")}
             value={expectedOutputValue}
             schema={dataset?.expectedOutputSchema}
             schemaType="expectedOutput"
@@ -147,7 +150,7 @@ export const DatasetItemFields = ({
           name={"metadata" as FieldPath<DatasetItemFormValues>}
           render={({ field }) => (
             <DatasetItemField
-              label="Metadata"
+              label={t("datasets.metadata")}
               value={field.value}
               editable={editable}
               onChange={(v) => {
@@ -160,7 +163,7 @@ export const DatasetItemFields = ({
         />
       ) : (
         <DatasetItemField
-          label="Metadata"
+          label={t("datasets.metadata")}
           value={metadataValue}
           editable={false}
         />

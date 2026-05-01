@@ -1,5 +1,6 @@
 import { Download, Check } from "lucide-react";
 import { useState } from "react";
+import { translateClientMessage } from "@/src/features/i18n";
 
 export function DownloadButton({
   data,
@@ -10,6 +11,7 @@ export function DownloadButton({
   fileName?: string;
   className?: string;
 }) {
+  const t = translateClientMessage;
   const [isDownloaded, setIsDownloaded] = useState(false);
 
   const escapeCsvValue = (value: any): string => {
@@ -69,8 +71,8 @@ export function DownloadButton({
         downloadCsv();
       }}
       className={`text-muted-foreground hover:text-foreground ${className || ""}`}
-      aria-label="Download chart data as CSV"
-      title="Download CSV"
+      aria-label={t("widgets.downloadCsvAria")}
+      title={t("widgets.downloadCsv")}
       disabled={isDownloaded}
     >
       {isDownloaded ? <Check size={16} /> : <Download size={16} />}

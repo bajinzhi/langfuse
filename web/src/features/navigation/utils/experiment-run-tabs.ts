@@ -1,3 +1,7 @@
+import type { MessageKey, MessageValues } from "@/src/features/i18n";
+
+type Translate = (key: MessageKey, values?: MessageValues) => string;
+
 export const EXPERIMENT_RUN_TABS = {
   RESULTS: "results",
   ANALYTICS: "analytics",
@@ -8,11 +12,12 @@ export type ExperimentRunTab =
 
 export const getExperimentRunTabs = (
   projectId: string,
+  t: Translate,
   onResultsClick?: () => void,
 ) => [
   {
     value: EXPERIMENT_RUN_TABS.RESULTS,
-    label: "Results",
+    label: t("experiments.results"),
     href: onResultsClick
       ? undefined
       : `/project/${projectId}/experiments/results`,
@@ -20,7 +25,7 @@ export const getExperimentRunTabs = (
   },
   {
     value: EXPERIMENT_RUN_TABS.ANALYTICS,
-    label: "Analytics",
+    label: t("common.analytics"),
     href: `/project/${projectId}/experiments/analytics`,
   },
 ];

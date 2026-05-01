@@ -4,6 +4,7 @@ import {
   HoverCardTrigger,
 } from "@/src/components/ui/hover-card";
 import { Info } from "lucide-react";
+import { useI18n } from "@/src/features/i18n";
 
 interface SamplingMetadata {
   samplingRate: number;
@@ -29,6 +30,8 @@ export function SamplingDetailsHoverCard({
   mode = "two",
   showLabel = false,
 }: SamplingDetailsHoverCardProps) {
+  const { t } = useI18n();
+
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
@@ -38,9 +41,9 @@ export function SamplingDetailsHoverCard({
               ? "text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
               : "hover:bg-muted-foreground/10 inline-flex h-4 w-4 items-center justify-center rounded-full"
           }
-          aria-label="View sampling details"
+          aria-label={t("scoreAnalytics.viewSamplingDetails")}
         >
-          {showLabel && <span>Sampled Data</span>}
+          {showLabel && <span>{t("scoreAnalytics.sampledData")}</span>}
           <Info
             className={showLabel ? "h-3 w-3" : "text-muted-foreground h-3 w-3"}
           />
@@ -50,12 +53,16 @@ export function SamplingDetailsHoverCard({
         <div className="space-y-3">
           <div>
             <h4 className="mb-2 text-sm font-semibold">
-              {mode === "single" ? "Estimated Score Count" : "Estimated Scores"}
+              {mode === "single"
+                ? t("scoreAnalytics.estimatedScoreCount")
+                : t("scoreAnalytics.estimatedScores")}
             </h4>
             <dl className="space-y-1 text-sm">
               {mode === "single" ? (
                 <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Total Scores:</dt>
+                  <dt className="text-muted-foreground">
+                    {t("scoreAnalytics.totalScores")}
+                  </dt>
                   <dd className="font-medium">
                     ~
                     {samplingMetadata.preflightEstimates?.score1Count.toLocaleString()}
@@ -64,14 +71,18 @@ export function SamplingDetailsHoverCard({
               ) : (
                 <>
                   <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Score 1:</dt>
+                    <dt className="text-muted-foreground">
+                      {t("scoreAnalytics.score1")}
+                    </dt>
                     <dd className="font-medium">
                       ~
                       {samplingMetadata.preflightEstimates?.score1Count.toLocaleString()}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Score 2:</dt>
+                    <dt className="text-muted-foreground">
+                      {t("scoreAnalytics.score2")}
+                    </dt>
                     <dd className="font-medium">
                       ~
                       {samplingMetadata.preflightEstimates?.score2Count.toLocaleString()}
@@ -79,7 +90,7 @@ export function SamplingDetailsHoverCard({
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">
-                      Estimated Matches:
+                      {t("scoreAnalytics.estimatedMatches")}
                     </dt>
                     <dd className="font-medium">
                       ~
@@ -92,10 +103,14 @@ export function SamplingDetailsHoverCard({
           </div>
 
           <div>
-            <h4 className="mb-2 text-sm font-semibold">Query Optimizations</h4>
+            <h4 className="mb-2 text-sm font-semibold">
+              {t("scoreAnalytics.queryOptimizations")}
+            </h4>
             <dl className="space-y-1 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">Sampling:</dt>
+                <dt className="text-muted-foreground">
+                  {t("scoreAnalytics.sampling")}
+                </dt>
                 <dd className="font-medium">
                   {(samplingMetadata.samplingRate * 100).toFixed(1)}%
                   (hash-based)
@@ -103,11 +118,13 @@ export function SamplingDetailsHoverCard({
               </div>
               {samplingMetadata.adaptiveFinal && (
                 <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Deduplication:</dt>
+                  <dt className="text-muted-foreground">
+                    {t("scoreAnalytics.deduplication")}
+                  </dt>
                   <dd className="font-medium">
                     {samplingMetadata.adaptiveFinal.usedFinal
-                      ? "Enabled"
-                      : "Skipped for performance"}
+                      ? t("scoreAnalytics.enabled")
+                      : t("scoreAnalytics.skippedForPerformance")}
                   </dd>
                 </div>
               )}
@@ -115,8 +132,7 @@ export function SamplingDetailsHoverCard({
           </div>
 
           <p className="text-muted-foreground text-xs">
-            Hash-based sampling ensures consistent, repeatable results while
-            maintaining statistical accuracy.
+            {t("scoreAnalytics.hashSamplingDescription")}
           </p>
         </div>
       </HoverCardContent>

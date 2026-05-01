@@ -32,6 +32,7 @@ import { useCommandMenu } from "@/src/features/command-k-menu/CommandMenuProvide
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { CloudStatusMenu } from "@/src/features/cloud-status-notification/components/CloudStatusMenu";
 import { type ProductModule } from "@/src/ee/features/ui-customization/productModuleSchema";
+import { type MessageKey, useI18n } from "@/src/features/i18n";
 
 export enum RouteSection {
   Main = "main",
@@ -44,11 +45,19 @@ export enum RouteGroup {
   Evaluation = "Evaluation",
 }
 
+export const routeGroupMessageKeys: Record<RouteGroup, MessageKey> = {
+  [RouteGroup.Observability]: "nav.observability",
+  [RouteGroup.PromptManagement]: "nav.promptManagement",
+  [RouteGroup.Evaluation]: "nav.evaluation",
+};
+
 export type Route = {
   title: string;
+  titleKey?: MessageKey;
   menuNode?: ReactNode;
   featureFlag?: Flag;
   label?: string | ReactNode;
+  labelKey?: MessageKey;
   projectRbacScopes?: ProjectScope[]; // array treated as OR
   organizationRbacScope?: OrganizationScope;
   icon?: LucideIcon; // ignored for nested routes
@@ -67,6 +76,7 @@ export type Route = {
 export const ROUTES: Route[] = [
   {
     title: "Go to...",
+    titleKey: "nav.goTo",
     pathname: "", // Empty pathname since this is a dropdown
     icon: Search,
     menuNode: <CommandMenuTrigger />,
@@ -74,6 +84,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Organizations",
+    titleKey: "nav.organizations",
     pathname: "/",
     icon: Grid2X2,
     show: ({ organization }) => organization === undefined,
@@ -81,18 +92,21 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Projects",
+    titleKey: "nav.projects",
     pathname: "/organization/[organizationId]",
     icon: Grid2X2,
     section: RouteSection.Main,
   },
   {
     title: "Home",
+    titleKey: "nav.home",
     pathname: `/project/[projectId]`,
     icon: Home,
     section: RouteSection.Main,
   },
   {
     title: "Dashboards",
+    titleKey: "nav.dashboards",
     pathname: `/project/[projectId]/dashboards`,
     icon: LayoutDashboard,
     productModule: "dashboards",
@@ -100,6 +114,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Tracing",
+    titleKey: "nav.tracing",
     icon: ListTree,
     productModule: "tracing",
     group: RouteGroup.Observability,
@@ -108,6 +123,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Sessions",
+    titleKey: "nav.sessions",
     icon: Clock,
     productModule: "tracing",
     group: RouteGroup.Observability,
@@ -116,6 +132,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Users",
+    titleKey: "nav.users",
     pathname: `/project/[projectId]/users`,
     icon: UsersIcon,
     productModule: "tracing",
@@ -124,6 +141,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Prompts",
+    titleKey: "nav.prompts",
     pathname: "/project/[projectId]/prompts",
     icon: FileJson,
     projectRbacScopes: ["prompts:read"],
@@ -133,6 +151,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Playground",
+    titleKey: "nav.playground",
     pathname: "/project/[projectId]/playground",
     icon: TerminalIcon,
     productModule: "playground",
@@ -141,6 +160,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Scores",
+    titleKey: "nav.scores",
     pathname: `/project/[projectId]/scores`,
     group: RouteGroup.Evaluation,
     section: RouteSection.Main,
@@ -148,6 +168,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "LLM-as-a-Judge",
+    titleKey: "nav.llmAsJudge",
     icon: Lightbulb,
     productModule: "evaluation",
     projectRbacScopes: ["evalJob:read"],
@@ -157,6 +178,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Human Annotation",
+    titleKey: "nav.humanAnnotation",
     pathname: `/project/[projectId]/annotation-queues`,
     projectRbacScopes: ["annotationQueues:read"],
     group: RouteGroup.Evaluation,
@@ -165,6 +187,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Datasets",
+    titleKey: "nav.datasets",
     pathname: `/project/[projectId]/datasets`,
     icon: Database,
     productModule: "datasets",
@@ -173,6 +196,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Experiments",
+    titleKey: "nav.experiments",
     pathname: `/project/[projectId]/experiments`,
     icon: Beaker,
     featureFlag: "experimentsV4Enabled",
@@ -182,6 +206,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Upgrade",
+    titleKey: "nav.upgrade",
     icon: Sparkle,
     pathname: "/project/[projectId]/settings/billing",
     section: RouteSection.Secondary,
@@ -191,6 +216,7 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Upgrade",
+    titleKey: "nav.upgrade",
     icon: Sparkle,
     pathname: "/organization/[organizationId]/settings/billing",
     section: RouteSection.Secondary,
@@ -200,12 +226,14 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Cloud Status",
+    titleKey: "nav.cloudStatus",
     section: RouteSection.Secondary,
     pathname: "",
     menuNode: <CloudStatusMenu />,
   },
   {
     title: "Preview (fast)",
+    titleKey: "nav.previewFast",
     pathname: "",
     section: RouteSection.Secondary,
     featureFlag: "v4BetaToggleVisible",
@@ -213,24 +241,28 @@ export const ROUTES: Route[] = [
   },
   {
     title: "Settings",
+    titleKey: "nav.settings",
     pathname: "/project/[projectId]/settings",
     icon: Settings,
     section: RouteSection.Secondary,
   },
   {
     title: "Settings",
+    titleKey: "nav.settings",
     pathname: "/organization/[organizationId]/settings",
     icon: Settings,
     section: RouteSection.Secondary,
   },
   {
     title: "Book a call",
+    titleKey: "nav.bookCall",
     section: RouteSection.Secondary,
     pathname: "",
     menuNode: <BookACallButton />,
   },
   {
     title: "Support",
+    titleKey: "nav.support",
     icon: LifeBuoy,
     section: RouteSection.Secondary,
     pathname: "", // Empty pathname since this is a dropdown
@@ -241,6 +273,7 @@ export const ROUTES: Route[] = [
 function CommandMenuTrigger() {
   const { setOpen } = useCommandMenu();
   const capture = usePostHogClientCapture();
+  const { t } = useI18n();
 
   return (
     <SidebarMenuButton
@@ -253,7 +286,7 @@ function CommandMenuTrigger() {
       className="whitespace-nowrap"
     >
       <Search className="h-4 w-4" />
-      Go to...
+      {t("nav.goTo")}
       <kbd className="pointer-events-none ml-auto inline-flex h-5 items-center gap-1 rounded-md border px-1.5 font-mono text-[10px] select-none">
         {navigator.userAgent.includes("Mac") ? (
           <span className="text-[12px]">⌘</span>

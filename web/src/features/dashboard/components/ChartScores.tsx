@@ -20,6 +20,7 @@ import { type DatabaseRow } from "@/src/server/api/services/sqlInterface";
 import { Chart } from "@/src/features/widgets/chart-library/Chart";
 import { timeSeriesToDataPoints } from "@/src/features/dashboard/lib/chart-data-adapters";
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
+import { useI18n } from "@/src/features/i18n";
 
 export function ChartScores(props: {
   className?: string;
@@ -32,6 +33,7 @@ export function ChartScores(props: {
   metricsVersion?: ViewVersion;
   schedulerId?: string;
 }) {
+  const { t } = useI18n();
   const scoresQuery: QueryType = {
     view: "scores-numeric",
     dimensions: [{ field: "name" }, { field: "dataType" }, { field: "source" }],
@@ -91,8 +93,8 @@ export function ChartScores(props: {
   return (
     <DashboardCard
       className={props.className}
-      title="Scores"
-      description="Moving average per score"
+      title={t("dashboard.scoreAnalytics.widgetTitle")}
+      description={t("dashboard.scoreAnalytics.scoresDescription")}
       isLoading={props.isLoading || scores.isPending}
     >
       {!isEmptyTimeSeries({ data: extractedScores }) ? (
@@ -112,7 +114,7 @@ export function ChartScores(props: {
       ) : (
         <NoDataOrLoading
           isLoading={props.isLoading || scores.isPending}
-          description="Scores evaluate LLM quality and can be created manually or using the SDK."
+          description={t("dashboard.scoreAnalytics.noDataDescription")}
           href="https://langfuse.com/docs/evaluation/overview"
           className="h-full"
         />

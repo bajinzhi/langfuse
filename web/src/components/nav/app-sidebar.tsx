@@ -27,6 +27,7 @@ import { SidebarNotifications } from "@/src/components/nav/sidebar-notifications
 import { type RouteGroup } from "@/src/components/layouts/routes";
 import { ExternalLink, Grid2X2 } from "lucide-react";
 import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
+import { useI18n } from "@/src/features/i18n";
 
 type AppSidebarProps = {
   navItems: {
@@ -72,6 +73,7 @@ export function AppSidebar({
 }
 
 const DemoBadge = () => {
+  const { t } = useI18n();
   const router = useRouter();
   const { isLangfuseCloud } = useLangfuseCloudRegion();
   const routerProjectId = router.query.projectId as string | undefined;
@@ -88,13 +90,13 @@ const DemoBadge = () => {
 
   return (
     <SidebarGroup className="border-b">
-      <SidebarGroupLabel>Demo Project (view only)</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("nav.demoProjectViewOnly")}</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              tooltip="Use Demo App to create traces"
+              tooltip={t("nav.useDemoAppTooltip")}
               variant="cta"
             >
               <Link
@@ -103,15 +105,15 @@ const DemoBadge = () => {
                 rel="noopener noreferrer"
               >
                 <ExternalLink className="h-4 w-4" />
-                <span>Use Demo App</span>
+                <span>{t("nav.useDemoApp")}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Your Langfuse Organizations">
+            <SidebarMenuButton asChild tooltip={t("nav.yourLangfuseOrgsTooltip")}>
               <Link href="/">
                 <Grid2X2 className="h-4 w-4" />
-                <span>Your Langfuse Orgs</span>
+                <span>{t("nav.yourLangfuseOrgs")}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

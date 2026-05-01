@@ -18,6 +18,7 @@ import { Skeleton } from "@/src/components/ui/skeleton";
 import React from "react";
 import { copyTextToClipboard } from "@/src/utils/clipboard";
 import { Button } from "@/src/components/ui/button";
+import { useI18n } from "@/src/features/i18n";
 
 const COLOR_MAP = new Map([
   ["True", "bg-light-green p-0.5 text-dark-green"],
@@ -56,6 +57,7 @@ export const ScoresTableCell = ({
 }) => {
   const projectId = useProjectIdFromURL();
   const [copied, setCopied] = React.useState(false);
+  const { t } = useI18n();
 
   const handleCopy = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -92,7 +94,9 @@ export const ScoresTableCell = ({
                   variant="ghost"
                   size="icon-xs"
                   className="hover:bg-accent rounded p-1"
-                  aria-label={copied ? "Copied" : "Copy to clipboard"}
+                  aria-label={
+                    copied ? t("common.copied") : t("common.copyToClipboard")
+                  }
                 >
                   {copied ? (
                     <Check className="h-3 w-3" />

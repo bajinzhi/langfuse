@@ -39,11 +39,12 @@ import { Textarea } from "@/src/components/ui/textarea";
 import { HoverCardContent } from "@radix-ui/react-hover-card";
 import { HoverCard, HoverCardTrigger } from "@/src/components/ui/hover-card";
 import {
-  formatAnnotateDescription,
+  getAnnotateTargetKey,
   isTextDataType,
   isNumericDataType,
   isScoreUnsaved,
 } from "@/src/features/scores/lib/helpers";
+import { useI18n } from "@/src/features/i18n";
 import { ToggleGroup, ToggleGroupItem } from "@/src/components/ui/toggle-group";
 import Header from "@/src/components/layouts/header";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
@@ -85,6 +86,7 @@ function CommentField({
   loading: boolean;
   onSave: (comment: string | null) => void;
 }) {
+  const { t } = useI18n();
   const [localValue, setLocalValue] = useState(savedComment || "");
 
   // Reset local value when saved comment changes (after mutation completes)
@@ -97,7 +99,7 @@ function CommentField({
   return (
     <div className="relative">
       <div className="mb-1 flex items-center justify-between">
-        <FormLabel className="text-sm">Score Comment</FormLabel>
+        <FormLabel className="text-sm">{t("scores.scoreComment")}</FormLabel>
         <div className="relative">
           {savedComment && (
             <PopoverClose asChild>
@@ -135,7 +137,7 @@ function CommentField({
                 setLocalValue(savedComment || "");
               }}
             >
-              Discard Changes
+              {t("scores.discardChanges")}
             </Button>
           </PopoverClose>
           <PopoverClose asChild>
@@ -149,7 +151,7 @@ function CommentField({
                 onSave(localValue);
               }}
             >
-              Save Changes
+              {t("scores.saveChanges")}
             </Button>
           </PopoverClose>
         </div>
@@ -179,9 +181,10 @@ function AnnotateHeader({
   actionButtons: React.ReactNode;
   description: string;
 }) {
+  const { t } = useI18n();
   return (
     <Header
-      title="Annotate"
+      title={t("scores.annotate")}
       help={{
         description,
         href: "https://langfuse.com/docs/evaluation/evaluation-methods/annotation",
@@ -197,7 +200,9 @@ function AnnotateHeader({
             )}
           </div>
           <span className="text-muted-foreground text-xs">
-            {showSaving ? "Saving score data" : "Score data saved"}
+            {showSaving
+              ? t("scores.savingScoreData")
+              : t("scores.scoreDataSaved")}
           </span>
         </div>,
         actionButtons,
@@ -218,6 +223,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
   actionButtons,
   configControl,
 }: InnerAnnotationFormProps<Target>) {
+  const { t } = useI18n();
   const capture = usePostHogClientCapture();
   const router = useRouter();
   const { configs, allowManualSelection } = configControl;
@@ -242,7 +248,9 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
     };
   });
 
-  const description = formatAnnotateDescription(scoreTarget);
+  const description = t("scores.annotateDescription", {
+    target: t(getAnnotateTargetKey(scoreTarget)),
+  });
 
   // Mutations - write to cache but form doesn't consume cache updates
   const { createMutation, updateMutation, deleteMutation } = useScoreMutations({
@@ -300,12 +308,12 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
     if (isTextDataType(field.dataType)) {
       form.setError(`scoreData.${index}.stringValue`, {
         type: "server",
-        message: "Failed to delete score",
+        message: t("scores.failedDelete"),
       });
     } else {
       form.setError(`scoreData.${index}.value`, {
         type: "server",
-        message: "Failed to delete score",
+        message: t("scores.failedDelete"),
       });
     }
   };
@@ -365,12 +373,12 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
     if (isTextDataType(controlledFields[index]?.dataType)) {
       form.setError(`scoreData.${index}.stringValue`, {
         type: "server",
-        message: "Failed to update score",
+        message: t("scores.failedUpdate"),
       });
     } else {
       form.setError(`scoreData.${index}.value`, {
         type: "server",
-        message: "Failed to update score",
+        message: t("scores.failedUpdate"),
       });
     }
   };
@@ -389,12 +397,12 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
     if (isTextDataType(controlledFields[index]?.dataType)) {
       form.setError(`scoreData.${index}.stringValue`, {
         type: "server",
-        message: "Failed to create score",
+        message: t("scores.failedCreate"),
       });
     } else {
       form.setError(`scoreData.${index}.value`, {
         type: "server",
-        message: "Failed to create score",
+        message: t("scores.failedCreate"),
       });
     }
   };
@@ -540,7 +548,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
     });
     form.setError(`scoreData.${index}.comment`, {
       type: "server",
-      message: "Failed to update comment",
+      message: t("scores.failedUpdateComment"),
     });
   };
 
@@ -581,9 +589,9 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
         {allowManualSelection ? (
           <div className="grid grid-flow-col items-center">
             <MultiSelectKeyValues
-              placeholder="Value"
+              placeholder={t("scores.value")}
               align="end"
-              items="empty scores"
+              items={t("scores.emptyScores")}
               className="grid grid-cols-[auto_1fr_auto_auto] gap-2"
               options={selectionOptions}
               onValueChange={handleSelectionChange}
@@ -608,7 +616,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                     );
                   }}
                 >
-                  Manage score configs
+                  {t("scores.manageScoreConfigs")}
                 </DropdownMenuItem>
               }
             />
@@ -676,7 +684,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                                 variant="link"
                                 type="button"
                                 size="xs"
-                                title="Add or view score comment"
+                                title={t("scores.addOrViewComment")}
                                 className="disabled:text-primary/50 h-full px-0 pl-1 disabled:opacity-100"
                                 disabled={
                                   isScoreUnsaved(score.id) ||
@@ -731,7 +739,9 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                                       maxLength={TEXT_SCORE_MAX_LENGTH}
                                       className="text-xs"
                                       disabled={isInputDisabled(config)}
-                                      placeholder="Enter free form text..."
+                                      placeholder={t(
+                                        "scores.freeFormPlaceholder",
+                                      )}
                                       onBlur={() => handleTextUpsert(index)}
                                     />
                                   </FormControl>
@@ -785,9 +795,11 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                                         value: category.label,
                                         disabled: category.isOutdated,
                                       }))}
-                                      placeholder="Select category"
-                                      searchPlaceholder="Search categories..."
-                                      emptyText="No category found."
+                                      placeholder={t("scores.selectCategory")}
+                                      searchPlaceholder={t(
+                                        "scores.searchCategories",
+                                      )}
+                                      emptyText={t("scores.noCategoryFound")}
                                     />
                                   </FormControl>
                                   <FormMessage className="text-xs" />
@@ -858,7 +870,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                                   variant="link"
                                   type="button"
                                   className="px-0 pl-1"
-                                  title="Delete archived score"
+                                  title={t("scores.deleteArchived")}
                                   disabled={isScoreUnsaved(score.id)}
                                 >
                                   <Archive className="h-4 w-4"></Archive>
@@ -866,11 +878,10 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                               </PopoverTrigger>
                               <PopoverContent>
                                 <h2 className="text-md mb-3 font-semibold">
-                                  Your score is archived
+                                  {t("scores.archivedTitle")}
                                 </h2>
                                 <p className="mb-3 text-sm">
-                                  This action will delete your score
-                                  irreversibly.
+                                  {t("scores.archivedDeleteDescription")}
                                 </p>
                                 <div className="flex justify-end space-x-4">
                                   <Button
@@ -879,7 +890,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                                     loading={deleteMutation.isPending}
                                     onClick={() => handleDeleteScore(index)}
                                   >
-                                    Delete
+                                    {t("common.delete")}
                                   </Button>
                                 </div>
                               </PopoverContent>
@@ -889,7 +900,7 @@ function InnerAnnotationForm<Target extends ScoreTarget>({
                               variant="link"
                               type="button"
                               className="px-0 pl-1"
-                              title="Delete score from trace/observation"
+                              title={t("scores.deleteFromTarget")}
                               disabled={
                                 isScoreUnsaved(score.id) ||
                                 updateMutation.isPending

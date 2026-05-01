@@ -5,6 +5,7 @@ import {
   type Row,
   type RowSelectionState,
 } from "@tanstack/react-table";
+import { useI18n } from "@/src/features/i18n";
 
 interface TableSelectionManagerProps {
   projectId: string;
@@ -19,6 +20,7 @@ export function TableSelectionManager<TData>({
   setSelectedRows,
   setSelectAll,
 }: TableSelectionManagerProps) {
+  const { t } = useI18n();
   return {
     selectActionColumn: {
       id: "select",
@@ -44,7 +46,7 @@ export function TableSelectionManager<TData>({
                 setSelectAll(false);
               }
             }}
-            aria-label="Select all"
+            aria-label={t("datasets.selectAll")}
             className="opacity-60"
           />
         </div>
@@ -61,7 +63,7 @@ export function TableSelectionManager<TData>({
               row.toggleSelected(!!value);
               if (!value) setSelectAll(false);
             }}
-            aria-label="Select row"
+            aria-label={t("datasets.selectRow")}
             className="opacity-60"
           />
         </div>

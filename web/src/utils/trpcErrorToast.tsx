@@ -1,4 +1,5 @@
 import { TRPCClientError } from "@trpc/client";
+import { translateClientMessage, type MessageKey } from "@/src/features/i18n";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 
 // Catch network level errors, e.g. by proxy rate-limiting
@@ -12,26 +13,26 @@ const isResponseParseError = (error: TRPCClientError<any>): boolean => {
   return error.cause instanceof SyntaxError;
 };
 
-const httpStatusOverride: Record<number, keyof typeof errorTitleMap> = {
+const httpStatusOverride: Record<number, keyof typeof errorTitleKeyMap> = {
   429: "TOO_MANY_REQUESTS",
   524: "TIMEOUT",
 };
 
-const errorTitleMap = {
-  BAD_REQUEST: "Bad Request",
-  UNAUTHORIZED: "Unauthorized",
-  FORBIDDEN: "Forbidden",
-  NOT_FOUND: "Not Found",
-  TIMEOUT: "Timeout",
-  CONFLICT: "Conflict",
-  PRECONDITION_FAILED: "Precondition Failed",
-  PAYLOAD_TOO_LARGE: "Payload Too Large",
-  METHOD_NOT_SUPPORTED: "Method Not Supported",
-  UNPROCESSABLE_CONTENT: "Unprocessable Content",
-  TOO_MANY_REQUESTS: "Too Many Requests",
-  CLIENT_CLOSED_REQUEST: "Client Closed Request",
-  INTERNAL_SERVER_ERROR: "Internal Server Error",
-  SERVICE_UNAVAILABLE: "Internal Server Error",
+const errorTitleKeyMap = {
+  BAD_REQUEST: "errors.badRequest",
+  UNAUTHORIZED: "errors.unauthorized",
+  FORBIDDEN: "errors.forbidden",
+  NOT_FOUND: "errors.notFound",
+  TIMEOUT: "errors.timeout",
+  CONFLICT: "errors.conflict",
+  PRECONDITION_FAILED: "errors.preconditionFailed",
+  PAYLOAD_TOO_LARGE: "errors.payloadTooLarge",
+  METHOD_NOT_SUPPORTED: "errors.methodNotSupported",
+  UNPROCESSABLE_CONTENT: "errors.unprocessableContent",
+  TOO_MANY_REQUESTS: "errors.tooManyRequests",
+  CLIENT_CLOSED_REQUEST: "errors.clientClosedRequest",
+  INTERNAL_SERVER_ERROR: "errors.internalServer",
+  SERVICE_UNAVAILABLE: "errors.internalServer",
 } as const;
 
 const getErrorTitleAndHttpCode = (error: TRPCClientError<any>) => {
@@ -40,31 +41,33 @@ const getErrorTitleAndHttpCode = (error: TRPCClientError<any>) => {
 
   if (httpStatus in httpStatusOverride) {
     return {
-      errorTitle: errorTitleMap[httpStatusOverride[httpStatus]],
+      errorTitle: translateClientMessage(
+        errorTitleKeyMap[httpStatusOverride[httpStatus]],
+      ),
       httpStatus,
     };
   }
 
-  const errorTitle =
-    error.data?.code in errorTitleMap
-      ? errorTitleMap[error.data?.code as keyof typeof errorTitleMap]
-      : "Unexpected Error";
+  const errorTitleKey =
+    error.data?.code in errorTitleKeyMap
+      ? errorTitleKeyMap[error.data?.code as keyof typeof errorTitleKeyMap]
+      : ("errors.unexpected" satisfies MessageKey);
 
-  return { errorTitle, httpStatus };
+  return { errorTitle: translateClientMessage(errorTitleKey), httpStatus };
 };
 
 const getErrorDescription = (httpStatus: number) => {
   switch (httpStatus) {
     case 429:
-      return "Rate limit hit. Please try again later.";
+      return translateClientMessage("errors.rateLimit");
     case 524:
-      return "Request took too long to process. Please try again later.";
+      return translateClientMessage("errors.requestTimeout");
     default:
       // Check if it's a 5xx server error
       if (httpStatus >= 500 && httpStatus < 600) {
-        return "Internal server error. We've received an alert about this issue and will be working on fixing it. Please reach out to support if this persists.";
+        return translateClientMessage("errors.internalServerDescription");
       }
-      return "Internal error";
+      return translateClientMessage("errors.internal");
   }
 };
 
@@ -74,8 +77,8 @@ export const trpcErrorToast = (error: unknown) => {
     // (e.g., 431 with empty body, 502/503/504 with HTML error pages)
     if (isResponseParseError(error)) {
       showErrorToast(
-        "Unexpected Response",
-        "The request could not be completed. We've been notified and are looking into it. Please try again or contact support if this persists.",
+        translateClientMessage("errors.unexpectedResponse"),
+        translateClientMessage("errors.unexpectedResponseDescription"),
         "WARNING",
       );
       return;
@@ -85,17 +88,21 @@ export const trpcErrorToast = (error: unknown) => {
 
     const path = error.data?.path;
     const description = getErrorDescription(httpStatus);
+    const userMessage =
+      httpStatus >= 500 && httpStatus < 600
+        ? description
+        : (error.message ?? description);
 
     showErrorToast(
       errorTitle,
-      error.message ?? description,
+      userMessage,
       httpStatus >= 500 && httpStatus < 600 ? "ERROR" : "WARNING",
       path,
     );
   } else {
     showErrorToast(
-      "Unexpected Error",
-      "An unexpected error occurred.",
+      translateClientMessage("errors.unexpected"),
+      translateClientMessage("errors.unexpectedDescription"),
       "ERROR",
     );
   }

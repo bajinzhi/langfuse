@@ -28,6 +28,8 @@ import {
   TooltipContent,
 } from "@/src/components/ui/tooltip";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
+import { getExportSourceOptionText } from "@/src/features/i18n/analyticsIntegrationOptions";
+import { useI18n } from "@/src/features/i18n";
 import { posthogIntegrationFormSchema } from "@/src/features/posthog-integration/types";
 import {
   AnalyticsIntegrationExportSource,
@@ -49,6 +51,7 @@ import { Info, ExternalLink } from "lucide-react";
 export default function PosthogIntegrationSettings() {
   const router = useRouter();
   const projectId = router.query.projectId as string;
+  const { t, formatDate } = useI18n();
 
   const hasAccess = useHasProjectAccess({
     projectId,
@@ -71,40 +74,33 @@ export default function PosthogIntegrationSettings() {
   return (
     <ContainerPage
       headerProps={{
-        title: "PostHog Integration",
+        title: t("integrations.posthog.title"),
         breadcrumb: [
-          { name: "Settings", href: `/project/${projectId}/settings` },
+          { name: t("nav.settings"), href: `/project/${projectId}/settings` },
         ],
         actionButtonsLeft: <>{status && <StatusBadge type={status} />}</>,
         actionButtonsRight: (
           <Button asChild variant="secondary">
             <Link href="https://langfuse.com/integrations/analytics/posthog">
-              Integration Docs ↗
+              {t("common.integrationDocs")}
             </Link>
           </Button>
         ),
       }}
     >
       <p className="text-primary mb-4 text-sm">
-        We have teamed up with{" "}
+        {t("integrations.posthog.descriptionPrefix")}{" "}
         <Link href="https://posthog.com" className="underline">
           PostHog
         </Link>{" "}
-        (OSS product analytics) to make Langfuse events/metrics available in
-        your PostHog dashboards. Upon activation, all historical data from your
-        project will be synced. After the initial sync, new data is
-        automatically synced every hour to keep your PostHog dashboards up to
-        date.
+        {t("integrations.posthog.descriptionSuffix")}
       </p>
       {!hasAccess && (
-        <p className="text-sm">
-          You current role does not grant you access to these settings, please
-          reach out to your project admin or owner.
-        </p>
+        <p className="text-sm">{t("integrations.noAccess")}</p>
       )}
       {hasAccess && (
         <>
-          <Header title="Configuration" />
+          <Header title={t("common.configuration")} />
           <Card className="p-3">
             <PostHogLogo className="text-foreground mb-4 w-36" />
             <PostHogIntegrationSettings
@@ -117,12 +113,15 @@ export default function PosthogIntegrationSettings() {
       )}
       {state.data?.enabled && (
         <>
-          <Header title="Status" className="mt-8" />
+          <Header title={t("common.status")} className="mt-8" />
           <p className="text-primary text-sm">
-            Data synced until:{" "}
+            {t("integrations.dataSyncedUntil")}{" "}
             {state.data?.lastSyncAt
-              ? new Date(state.data.lastSyncAt).toLocaleString()
-              : "Never (pending)"}
+              ? formatDate(state.data.lastSyncAt, {
+                  dateStyle: "short",
+                  timeStyle: "medium",
+                })
+              : t("common.neverPending")}
           </p>
         </>
       )}
@@ -141,6 +140,7 @@ const PostHogIntegrationSettings = ({
 }) => {
   const capture = usePostHogClientCapture();
   const { isBetaEnabled } = useV4Beta();
+  const { t } = useI18n();
   const posthogForm = useForm({
     resolver: zodResolver(posthogIntegrationFormSchema),
     defaultValues: {
@@ -200,13 +200,12 @@ const PostHogIntegrationSettings = ({
           name="posthogHostname"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Posthog Hostname</FormLabel>
+              <FormLabel>{t("integrations.posthog.hostname")}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
               <FormDescription>
-                US region: https://us.posthog.com; EU region:
-                https://eu.posthog.com
+                {t("integrations.posthog.hostnameDescription")}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -217,7 +216,7 @@ const PostHogIntegrationSettings = ({
           name="posthogProjectApiKey"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Posthog Project API Key</FormLabel>
+              <FormLabel>{t("integrations.posthog.projectApiKey")}</FormLabel>
               <FormControl>
                 <PasswordInput {...field} />
               </FormControl>
@@ -232,7 +231,7 @@ const PostHogIntegrationSettings = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center gap-1.5 pt-2">
-                  Export Source
+                  {t("integrations.exportSource")}
                   <Tooltip>
                     <TooltipTrigger>
                       <Info className="text-muted-foreground h-3.5 w-3.5" />
@@ -243,9 +242,14 @@ const PostHogIntegrationSettings = ({
                     >
                       {EXPORT_SOURCE_OPTIONS.map((option) => (
                         <div key={option.value} className="space-y-0.5">
-                          <div className="font-medium">{option.label}</div>
+                          <div className="font-medium">
+                            {getExportSourceOptionText(t, option.value).label}
+                          </div>
                           <div className="text-muted-foreground text-xs">
-                            {option.description}
+                            {
+                              getExportSourceOptionText(t, option.value)
+                                .description
+                            }
                           </div>
                         </div>
                       ))}
@@ -256,7 +260,7 @@ const PostHogIntegrationSettings = ({
                           rel="noopener noreferrer"
                           className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-xs hover:underline"
                         >
-                          For further information see
+                          {t("integrations.exportSourceDocs")}
                           <ExternalLink className="h-3 w-3" />
                         </a>
                       </div>
@@ -266,20 +270,23 @@ const PostHogIntegrationSettings = ({
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select data to export" />
+                      <SelectValue
+                        placeholder={t("integrations.dataToExport")}
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {EXPORT_SOURCE_OPTIONS.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                        {getExportSourceOptionText(t, option.value).label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  Choose which data sources to export to PostHog. Scores are
-                  always included.
+                  {t("integrations.exportSourceDescription", {
+                    destination: "PostHog",
+                  })}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -291,7 +298,7 @@ const PostHogIntegrationSettings = ({
           name="enabled"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Enabled</FormLabel>
+              <FormLabel>{t("common.enabled")}</FormLabel>
               <FormControl>
                 <Switch
                   id="posthog-integration-enabled"
@@ -313,7 +320,7 @@ const PostHogIntegrationSettings = ({
           onClick={posthogForm.handleSubmit(onSubmit)}
           disabled={isLoading}
         >
-          Save
+          {t("common.save")}
         </Button>
         <Button
           variant="ghost"
@@ -321,14 +328,12 @@ const PostHogIntegrationSettings = ({
           disabled={isLoading || !!!state}
           onClick={() => {
             if (
-              confirm(
-                "Are you sure you want to reset the PostHog integration for this project?",
-              )
+              confirm(t("integrations.posthog.resetConfirm"))
             )
               mutDelete.mutate({ projectId });
           }}
         >
-          Reset
+          {t("common.reset")}
         </Button>
       </div>
     </Form>

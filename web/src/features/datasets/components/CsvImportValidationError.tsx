@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
 import { Button } from "@/src/components/ui/button";
 import { type BulkDatasetItemValidationError } from "@langfuse/shared";
+import { useI18n } from "@/src/features/i18n";
 
 type CsvImportValidationErrorProps = {
   errors: BulkDatasetItemValidationError[];
@@ -11,6 +12,7 @@ type CsvImportValidationErrorProps = {
 export const CsvImportValidationError: React.FC<
   CsvImportValidationErrorProps
 > = ({ errors }) => {
+  const { t } = useI18n();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const errorCount = errors.length;
@@ -19,17 +21,21 @@ export const CsvImportValidationError: React.FC<
   return (
     <Alert variant="destructive" className="mt-4">
       <AlertTitle className="text-base font-semibold">
-        Schema Validation Failed
+        {t("datasets.schemaValidationFailedTitle")}
       </AlertTitle>
       <AlertDescription className="mt-2 space-y-3">
         <p className="text-sm">
           {hasMoreThan10
-            ? `${errorCount}+ items failed validation. Showing first ${errorCount} errors.`
-            : `${errorCount} item${errorCount === 1 ? "" : "s"} failed validation.`}
+            ? t("datasets.csvValidationSummaryLimited", {
+                count: errorCount,
+              })
+            : t("datasets.csvValidationSummary", {
+                count: errorCount,
+                plural: errorCount === 1 ? "" : "s",
+              })}
         </p>
         <p className="text-muted-foreground text-sm">
-          The CSV data does not match the required schema for this dataset. Fix
-          the errors in your CSV file and try importing again.
+          {t("datasets.csvValidationDescription")}
         </p>
 
         <Button
@@ -44,7 +50,9 @@ export const CsvImportValidationError: React.FC<
           ) : (
             <ChevronRight className="mr-1 h-4 w-4" />
           )}
-          {isExpanded ? "Hide" : "Show"} error details
+          {isExpanded
+            ? t("datasets.hideErrorDetails")
+            : t("datasets.showErrorDetails")}
         </Button>
 
         {isExpanded && (
@@ -59,8 +67,13 @@ export const CsvImportValidationError: React.FC<
                     #{idx + 1}
                   </span>
                   <span className="text-sm font-medium">
-                    CSV Row {error.itemIndex + 2}:{" "}
-                    {error.field === "input" ? "Input" : "Expected Output"}
+                    {t("datasets.csvRowField", {
+                      row: error.itemIndex + 2,
+                      field:
+                        error.field === "input"
+                          ? t("datasets.input")
+                          : t("datasets.expectedOutputColumn"),
+                    })}
                   </span>
                 </div>
 
@@ -81,8 +94,7 @@ export const CsvImportValidationError: React.FC<
 
             {hasMoreThan10 && (
               <p className="text-muted-foreground pt-2 text-xs">
-                Fix these errors to see if there are additional validation
-                issues.
+                {t("datasets.fixErrorsAdditional")}
               </p>
             )}
           </div>

@@ -4,6 +4,7 @@ import { Button } from "@/src/components/ui/button";
 import { useCopyToClipboard } from "@/src/hooks/useCopyToClipboard";
 import { cn } from "@/src/utils/tailwind";
 import { Check, Copy } from "lucide-react";
+import { useI18n } from "@/src/features/i18n";
 
 type TableDensity = "compact" | "comfortable";
 
@@ -116,6 +117,9 @@ const TableCellWithCopyButton = React.forwardRef<
   TableCellWithCopyButtonProps
 >(({ text, copyButtonLabel, className, ...props }, ref) => {
   const { copy, isCopied } = useCopyToClipboard();
+  const { t } = useI18n();
+  const resolvedCopyButtonLabel =
+    copyButtonLabel ?? t("common.copyToClipboard");
 
   return (
     <TableCell
@@ -129,8 +133,8 @@ const TableCellWithCopyButton = React.forwardRef<
         variant="ghost"
         size="icon-xs"
         className="absolute top-1/2 right-2 -translate-y-1/2"
-        title={copyButtonLabel ?? "Copy to clipboard"}
-        aria-label={copyButtonLabel ?? "Copy to clipboard"}
+        title={resolvedCopyButtonLabel}
+        aria-label={resolvedCopyButtonLabel}
         onClick={async (event) => {
           event.preventDefault();
           const button = event.currentTarget;

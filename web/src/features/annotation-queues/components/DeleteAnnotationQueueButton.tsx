@@ -12,6 +12,7 @@ import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAcces
 import { api } from "@/src/utils/api";
 import { LockIcon, Trash } from "lucide-react";
 import React, { useState } from "react";
+import { useI18n } from "@/src/features/i18n";
 
 type DeleteAnnotationQueueButtonProps = {
   projectId: string;
@@ -22,6 +23,7 @@ export const DeleteAnnotationQueueButton = ({
   projectId,
   queueId,
 }: DeleteAnnotationQueueButtonProps) => {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const hasAccess = useHasProjectAccess({
     projectId: projectId,
@@ -42,7 +44,7 @@ export const DeleteAnnotationQueueButton = ({
         ) : (
           <LockIcon className="mr-1.5 -ml-0.5 h-4 w-4" aria-hidden="true" />
         )}
-        <span className="text-sm font-normal">Delete</span>
+        <span className="text-sm font-normal">{t("common.delete")}</span>
       </div>
     </Button>
   );
@@ -59,11 +61,9 @@ export const DeleteAnnotationQueueButton = ({
       <DialogTrigger asChild>{button}</DialogTrigger>
       <DialogContent className="overflow-hidden sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle className="mb-4">Please confirm</DialogTitle>
+          <DialogTitle className="mb-4">{t("common.pleaseConfirm")}</DialogTitle>
           <DialogDescription className="text-md p-0">
-            This action cannot be undone and removes queue items attached to
-            this queue. Scores added while annotating in this queue will not be
-            deleted.
+            {t("annotationQueues.deleteDescription")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -80,7 +80,7 @@ export const DeleteAnnotationQueueButton = ({
               setIsOpen(false);
             }}
           >
-            Delete Annotation Queue
+            {t("annotationQueues.deleteQueue")}
           </Button>
         </DialogFooter>
       </DialogContent>

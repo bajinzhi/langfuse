@@ -7,6 +7,7 @@ import {
   ChartTooltipContent,
 } from "@/src/components/ui/chart";
 import { compactSmallNumberFormatter } from "@/src/utils/numbers";
+import { useI18n } from "@/src/features/i18n";
 
 interface HistogramDataPoint {
   binLabel: string;
@@ -23,6 +24,7 @@ const HistogramChart = ({
   data: DataPoint[];
   subtleFill?: boolean;
 }) => {
+  const { t } = useI18n();
   const transformHistogramData = (data: DataPoint[]): HistogramDataPoint[] => {
     if (!data.length) return [];
 
@@ -43,7 +45,9 @@ const HistogramChart = ({
 
     // Fallback: treat as regular data points with binLabel
     return data.map((item) => ({
-      binLabel: item.dimension || `Bin ${data.indexOf(item) + 1}`,
+      binLabel:
+        item.dimension ||
+        t("widgets.histogram.binLabel", { index: data.indexOf(item) + 1 }),
       count: (item.metric as number) || 0,
     }));
   };
@@ -53,7 +57,7 @@ const HistogramChart = ({
   // Chart configuration
   const config = {
     count: {
-      label: "Count",
+      label: t("widgets.histogram.count"),
       color: "hsl(var(--chart-1))",
     },
   };
@@ -61,7 +65,7 @@ const HistogramChart = ({
   if (!histogramData.length) {
     return (
       <div className="text-muted-foreground flex h-full items-center justify-center">
-        No data available
+        {t("widgets.noData")}
       </div>
     );
   }
@@ -107,8 +111,12 @@ const HistogramChart = ({
               payload={payload}
               label={label}
               valueFormatter={(v) => compactSmallNumberFormatter(Number(v))}
-              nameFormatter={(name) => (name === "count" ? "Count" : name)}
-              labelFormatter={(label) => `Bin: ${label}`}
+              nameFormatter={(name) =>
+                name === "count" ? t("widgets.histogram.count") : name
+              }
+              labelFormatter={(label) =>
+                t("widgets.histogram.binTooltip", { label })
+              }
             />
           )}
         />

@@ -64,6 +64,7 @@ import { DiffLabel } from "@/src/features/datasets/components/DiffLabel";
 import { computeScoreDiffs } from "@/src/features/datasets/lib/computeScoreDiffs";
 import { useRouter } from "next/router";
 import { PeekViewExperimentItemDetail } from "@/src/components/table/peek/peek-experiment-item-detail";
+import { useI18n } from "@/src/features/i18n";
 
 const renderExperimentSpecificHeader = (label: string) => (
   <span className="text-muted-foreground">{label}</span>
@@ -227,6 +228,7 @@ export default function ExperimentItemsTable({
   projectId,
   hideControls = false,
 }: ExperimentItemsTableProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const { setDetailPageList } = useDetailPageLists();
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
@@ -511,6 +513,7 @@ export default function ExperimentItemsTable({
       experimentIds: allExperimentIds,
     }),
     prefix: "Trace",
+    headerPrefix: t("experiments.columns.trace"),
     defaultHidden: true,
     isFilterDataPending: allExperimentIds.length === 0,
   });
@@ -619,7 +622,7 @@ export default function ExperimentItemsTable({
     {
       accessorKey: "itemId",
       id: "itemId",
-      header: "Item ID",
+      header: t("experiments.columns.itemId"),
       size: 150,
       enableHiding: true,
       cell: ({ row }) => {
@@ -630,7 +633,8 @@ export default function ExperimentItemsTable({
     {
       accessorKey: "observationId",
       id: "observationId",
-      header: () => renderExperimentSpecificHeader("Observation ID"),
+      header: () =>
+        renderExperimentSpecificHeader(t("experiments.columns.observationId")),
       size: 180,
       enableHiding: true,
       cell: ({ row }) => {
@@ -747,7 +751,8 @@ export default function ExperimentItemsTable({
     {
       accessorKey: "experimentId",
       id: "experimentId",
-      header: () => renderExperimentSpecificHeader("Experiment"),
+      header: () =>
+        renderExperimentSpecificHeader(t("experiments.columns.experiment")),
       size: 150,
       defaultHidden: true,
       enableHiding: true,
@@ -775,7 +780,7 @@ export default function ExperimentItemsTable({
     {
       accessorKey: "input",
       id: "input",
-      header: "Input",
+      header: t("experiments.columns.input"),
       size: 300,
       enableHiding: true,
       cell: ({ row }) => {
@@ -791,7 +796,7 @@ export default function ExperimentItemsTable({
     {
       accessorKey: "expectedOutput",
       id: "expectedOutput",
-      header: "Expected Output",
+      header: t("experiments.columns.expectedOutput"),
       size: 300,
       enableHiding: true,
       cell: ({ row }) => {
@@ -808,7 +813,7 @@ export default function ExperimentItemsTable({
     {
       accessorKey: "output",
       id: "output",
-      header: "Output",
+      header: t("experiments.columns.output"),
       size: 300,
       enableHiding: true,
       cell: ({ row }) => {
@@ -826,7 +831,7 @@ export default function ExperimentItemsTable({
     },
     {
       accessorKey: "observationScores",
-      header: "Observation Scores",
+      header: t("experiments.columns.observationScores"),
       id: "observationScores",
       enableHiding: true,
       defaultHidden: true,
@@ -839,7 +844,7 @@ export default function ExperimentItemsTable({
     },
     {
       accessorKey: "traceScores",
-      header: "Trace Scores",
+      header: t("experiments.columns.traceScores"),
       id: "traceScores",
       enableHiding: true,
       defaultHidden: true,
@@ -997,8 +1002,8 @@ export default function ExperimentItemsTable({
         {
           id: ActionId.ObservationBatchEvaluation,
           type: BatchActionType.Create,
-          label: "Evaluate",
-          description: "Run evaluators on selected items",
+          label: t("experiments.actions.evaluate"),
+          description: t("experiments.actions.evaluateDescription"),
           icon: <LightbulbIcon className="h-4 w-4 sm:mr-2" />,
           customDialog: true,
           accessCheck: {

@@ -5,6 +5,12 @@ import {
 } from "@/src/features/filters/lib/filter-config";
 import type { ColumnToBackendKeyMap } from "@/src/features/filters/lib/filter-transform";
 import { renderFilterIcon } from "@/src/components/ItemBadge";
+import {
+  defaultTranslate,
+  getFilterColumnLabel,
+  translateFilterColumnDefinitions,
+  type Translate,
+} from "@/src/features/filters/config/filter-labels";
 
 export type ObservationsOmittableFilterColumn = "model" | "promptName";
 
@@ -16,10 +22,15 @@ export const OBSERVATION_COLUMN_TO_BACKEND_KEY: ColumnToBackendKeyMap = {
   tags: "traceTags",
 };
 
-export const observationFilterConfig: FilterConfig = {
+const observationColumnLabel = (id: string, t: Translate) =>
+  getFilterColumnLabel(observationsTableCols, id, t);
+
+const createObservationFilterConfig = (
+  t: Translate = defaultTranslate,
+): FilterConfig => ({
   tableName: "observations",
 
-  columnDefinitions: observationsTableCols,
+  columnDefinitions: translateFilterColumnDefinitions(observationsTableCols, t),
 
   defaultExpanded: ["environment", "name"],
 
@@ -27,63 +38,63 @@ export const observationFilterConfig: FilterConfig = {
     {
       type: "categorical" as const,
       column: "environment",
-      label: "Environment",
+      label: observationColumnLabel("environment", t),
     },
     {
       type: "categorical" as const,
       column: "type",
-      label: "Type",
+      label: observationColumnLabel("type", t),
       renderIcon: renderFilterIcon,
     },
     {
       type: "categorical" as const,
       column: "name",
-      label: "Name",
+      label: observationColumnLabel("name", t),
     },
     {
       type: "categorical" as const,
       column: "traceName",
-      label: "Trace Name",
+      label: observationColumnLabel("traceName", t),
     },
     {
       type: "categorical" as const,
       column: "level",
-      label: "Level",
+      label: observationColumnLabel("level", t),
     },
     {
       type: "categorical" as const,
       column: "model",
-      label: "Model",
+      label: observationColumnLabel("model", t),
     },
     {
       type: "categorical" as const,
       column: "modelId",
-      label: "Model ID",
+      label: observationColumnLabel("modelId", t),
     },
     {
       type: "categorical" as const,
       column: "promptName",
-      label: "Prompt Name",
+      label: observationColumnLabel("promptName", t),
     },
     {
       type: "categorical" as const,
       column: "tags",
-      label: "Trace Tags",
+      label: observationColumnLabel("tags", t),
     },
     {
       type: "stringKeyValue" as const,
       column: "metadata",
-      label: "Metadata",
+      label: observationColumnLabel("metadata", t),
     },
     {
       type: "string" as const,
       column: "version",
-      label: "Version",
+      label: observationColumnLabel("version", t),
     },
     {
       type: "numeric" as const,
       column: "latency",
-      label: "Latency",
+      label: observationColumnLabel("latency", t),
       min: 0,
       max: 60,
       unit: "s",
@@ -91,7 +102,7 @@ export const observationFilterConfig: FilterConfig = {
     {
       type: "numeric" as const,
       column: "timeToFirstToken",
-      label: "Time to First Token",
+      label: observationColumnLabel("timeToFirstToken", t),
       min: 0,
       max: 60,
       unit: "s",
@@ -99,28 +110,28 @@ export const observationFilterConfig: FilterConfig = {
     {
       type: "numeric" as const,
       column: "inputTokens",
-      label: "Input Tokens",
+      label: observationColumnLabel("inputTokens", t),
       min: 0,
       max: 1000000,
     },
     {
       type: "numeric" as const,
       column: "outputTokens",
-      label: "Output Tokens",
+      label: observationColumnLabel("outputTokens", t),
       min: 0,
       max: 1000000,
     },
     {
       type: "numeric" as const,
       column: "totalTokens",
-      label: "Total Tokens",
+      label: observationColumnLabel("totalTokens", t),
       min: 0,
       max: 1000000,
     },
     {
       type: "numeric" as const,
       column: "inputCost",
-      label: "Input Cost",
+      label: observationColumnLabel("inputCost", t),
       min: 0,
       max: 100,
       unit: "$",
@@ -128,7 +139,7 @@ export const observationFilterConfig: FilterConfig = {
     {
       type: "numeric" as const,
       column: "outputCost",
-      label: "Output Cost",
+      label: observationColumnLabel("outputCost", t),
       min: 0,
       max: 100,
       unit: "$",
@@ -136,7 +147,7 @@ export const observationFilterConfig: FilterConfig = {
     {
       type: "numeric" as const,
       column: "totalCost",
-      label: "Total Cost",
+      label: observationColumnLabel("totalCost", t),
       min: 0,
       max: 100,
       unit: "$",
@@ -144,54 +155,58 @@ export const observationFilterConfig: FilterConfig = {
     {
       type: "categorical" as const,
       column: "toolNames",
-      label: "Tool Names (Available)",
+      label: observationColumnLabel("toolNames", t),
     },
     {
       type: "categorical" as const,
       column: "calledToolNames",
-      label: "Tool Names (Called)",
+      label: observationColumnLabel("calledToolNames", t),
     },
     {
       type: "numeric" as const,
       column: "toolDefinitions",
-      label: "Available Tools",
+      label: observationColumnLabel("toolDefinitions", t),
       min: 0,
       max: 25,
     },
     {
       type: "numeric" as const,
       column: "toolCalls",
-      label: "Tool Calls",
+      label: observationColumnLabel("toolCalls", t),
       min: 0,
       max: 25,
     },
     {
       type: "keyValue" as const,
       column: "score_categories",
-      label: "Categorical Scores",
+      label: observationColumnLabel("score_categories", t),
     },
     {
       type: "numericKeyValue" as const,
       column: "scores_avg",
-      label: "Numeric Scores",
+      label: observationColumnLabel("scores_avg", t),
     },
     {
       type: "numeric" as const,
       column: "commentCount",
-      label: "Comment Count",
+      label: observationColumnLabel("commentCount", t),
       min: 0,
       max: 100,
     },
     {
       type: "string" as const,
       column: "commentContent",
-      label: "Comment Content",
+      label: observationColumnLabel("commentContent", t),
     },
   ],
-};
+});
+
+export const observationFilterConfig: FilterConfig =
+  createObservationFilterConfig();
 
 export function getObservationsFilterConfig(
   omittedFilter: ObservationsOmittableFilterColumn[] = [],
+  t: Translate = defaultTranslate,
 ): FilterConfig {
-  return omitFilterFacets(observationFilterConfig, omittedFilter);
+  return omitFilterFacets(createObservationFilterConfig(t), omittedFilter);
 }

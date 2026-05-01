@@ -10,6 +10,7 @@ import { type JSONTableViewColumn } from "@/src/components/trace2/components/_sh
 import { type FlatLogItem } from "./log-view-types";
 import { LogViewObservationCell } from "./LogViewObservationCell";
 import { formatRelativeTime, formatDuration } from "./log-view-formatters";
+import { useI18n } from "@/src/features/i18n";
 
 export interface UseLogViewColumnsParams {
   /** Whether indent visualization is enabled */
@@ -31,11 +32,12 @@ export function useLogViewColumns({
   projectId,
   traceId,
 }: UseLogViewColumnsParams): JSONTableViewColumn<FlatLogItem>[] {
+  const { t } = useI18n();
   return useMemo((): JSONTableViewColumn<FlatLogItem>[] => {
     return [
       {
         key: "observation",
-        header: "Observation",
+        header: t("observability.columns.observation"),
         width: "flex-1",
         render: (item) => (
           <LogViewObservationCell
@@ -48,7 +50,7 @@ export function useLogViewColumns({
       },
       {
         key: "depth",
-        header: "Depth",
+        header: t("trace.logView.depth"),
         width: "w-12",
         align: "right" as const,
         render: (item) => (
@@ -59,7 +61,7 @@ export function useLogViewColumns({
       },
       {
         key: "start",
-        header: "Start",
+        header: t("trace.logView.start"),
         width: showMilliseconds ? "w-20" : "w-12",
         align: "right" as const,
         render: (item) => (
@@ -73,7 +75,7 @@ export function useLogViewColumns({
       },
       {
         key: "duration",
-        header: "Duration",
+        header: t("observability.columns.duration"),
         width: "w-16",
         align: "right" as const,
         render: (item) => (
@@ -83,5 +85,5 @@ export function useLogViewColumns({
         ),
       },
     ];
-  }, [indentEnabled, showMilliseconds, projectId, traceId]);
+  }, [indentEnabled, showMilliseconds, projectId, traceId, t]);
 }

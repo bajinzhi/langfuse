@@ -1,7 +1,9 @@
 import { Database, Plus } from "lucide-react";
 import type { DatasetChoiceStepProps } from "./types";
+import { useI18n } from "@/src/features/i18n";
 
 export function DatasetChoiceStep(props: DatasetChoiceStepProps) {
+  const { t } = useI18n();
   const { onSelectMode } = props;
 
   return (
@@ -15,9 +17,11 @@ export function DatasetChoiceStep(props: DatasetChoiceStepProps) {
         <div className="bg-primary/10 mb-4 rounded-full p-4">
           <Database className="text-primary h-8 w-8" />
         </div>
-        <h3 className="mb-2 text-lg font-semibold">Existing Dataset</h3>
+        <h3 className="mb-2 text-lg font-semibold">
+          {t("batchActions.existingDataset")}
+        </h3>
         <p className="text-muted-foreground text-sm">
-          Add to a dataset that already exists
+          {t("batchActions.addToExistingDatasetDescription")}
         </p>
       </button>
 
@@ -30,9 +34,11 @@ export function DatasetChoiceStep(props: DatasetChoiceStepProps) {
         <div className="bg-primary/10 mb-4 rounded-full p-4">
           <Plus className="text-primary h-8 w-8" />
         </div>
-        <h3 className="mb-2 text-lg font-semibold">New Dataset</h3>
+        <h3 className="mb-2 text-lg font-semibold">
+          {t("datasets.newDataset")}
+        </h3>
         <p className="text-muted-foreground text-sm">
-          Create a new dataset for these observations
+          {t("batchActions.createDatasetForObservations")}
         </p>
       </button>
     </div>

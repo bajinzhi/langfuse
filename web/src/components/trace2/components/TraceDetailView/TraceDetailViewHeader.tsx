@@ -41,6 +41,7 @@ import {
 } from "../ObservationDetailView/ObservationMetadataBadgesTooltip";
 import { aggregateTraceMetrics } from "@/src/components/trace2/lib/trace-aggregation";
 import { resolveEvalExecutionMetadata } from "@/src/components/trace2/lib/resolve-metadata";
+import { useI18n } from "@/src/features/i18n";
 
 export interface TraceDetailViewHeaderProps {
   trace: Omit<WithStringifiedMetadata<TraceDomain>, "input" | "output"> & {
@@ -72,6 +73,7 @@ export const TraceDetailViewHeader = memo(function TraceDetailViewHeader({
   isCommentDrawerOpen,
   onCommentDrawerOpenChange,
 }: TraceDetailViewHeaderProps) {
+  const { t } = useI18n();
   const aggregatedMetrics = useMemo(
     () => aggregateTraceMetrics(observations),
     [observations],
@@ -93,7 +95,11 @@ export const TraceDetailViewHeader = memo(function TraceDetailViewHeader({
           <span className="mb-0 ml-1 line-clamp-2 min-w-0 font-medium break-all md:break-normal md:wrap-break-word">
             {trace.name || trace.id}
           </span>
-          <CopyIdsPopover idItems={[{ id: trace.id, name: "Trace ID" }]} />
+          <CopyIdsPopover
+            idItems={[
+              { id: trace.id, name: t("observability.columns.traceId") },
+            ]}
+          />
         </div>
         {/* Action buttons */}
         <div className="flex h-full flex-wrap content-start items-start justify-start gap-0.5 @2xl:mr-1 @2xl:justify-end">

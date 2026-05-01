@@ -10,6 +10,7 @@ import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePos
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 import { api } from "@/src/utils/api";
 import { useEmptyScoreConfigs } from "@/src/features/scores/hooks/useEmptyConfigs";
+import { useI18n } from "@/src/features/i18n";
 
 export const ArchiveScoreConfigButton = ({
   configId,
@@ -22,6 +23,7 @@ export const ArchiveScoreConfigButton = ({
   isArchived: boolean;
   name: string;
 }) => {
+  const { t } = useI18n();
   const capture = usePostHogClientCapture();
   const { emptySelectedConfigIds, setEmptySelectedConfigIds } =
     useEmptyScoreConfigs();
@@ -49,7 +51,7 @@ export const ArchiveScoreConfigButton = ({
           }}
         >
           <Archive className="mr-2 h-4 w-4"></Archive>
-          Archive
+          {t("scoreConfigs.archive")}
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -57,13 +59,14 @@ export const ArchiveScoreConfigButton = ({
         className="max-w-[500px]"
       >
         <h2 className="text-md mb-3 font-semibold">
-          {isArchived ? "Restore config" : "Archive config"}
+          {isArchived
+            ? t("scoreConfigs.restoreConfig")
+            : t("scoreConfigs.archiveConfig")}
         </h2>
         <p className="mb-3 text-sm">
-          Your config is currently{" "}
           {isArchived
-            ? `archived. Restore if you want to use "${name}" in annotation again.`
-            : `active. Archive if you no longer want to use "${name}" in annotation. Historic "${name}" scores will still be shown and can be deleted. You can restore your config at any point.`}
+            ? t("scoreConfigs.restoreDescription", { name })
+            : t("scoreConfigs.archiveDescription", { name })}
         </p>
         <div className="flex justify-end space-x-4">
           <Button
@@ -82,7 +85,7 @@ export const ArchiveScoreConfigButton = ({
               capture("score_configs:archive_form_submit");
             }}
           >
-            Confirm
+            {t("common.confirm")}
           </Button>
         </div>
       </PopoverContent>

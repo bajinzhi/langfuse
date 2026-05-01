@@ -49,6 +49,7 @@ import { useParsedObservation } from "@/src/hooks/useParsedObservation";
 import { PromptBadge } from "@/src/components/trace2/components/_shared/PromptBadge";
 import { useJsonBetaToggle } from "@/src/components/trace2/hooks/useJsonBetaToggle";
 import { getMostRecentCorrection } from "@/src/features/corrections/utils/getMostRecentCorrection";
+import { useI18n } from "@/src/features/i18n";
 
 export const ObservationPreview = ({
   observations,
@@ -75,6 +76,7 @@ export const ObservationPreview = ({
   showCommentButton?: boolean;
   precomputedCost: Decimal | undefined;
 }) => {
+  const { t } = useI18n();
   const [selectedTab, setSelectedTab] = useQueryParam(
     "view",
     withDefault(StringParam, "preview"),
@@ -168,7 +170,9 @@ export const ObservationPreview = ({
 
   const totalCost = precomputedCost;
 
-  if (!preloadedObservation) return <div className="flex-1">Not found</div>;
+  if (!preloadedObservation) {
+    return <div className="flex-1">{t("trace.notFoundShort")}</div>;
+  }
 
   return (
     <div className="col-span-2 flex h-full flex-1 flex-col overflow-hidden md:col-span-3">
@@ -183,8 +187,14 @@ export const ObservationPreview = ({
             </span>
             <CopyIdsPopover
               idItems={[
-                { id: preloadedObservation.traceId, name: "Trace ID" },
-                { id: preloadedObservation.id, name: "Observation ID" },
+                {
+                  id: preloadedObservation.traceId,
+                  name: t("observability.columns.traceId"),
+                },
+                {
+                  id: preloadedObservation.id,
+                  name: t("observability.columns.observationId"),
+                },
               ]}
             />
           </div>
@@ -271,27 +281,31 @@ export const ObservationPreview = ({
                 <Fragment>
                   {preloadedObservation.endTime ? (
                     <Badge variant="tertiary">
-                      Latency:{" "}
-                      {formatIntervalSeconds(
-                        (preloadedObservation.endTime.getTime() -
-                          preloadedObservation.startTime.getTime()) /
-                          1000,
-                      )}
+                      {t("trace.latencyLabel", {
+                        value: formatIntervalSeconds(
+                          (preloadedObservation.endTime.getTime() -
+                            preloadedObservation.startTime.getTime()) /
+                            1000,
+                        ),
+                      })}
                     </Badge>
                   ) : null}
 
                   {preloadedObservation.timeToFirstToken ? (
                     <Badge variant="tertiary">
-                      Time to first token:{" "}
-                      {formatIntervalSeconds(
-                        preloadedObservation.timeToFirstToken,
-                      )}
+                      {t("trace.timeToFirstTokenLabel", {
+                        value: formatIntervalSeconds(
+                          preloadedObservation.timeToFirstToken,
+                        ),
+                      })}
                     </Badge>
                   ) : null}
 
                   {preloadedObservation.environment ? (
                     <Badge variant="tertiary">
-                      Env: {preloadedObservation.environment}
+                      {t("trace.environmentLabel", {
+                        value: preloadedObservation.environment,
+                      })}
                     </Badge>
                   ) : null}
 
@@ -358,7 +372,9 @@ export const ObservationPreview = ({
                     })()}
                   {preloadedObservation.version ? (
                     <Badge variant="tertiary">
-                      Version: {preloadedObservation.version}
+                      {t("trace.versionLabel", {
+                        value: preloadedObservation.version,
+                      })}
                     </Badge>
                   ) : undefined}
                   {preloadedObservation.model ? (
@@ -367,7 +383,7 @@ export const ObservationPreview = ({
                         <Link
                           href={`/project/${preloadedObservation.projectId}/settings/models/${preloadedObservation.internalModelId}`}
                           className="flex items-center"
-                          title="View model details"
+                          title={t("trace.viewModelDetails")}
                         >
                           <span className="truncate">
                             {preloadedObservation.model}
@@ -450,9 +466,9 @@ export const ObservationPreview = ({
         >
           {viewType === "detailed" && (
             <TabsBarList>
-              <TabsBarTrigger value="preview">Preview</TabsBarTrigger>
+              <TabsBarTrigger value="preview">{t("trace.preview")}</TabsBarTrigger>
               {showScoresTab && (
-                <TabsBarTrigger value="scores">Scores</TabsBarTrigger>
+                <TabsBarTrigger value="scores">{t("trace.scores")}</TabsBarTrigger>
               )}
               {selectedTab.includes("preview") && isPrettyViewAvailable && (
                 <>
@@ -469,10 +485,10 @@ export const ObservationPreview = ({
                         value="pretty"
                         className="h-fit px-1 text-xs"
                       >
-                        Formatted
+                        {t("trace.formatted")}
                       </TabsTrigger>
                       <TabsTrigger value="json" className="h-fit px-1 text-xs">
-                        JSON
+                        {t("trace.json")}
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
@@ -484,7 +500,7 @@ export const ObservationPreview = ({
                         onCheckedChange={handleBetaToggle}
                       />
                       <span className="text-muted-foreground text-xs">
-                        Beta
+                        {t("trace.beta")}
                       </span>
                     </div>
                   )}
@@ -553,7 +569,7 @@ export const ObservationPreview = ({
                 {preloadedObservation.statusMessage && (
                   <PrettyJsonView
                     key={preloadedObservation.id + "-status"}
-                    title="Status Message"
+                    title={t("trace.statusMessage")}
                     json={preloadedObservation.statusMessage}
                     currentView={
                       currentView === "json-beta" ? "pretty" : currentView
@@ -565,7 +581,7 @@ export const ObservationPreview = ({
                 {observationWithIO?.metadata && (
                   <PrettyJsonView
                     key={observationWithIO.id + "-metadata"}
-                    title="Metadata"
+                    title={t("scores.metadata")}
                     json={observationWithIO.metadata}
                     media={observationMedia.data?.filter(
                       (m) => m.field === "metadata",

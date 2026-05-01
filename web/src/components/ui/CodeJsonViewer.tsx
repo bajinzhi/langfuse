@@ -25,6 +25,7 @@ import {
 } from "@/src/components/ui/PromptReferences";
 import { copyTextToClipboard } from "@/src/utils/clipboard";
 import { useCopyToClipboard } from "@/src/hooks/useCopyToClipboard";
+import { useI18n } from "@/src/features/i18n";
 
 export const IO_TABLE_CHAR_LIMIT = 10000;
 
@@ -51,6 +52,7 @@ export function JSONView(props: {
   const capture = usePostHogClientCapture();
   const promptReferenceProjectId = usePromptReferenceProjectId();
   const [internalCollapsed, setInternalCollapsed] = useState(false);
+  const { t } = useI18n();
 
   const collapseStringsAfterLength =
     props.collapseStringsAfterLength === null
@@ -132,7 +134,14 @@ export function JSONView(props: {
               collapseStringMode="word"
               customizeCollapseStringUI={(fullSTring, truncated) =>
                 truncated ? (
-                  <div className="opacity-50">{`\n...expand (${Math.max(fullSTring.length - collapseStringsAfterLength, 0)} more characters)`}</div>
+                  <div className="opacity-50">
+                    {`\n...${t("table.expandWithMoreCharacters", {
+                      count: Math.max(
+                        fullSTring.length - collapseStringsAfterLength,
+                        0,
+                      ),
+                    })}`}
+                  </div>
                 ) : (
                   ""
                 )
@@ -148,7 +157,7 @@ export function JSONView(props: {
       {props.media && props.media.length > 0 && (
         <>
           <div className="text-muted-foreground my-1 px-0 py-1 text-xs">
-            Media
+            {t("trace.media")}
           </div>
           <div className="flex flex-wrap gap-2 p-4 pt-1">
             {props.media.map((m) => (

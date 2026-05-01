@@ -26,8 +26,10 @@ import { LocalIsoDate } from "@/src/components/LocalIsoDate";
 import { useExperimentAccess } from "@/src/features/experiments/hooks/useExperimentAccess";
 import { ExperimentsBetaSwitch } from "@/src/features/experiments/components/ExperimentsBetaSwitch";
 import { singleRunToExperimentsUrl } from "@/src/features/experiments/utils/experimentUrlTranslation";
+import { useI18n } from "@/src/features/i18n";
 
 export default function Dataset() {
+  const { t } = useI18n();
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const datasetId = router.query.datasetId as string;
@@ -78,13 +80,13 @@ export default function Dataset() {
           title: run.data?.name ?? runId,
           itemType: "DATASET_RUN",
           breadcrumb: [
-            { name: "Datasets", href: `/project/${projectId}/datasets` },
+            { name: t("nav.datasets"), href: `/project/${projectId}/datasets` },
             {
               name: dataset.data?.name ?? datasetId,
               href: `/project/${projectId}/datasets/${datasetId}`,
             },
             {
-              name: "Experiments",
+              name: t("experiments.title"),
               href: `/project/${projectId}/datasets/${datasetId}`,
             },
           ],
@@ -104,13 +106,13 @@ export default function Dataset() {
         title: run.data?.name ?? runId,
         itemType: "DATASET_RUN",
         breadcrumb: [
-          { name: "Datasets", href: `/project/${projectId}/datasets` },
+          { name: t("nav.datasets"), href: `/project/${projectId}/datasets` },
           {
             name: dataset.data?.name ?? datasetId,
             href: `/project/${projectId}/datasets/${datasetId}`,
           },
           {
-            name: "Experiments",
+            name: t("experiments.title"),
             href: `/project/${projectId}/datasets/${datasetId}`,
           },
         ],
@@ -125,7 +127,7 @@ export default function Dataset() {
             >
               <Button>
                 <Columns3 className="mr-2 h-4 w-4" />
-                <span>Compare</span>
+                <span>{t("datasets.compare")}</span>
               </Button>
             </Link>
             <DetailPageNav
@@ -166,11 +168,13 @@ export default function Dataset() {
           />
         </div>
         <SidePanel
-          mobileTitle="Experiment run details"
+          mobileTitle={t("datasets.experimentRunDetails")}
           id="experiment-run-details"
         >
           <SidePanelHeader>
-            <SidePanelTitle>Experiment run details</SidePanelTitle>
+            <SidePanelTitle>
+              {t("datasets.experimentRunDetails")}
+            </SidePanelTitle>
           </SidePanelHeader>
           <SidePanelContent>
             {run.isPending ? (
@@ -179,7 +183,9 @@ export default function Dataset() {
               <>
                 {run.data?.datasetVersion && (
                   <div className="flex flex-col gap-2 p-1">
-                    <span className="text-sm font-medium">Dataset Version</span>
+                    <span className="text-sm font-medium">
+                      {t("datasets.version")}
+                    </span>
                     <Link
                       href={`/project/${projectId}/datasets/${datasetId}/items?version=${run.data.datasetVersion.toISOString()}`}
                       className="text-accent-dark-blue hover:text-primary-accent/60 text-sm"
@@ -191,20 +197,20 @@ export default function Dataset() {
                 {!!run.data?.description && (
                   <JSONView
                     json={run.data.description}
-                    title="Description"
+                    title={t("datasets.description")}
                     className="w-full overflow-y-auto"
                   />
                 )}
                 {!!run.data?.metadata && (
                   <JSONView
                     json={run.data.metadata}
-                    title="Metadata"
+                    title={t("datasets.metadata")}
                     className="w-full overflow-y-auto"
                   />
                 )}
                 {!run.data?.description && !run.data?.metadata && (
                   <div className="text-muted-foreground mt-1 px-1 text-sm">
-                    No description or metadata for this run
+                    {t("datasets.noDescriptionOrMetadata")}
                   </div>
                 )}
               </>

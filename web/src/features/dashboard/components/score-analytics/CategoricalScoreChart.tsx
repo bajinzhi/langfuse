@@ -18,6 +18,7 @@ import { scoreChartDataToDataPoints } from "@/src/features/dashboard/lib/chart-d
 import { isEmptyChart } from "@/src/features/dashboard/lib/score-analytics-utils";
 import { NoDataOrLoading } from "@/src/components/NoDataOrLoading";
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
+import { useI18n } from "@/src/features/i18n";
 
 export function CategoricalScoreChart(props: {
   projectId: string;
@@ -29,6 +30,7 @@ export function CategoricalScoreChart(props: {
   metricsVersion?: ViewVersion;
   schedulerId?: string;
 }) {
+  const { t } = useI18n();
   const scoresQuery: QueryType = {
     view: "scores-categorical",
     dimensions: [{ field: "name" }, { field: "stringValue" }],
@@ -84,6 +86,8 @@ export function CategoricalScoreChart(props: {
     },
   );
 
+  const aggregationLabel = t("dashboard.scoreAnalytics.aggregation");
+
   const { chartData, chartLabels } = useMemo(() => {
     if (!scores.data) return { chartData: [], chartLabels: [] };
 
@@ -95,9 +99,10 @@ export function CategoricalScoreChart(props: {
       })) as DatabaseRow[],
       "time_dimension",
       props.agg,
+      aggregationLabel,
     );
     return adapter.toChartData();
-  }, [scores.data, props.agg]);
+  }, [scores.data, props.agg, aggregationLabel]);
 
   if (isEmptyChart({ data: chartData })) {
     return (

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/src/utils/tailwind";
-import { SLOW_QUERY_HINT_TEXT } from "@langfuse/shared";
 import { type QueryProgress } from "@/src/hooks/useSSEDashboardQuery";
 import { QueryProgressBar } from "@/src/features/widgets/chart-library/QueryProgressBar";
 import { Button } from "@/src/components/ui/button";
+import { useI18n } from "@/src/features/i18n";
 
 const DEFAULT_HINT_DELAY_MS = 2000;
 const PROGRESS_REVEAL_DELAY_MS = 1000;
@@ -30,16 +30,20 @@ export function ChartLoadingState({
   className,
   spinnerClassName,
   hintClassName,
-  spinnerLabel = "Loading chart data",
-  hintText = SLOW_QUERY_HINT_TEXT,
+  spinnerLabel,
+  hintText,
   hintDelayMs = DEFAULT_HINT_DELAY_MS,
   showSpinner = true,
   showHintImmediately = false,
   progress,
   layout = "default",
   onRetry,
-  retryLabel = "Retry",
+  retryLabel,
 }: ChartLoadingStateProps) {
+  const { t } = useI18n();
+  const resolvedSpinnerLabel = spinnerLabel ?? t("widgets.chart.loadingData");
+  const resolvedHintText = hintText ?? t("widgets.chart.slowQueryHint");
+  const resolvedRetryLabel = retryLabel ?? t("common.retry");
   const [showHint, setShowHint] = useState(false);
   const [showProgressPhase, setShowProgressPhase] = useState(false);
   const shouldShowProgress = progress !== undefined;
@@ -96,7 +100,7 @@ export function ChartLoadingState({
       <div
         role="status"
         aria-live="polite"
-        aria-label={spinnerLabel}
+        aria-label={resolvedSpinnerLabel}
         className={cn(
           "text-muted-foreground flex h-full w-full items-center justify-center",
           className,
@@ -111,16 +115,16 @@ export function ChartLoadingState({
 
   const statusTitle =
     isPendingProgressState || shouldShowProgress
-      ? "Running query"
+      ? t("widgets.chart.runningQuery")
       : showSpinner
-        ? "Loading widget"
-        : "Query needs attention";
+        ? t("widgets.chart.loadingWidget")
+        : t("widgets.chart.queryNeedsAttention");
 
   return (
     <div
       role="status"
       aria-live="polite"
-      aria-label={spinnerLabel}
+      aria-label={resolvedSpinnerLabel}
       className={cn(
         "text-muted-foreground flex h-full min-h-0 w-full flex-col overflow-hidden",
         className,
@@ -176,7 +180,7 @@ export function ChartLoadingState({
               )}
             >
               {shouldRenderHint ? (
-                hintText
+                resolvedHintText
               ) : (
                 <span aria-hidden="true">&nbsp;</span>
               )}
@@ -189,7 +193,7 @@ export function ChartLoadingState({
               onClick={onRetry}
               className="w-fit self-center"
             >
-              {retryLabel}
+              {resolvedRetryLabel}
             </Button>
           ) : null}
         </div>

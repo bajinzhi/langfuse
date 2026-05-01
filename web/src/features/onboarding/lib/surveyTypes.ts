@@ -1,20 +1,27 @@
+import type { MessageKey } from "@/src/features/i18n";
+
 export type QuestionType = "radio" | "text";
 
 export interface BaseQuestion {
   id: string;
   type: QuestionType;
-  question: string;
+  questionKey: MessageKey;
   required?: boolean;
+}
+
+export interface SurveyOption {
+  value: string;
+  labelKey: MessageKey;
 }
 
 export interface RadioQuestion extends BaseQuestion {
   type: "radio";
-  options: string[];
+  options: SurveyOption[];
 }
 
 export interface TextQuestion extends BaseQuestion {
   type: "text";
-  placeholder?: string;
+  placeholderKey?: MessageKey;
 }
 
 export type SurveyQuestion = RadioQuestion | TextQuestion;

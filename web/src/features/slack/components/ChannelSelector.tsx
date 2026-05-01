@@ -19,6 +19,7 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { api } from "@/src/utils/api";
 import { type SlackChannel } from "@langfuse/shared/src/server";
+import { useI18n } from "@/src/features/i18n";
 
 export type { SlackChannel };
 
@@ -79,17 +80,19 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
   selectedChannel: selectedChannelProp,
   onChannelSelect,
   disabled = false,
-  placeholder = "Select a channel",
+  placeholder,
   memberOnly = false,
   filterChannels,
   showRefreshButton = true,
 }) => {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [scrollNode, setScrollNode] = useState<HTMLDivElement | null>(null);
   const trimmedSearch = searchValue.trim();
   const effectiveName = trimmedSearch.replace(/^#/, "");
+  const selectorPlaceholder = placeholder ?? t("slack.selectChannel");
 
   // Get available channels
   const {
@@ -210,7 +213,7 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
         <div className="flex items-center gap-2">
           <Select disabled>
             <SelectTrigger>
-              <SelectValue placeholder="Loading channels..." />
+              <SelectValue placeholder={t("slack.loadingChannels")} />
             </SelectTrigger>
           </Select>
           {showRefreshButton && (
@@ -230,7 +233,7 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
         <div className="flex items-center gap-2">
           <Select disabled>
             <SelectTrigger>
-              <SelectValue placeholder="Error loading channels" />
+              <SelectValue placeholder={t("slack.errorLoadingChannels")} />
             </SelectTrigger>
           </Select>
           {showRefreshButton && (
@@ -241,8 +244,7 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
         </div>
         <Alert>
           <AlertDescription>
-            Failed to load channels. Please check your Slack connection and try
-            again.
+            {t("slack.failedLoadChannels")}
           </AlertDescription>
         </Alert>
       </div>
@@ -277,7 +279,9 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
               {selectedChannel ? (
                 renderChannelItem(selectedChannel)
               ) : (
-                <span className="text-muted-foreground">{placeholder}</span>
+                <span className="text-muted-foreground">
+                  {selectorPlaceholder}
+                </span>
               )}
               <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
@@ -285,7 +289,7 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
           <PopoverContent className="w-full p-0" align="start">
             <Command shouldFilter={false}>
               <CommandInput
-                placeholder="Search channels..."
+                placeholder={t("slack.searchChannels")}
                 value={searchValue}
                 onValueChange={setSearchValue}
               />
@@ -299,13 +303,13 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
                     >
                       <Hash className="text-muted-foreground h-4 w-4" />
                       <span className="flex-1 truncate">
-                        Use &quot;{effectiveName}&quot;
+                        {t("slack.useChannel", { name: effectiveName })}
                       </span>
                     </CommandItem>
                   </CommandGroup>
                 )}
                 {!canUseTypedName && filteredChannels.length === 0 && (
-                  <CommandEmpty>No channels available.</CommandEmpty>
+                  <CommandEmpty>{t("slack.noChannels")}</CommandEmpty>
                 )}
                 <CommandGroup
                   className="p-0"
@@ -357,8 +361,11 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
       {/* Channel stats */}
       {channelsData?.channels && (
         <div className="text-muted-foreground text-xs">
-          {filteredChannels.length} of {channelsData.channels.length} channels
-          {memberOnly && " (member only)"}
+          {t("slack.channelStats", {
+            filtered: filteredChannels.length,
+            total: channelsData.channels.length,
+          })}
+          {memberOnly && ` ${t("slack.memberOnly")}`}
         </div>
       )}
 
@@ -367,7 +374,7 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            Private channels are not visible. To access private channels,{" "}
+            {t("slack.privateChannelsHidden")}{" "}
             <button
               type="button"
               className="font-medium underline"
@@ -379,9 +386,9 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
                 )
               }
             >
-              re-authenticate your Slack integration
+              {t("slack.reauthenticate")}
             </button>{" "}
-            to grant the required permissions.
+            {t("slack.requiredPermissions")}
           </AlertDescription>
         </Alert>
       )}

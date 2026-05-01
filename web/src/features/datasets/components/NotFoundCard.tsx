@@ -1,4 +1,5 @@
 import { Card } from "@/src/components/ui/card";
+import { translateClientMessage } from "@/src/features/i18n";
 
 export const NotFoundCard = ({
   itemType,
@@ -7,14 +8,21 @@ export const NotFoundCard = ({
   itemType: "trace" | "observation";
   singleLine?: boolean;
 }) => {
+  const translatedItemType = translateClientMessage(
+    itemType === "trace" ? "datasets.trace" : "datasets.observation",
+  );
+  const description = translateClientMessage("datasets.notFoundDescription", {
+    itemType: translatedItemType,
+  });
+
   if (singleLine) {
     return (
       <Card className="flex h-full w-full items-center justify-start overflow-hidden rounded-sm px-2">
         <p
           className="text-muted-foreground truncate text-xs"
-          title={`The ${itemType} is either still being processed or has been deleted.`}
+          title={description}
         >
-          The {itemType} is either still being processed or has been deleted.
+          {description}
         </p>
       </Card>
     );
@@ -22,9 +30,11 @@ export const NotFoundCard = ({
 
   return (
     <Card className="flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-sm p-3">
-      <h2 className="mb-1.5 text-sm font-semibold">Not found</h2>
+      <h2 className="mb-1.5 text-sm font-semibold">
+        {translateClientMessage("datasets.notFound")}
+      </h2>
       <p className="text-muted-foreground max-w-xs text-center text-xs">
-        The {itemType} is either still being processed or has been deleted.
+        {description}
       </p>
     </Card>
   );

@@ -1,7 +1,37 @@
 import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render as rtlRender,
+  screen,
+} from "@testing-library/react";
 import { SLOW_QUERY_HINT_TEXT } from "@langfuse/shared";
 import { ChartLoadingState } from "@/src/features/widgets/chart-library/ChartLoadingState";
+import { I18nContext } from "@/src/features/i18n/I18nProvider";
+import { translateMessage } from "@/src/features/i18n";
+
+const i18nValue = {
+  locale: "en" as const,
+  t: translateMessage.bind(null, "en"),
+  formatDate: (
+    value: Date | number | string,
+    options?: Intl.DateTimeFormatOptions,
+  ) => new Intl.DateTimeFormat("en", options).format(new Date(value)),
+  formatNumber: (value: number, options?: Intl.NumberFormatOptions) =>
+    new Intl.NumberFormat("en", options).format(value),
+};
+
+const render = (ui: React.ReactElement) => {
+  const wrap = (element: React.ReactElement) => (
+    <I18nContext.Provider value={i18nValue}>{element}</I18nContext.Provider>
+  );
+  const result = rtlRender(wrap(ui));
+
+  return {
+    ...result,
+    rerender: (nextUi: React.ReactElement) => result.rerender(wrap(nextUi)),
+  };
+};
 
 describe("ChartLoadingState", () => {
   beforeEach(() => {

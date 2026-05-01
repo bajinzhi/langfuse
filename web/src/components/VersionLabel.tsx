@@ -25,9 +25,11 @@ import { usePlan } from "@/src/features/entitlements/hooks";
 import { isSelfHostedPlan, planLabels } from "@langfuse/shared";
 import { StatusBadge } from "@/src/components/layouts/status-badge";
 import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
+import { useI18n } from "@/src/features/i18n";
 
 export const VersionLabel = ({ className }: { className?: string }) => {
   const { isLangfuseCloud } = useLangfuseCloudRegion();
+  const { t } = useI18n();
 
   const backgroundMigrationStatus = api.backgroundMigrations.status.useQuery(
     undefined,
@@ -61,7 +63,7 @@ export const VersionLabel = ({ className }: { className?: string }) => {
       : // no plan, oss
         {
           short: "OSS",
-          long: "Open Source",
+          long: t("version.openSource"),
         }
     : // null on cloud
       null;
@@ -80,6 +82,12 @@ export const VersionLabel = ({ className }: { className?: string }) => {
       : checkUpdate.data?.updateType === "minor"
         ? "text-dark-yellow"
         : undefined;
+  const updateTypeLabel =
+    checkUpdate.data?.updateType === "major"
+      ? t("version.updateType.major")
+      : checkUpdate.data?.updateType === "minor"
+        ? t("version.updateType.minor")
+        : checkUpdate.data?.updateType;
 
   return (
     <DropdownMenu>
@@ -107,14 +115,16 @@ export const VersionLabel = ({ className }: { className?: string }) => {
         {hasUpdate ? (
           <>
             <DropdownMenuLabel>
-              New {checkUpdate.data?.updateType} version:{" "}
-              {checkUpdate.data?.latestRelease}
+              {t("version.newVersion", {
+                type: updateTypeLabel ?? "",
+                release: checkUpdate.data?.latestRelease ?? "",
+              })}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
           </>
         ) : !isLangfuseCloud ? (
           <>
-            <DropdownMenuLabel>This is the latest release</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("version.latestRelease")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
           </>
         ) : null}
@@ -133,14 +143,14 @@ export const VersionLabel = ({ className }: { className?: string }) => {
             target="_blank"
           >
             <SiGithub size={16} className="mr-2" />
-            Releases
+            {t("version.releases")}
           </Link>
         </DropdownMenuItem>
         {!isLangfuseCloud && (
           <DropdownMenuItem asChild>
             <Link href="/background-migrations">
               <ArrowUp10 size={16} className="mr-2" />
-              Background Migrations
+              {t("version.backgroundMigrations")}
               {showBackgroundMigrationStatus && (
                 <StatusBadge
                   type={backgroundMigrationStatus.data?.status.toLowerCase()}
@@ -154,20 +164,20 @@ export const VersionLabel = ({ className }: { className?: string }) => {
         <DropdownMenuItem asChild>
           <Link href="https://langfuse.com/changelog" target="_blank">
             <Newspaper size={16} className="mr-2" />
-            Changelog
+            {t("version.changelog")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="https://langfuse.com/roadmap" target="_blank">
             <Map size={16} className="mr-2" />
-            Roadmap
+            {t("version.roadmap")}
           </Link>
         </DropdownMenuItem>
         {!isLangfuseCloud && (
           <DropdownMenuItem asChild>
             <Link href="https://langfuse.com/pricing-self-host" target="_blank">
               <Info size={16} className="mr-2" />
-              Compare Versions
+              {t("version.compareVersions")}
             </Link>
           </DropdownMenuItem>
         )}
@@ -180,7 +190,7 @@ export const VersionLabel = ({ className }: { className?: string }) => {
                 target="_blank"
               >
                 <HardDriveDownload size={16} className="mr-2" />
-                Update
+                {t("common.update")}
               </Link>
             </DropdownMenuItem>
           </>

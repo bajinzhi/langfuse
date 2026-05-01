@@ -32,15 +32,32 @@ export const PricingTierSchema = z.object({
 
 export type PricingTier = z.infer<typeof PricingTierSchema>;
 
+type ModelFormValidationMessages = {
+  invalidPricingTiers: string;
+  tierNameRequired: string;
+  tokenizerConfigJson: string;
+};
+
+const defaultModelFormValidationMessages: ModelFormValidationMessages = {
+  invalidPricingTiers: "Invalid pricing tiers configuration",
+  tierNameRequired: "Tier name is required",
+  tokenizerConfigJson: "Tokenizer config needs to be valid JSON",
+};
+
 // Form-level tier schema (includes optional id for edit mode)
-export const FormPricingTierSchema = z.object({
-  id: z.string().optional(), // For existing tiers in edit mode
-  name: z.string().min(1, "Tier name is required"),
-  isDefault: z.boolean(),
-  priority: z.number().int(),
-  conditions: z.array(PricingTierConditionSchema),
-  prices: PriceMapInputSchema, // Use input schema for form
-});
+export const createFormPricingTierSchema = (
+  messages: ModelFormValidationMessages = defaultModelFormValidationMessages,
+) =>
+  z.object({
+    id: z.string().optional(), // For existing tiers in edit mode
+    name: z.string().min(1, messages.tierNameRequired),
+    isDefault: z.boolean(),
+    priority: z.number().int(),
+    conditions: z.array(PricingTierConditionSchema),
+    prices: PriceMapInputSchema, // Use input schema for form
+  });
+
+export const FormPricingTierSchema = createFormPricingTierSchema();
 
 // Use input type for form (allows optional/default fields)
 export type FormPricingTier = z.input<typeof FormPricingTierSchema>;
@@ -60,59 +77,72 @@ export const GetModelResultSchema = z.object({
 
 export type GetModelResult = z.infer<typeof GetModelResultSchema>;
 
-export const UpsertModelSchema = z
-  .object({
-    modelId: z.string().nullable(),
-    projectId: z.string(),
-    modelName: z.string().min(1),
-    matchPattern: z.string().min(1),
-    tokenizerId: z
-      .enum(["openai", "claude", "None"])
-      .nullish()
-      .transform((value) => {
-        return value === "None" ? null : value;
-      })
-      .pipe(TokenizerSchema.nullish()),
-    tokenizerConfig: z
-      .record(z.string(), z.union([z.string(), z.coerce.number()]))
-      .optional(),
-    pricingTiers: z.array(PricingTierInputSchema),
-  })
-  .refine(
-    (data) => {
-      const result = validatePricingTiers(data.pricingTiers);
-      return result.valid;
-    },
-    {
-      message: "Invalid pricing tiers configuration",
-      path: ["pricingTiers"],
-    },
-  );
-export type UpsertModel = z.infer<typeof UpsertModelSchema>;
-
-export const FormUpsertModelSchema = z.object({
-  modelName: z.string().min(1),
-  matchPattern: z.string().min(1),
-  tokenizerId: z.enum(["openai", "claude", "None"]).nullish(),
-  tokenizerConfig: z
-    .string()
+export const createUpsertModelSchema = (
+  messages: Pick<
+    ModelFormValidationMessages,
+    "invalidPricingTiers"
+  > = defaultModelFormValidationMessages,
+) =>
+  z
+    .object({
+      modelId: z.string().nullable(),
+      projectId: z.string(),
+      modelName: z.string().min(1),
+      matchPattern: z.string().min(1),
+      tokenizerId: z
+        .enum(["openai", "claude", "None"])
+        .nullish()
+        .transform((value) => {
+          return value === "None" ? null : value;
+        })
+        .pipe(TokenizerSchema.nullish()),
+      tokenizerConfig: z
+        .record(z.string(), z.union([z.string(), z.coerce.number()]))
+        .optional(),
+      pricingTiers: z.array(PricingTierInputSchema),
+    })
     .refine(
-      (value) => {
-        try {
-          JSON.parse(value);
-          return true;
-        } catch {
-          return false;
-        }
+      (data) => {
+        const result = validatePricingTiers(data.pricingTiers);
+        return result.valid;
       },
       {
-        message: "Tokenizer config needs to be valid JSON",
+        message: messages.invalidPricingTiers,
+        path: ["pricingTiers"],
       },
-    )
-    .transform((value) => (value === "{}" ? undefined : value))
-    .nullish(),
-  pricingTiers: z.array(FormPricingTierSchema),
-});
+    );
+
+export const UpsertModelSchema = createUpsertModelSchema();
+export type UpsertModel = z.infer<typeof UpsertModelSchema>;
+
+export const createFormUpsertModelSchema = (
+  messages: ModelFormValidationMessages = defaultModelFormValidationMessages,
+) =>
+  z.object({
+    modelName: z.string().min(1),
+    matchPattern: z.string().min(1),
+    tokenizerId: z.enum(["openai", "claude", "None"]).nullish(),
+    tokenizerConfig: z
+      .string()
+      .refine(
+        (value) => {
+          try {
+            JSON.parse(value);
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        {
+          message: messages.tokenizerConfigJson,
+        },
+      )
+      .transform((value) => (value === "{}" ? undefined : value))
+      .nullish(),
+    pricingTiers: z.array(createFormPricingTierSchema(messages)),
+  });
+
+export const FormUpsertModelSchema = createFormUpsertModelSchema();
 
 // Use input type for form (allows optional/default fields from Zod schemas)
 export type FormUpsertModel = z.input<typeof FormUpsertModelSchema>;

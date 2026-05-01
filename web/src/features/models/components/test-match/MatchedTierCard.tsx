@@ -9,6 +9,8 @@ import { useMemo } from "react";
 import { usePriceUnitMultiplier } from "@/src/features/models/hooks/usePriceUnitMultiplier";
 import Decimal from "decimal.js";
 import { getMaxDecimals } from "@/src/features/models/utils";
+import { useI18n } from "@/src/features/i18n";
+import { getPriceUnitLabel } from "@/src/features/models/components/PriceUnitSelector";
 
 type MatchedTierCardProps = {
   tier: {
@@ -23,6 +25,7 @@ type MatchedTierCardProps = {
 export type { MatchedTierCardProps };
 
 export function MatchedTierCard({ tier }: MatchedTierCardProps) {
+  const { t } = useI18n();
   const { priceUnit, priceUnitMultiplier } = usePriceUnitMultiplier();
 
   const maxDecimals = useMemo(
@@ -39,7 +42,7 @@ export function MatchedTierCard({ tier }: MatchedTierCardProps) {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-          Matched Pricing Tier
+          {t("models.test.matchedPricingTier")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -47,17 +50,19 @@ export function MatchedTierCard({ tier }: MatchedTierCardProps) {
           <span className="text-base font-semibold">{tier.name}</span>
           {tier.isDefault && (
             <Badge variant="secondary" className="text-xs">
-              Default
+              {t("models.tiers.default")}
             </Badge>
           )}
           <span className="text-muted-foreground text-xs">
-            Priority: {tier.priority}
+            {t("models.tiers.priority", { priority: tier.priority })}
           </span>
         </div>
 
         <div>
           <div className="text-muted-foreground mb-2 text-xs font-medium">
-            Prices (per {priceUnit}):
+            {t("models.test.pricesPerUnit", {
+              unit: getPriceUnitLabel(priceUnit, t),
+            })}
           </div>
           <div className="space-y-1.5">
             {Object.entries(tier.prices).map(([usageType, price]) => (

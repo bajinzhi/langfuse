@@ -1,4 +1,5 @@
 import { env } from "@/src/env.mjs";
+import { type MessageKey } from "@/src/features/i18n";
 import { type Plan } from "@langfuse/shared";
 
 const isTestEnvironment =
@@ -11,13 +12,13 @@ type StripeProduct = {
   mappedPlan: Plan;
   // include checkout if product can be subscribed to by new users
   checkout: {
-    title: string;
-    description: string;
+    titleKey: MessageKey;
+    descriptionKey: MessageKey;
     price: string;
     usagePrice: string;
-    mainFeatures: string[];
+    mainFeatureKeys: MessageKey[];
     cta?: {
-      label: string;
+      labelKey: MessageKey;
       href: string;
     };
   } | null;
@@ -32,16 +33,15 @@ export const stripeProducts: StripeProduct[] = [
     mappedPlan: "cloud:core",
     orderKey: 29,
     checkout: {
-      title: "Core",
-      description:
-        "Great to get started for most projects with unlimited users and 90 days data access.",
+      titleKey: "billing.plan.core.title",
+      descriptionKey: "billing.plan.core.description",
       price: "$29 / month",
       usagePrice: "$8-6/100k units (100k included, graduated pricing)",
-      mainFeatures: [
-        "90 days data access",
-        "Unlimited users",
-        "Unlimited evaluators",
-        "Support via Email/Chat",
+      mainFeatureKeys: [
+        "billing.plan.features.dataAccess90Days",
+        "billing.plan.features.unlimitedUsers",
+        "billing.plan.features.unlimitedEvaluators",
+        "billing.plan.features.supportEmailChat",
       ],
     },
   },
@@ -52,18 +52,17 @@ export const stripeProducts: StripeProduct[] = [
     mappedPlan: "cloud:pro",
     orderKey: 199,
     checkout: {
-      title: "Pro",
-      description:
-        "For projects that scale and need unlimited data access, high rate limits, and Slack support.",
+      titleKey: "billing.plan.pro.title",
+      descriptionKey: "billing.plan.pro.description",
       price: "$199 / month",
       usagePrice: "$8-6/100k units (100k included, graduated pricing)",
-      mainFeatures: [
-        "Everything in Core",
-        "3 years data access",
-        "Unlimited annotation queues",
-        "Data retention management",
-        "High rate limits",
-        "SOC2, ISO27001 reports",
+      mainFeatureKeys: [
+        "billing.plan.features.everythingCore",
+        "billing.plan.features.dataAccess3Years",
+        "billing.plan.features.unlimitedAnnotationQueues",
+        "billing.plan.features.dataRetentionManagement",
+        "billing.plan.features.highRateLimits",
+        "billing.plan.features.soc2IsoReports",
       ],
     },
   },
@@ -74,16 +73,16 @@ export const stripeProducts: StripeProduct[] = [
     mappedPlan: "cloud:team",
     orderKey: 499,
     checkout: {
-      title: "Pro + Teams Add-on",
-      description: "Organizational and security controls for larger teams.",
+      titleKey: "billing.plan.team.title",
+      descriptionKey: "billing.plan.team.description",
       price: "$499 / month",
       usagePrice: "$8-6/100k units (100k included, graduated pricing)",
-      mainFeatures: [
-        "Everything in Pro",
-        "Enterprise SSO (e.g. Okta)",
-        "SSO enforcement",
-        "Fine-grained RBAC",
-        "Support via Slack",
+      mainFeatureKeys: [
+        "billing.plan.features.everythingPro",
+        "billing.plan.features.enterpriseSso",
+        "billing.plan.features.ssoEnforcement",
+        "billing.plan.features.fineGrainedRbac",
+        "billing.plan.features.supportSlack",
       ],
     },
   },
@@ -94,22 +93,21 @@ export const stripeProducts: StripeProduct[] = [
     mappedPlan: "cloud:enterprise",
     orderKey: 2499,
     checkout: {
-      title: "Enterprise",
-      description:
-        "For large scale teams. Enterprise-grade support and security.",
+      titleKey: "billing.plan.enterprise.title",
+      descriptionKey: "billing.plan.enterprise.description",
       price: "$2499 / month",
       usagePrice: "$8-6/100k units (100k included, graduated pricing)",
-      mainFeatures: [
-        "Everything in Pro + Teams",
-        "Audit Logs",
-        "SCIM API",
-        "Custom rate limits",
-        "Uptime SLA",
-        "Support SLA",
-        "Dedicated support engineer",
+      mainFeatureKeys: [
+        "billing.plan.features.everythingProTeams",
+        "billing.plan.features.auditLogs",
+        "billing.plan.features.scimApi",
+        "billing.plan.features.customRateLimits",
+        "billing.plan.features.uptimeSla",
+        "billing.plan.features.supportSla",
+        "billing.plan.features.dedicatedSupportEngineer",
       ],
       cta: {
-        label: "Contact Sales",
+        labelKey: "billing.contactSales",
         href: "https://langfuse.com/talk-to-us",
       },
     },

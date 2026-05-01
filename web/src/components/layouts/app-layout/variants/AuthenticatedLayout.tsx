@@ -21,6 +21,12 @@ import type { Session } from "next-auth";
 import type { NavigationItem } from "@/src/components/layouts/utilities/routes";
 import type { RouteGroup } from "@/src/components/layouts/routes";
 import dynamic from "next/dynamic";
+import {
+  LanguageMenuItemContent,
+  supportedLocales,
+  useI18n,
+  useLocaleSwitcher,
+} from "@/src/features/i18n";
 
 const CommandMenu = dynamic(
   () =>
@@ -102,6 +108,8 @@ export function AuthenticatedLayout({
   onSignOut,
 }: AuthenticatedLayoutProps) {
   const { isLangfuseCloud, region: currentRegion } = useLangfuseCloudRegion();
+  const { t } = useI18n();
+  const switchLocale = useLocaleSwitcher();
 
   // Safe assertion: AuthenticatedLayout is only rendered after auth checks pass
   // in AppLayout, which guarantees session.user exists at this point
@@ -134,25 +142,37 @@ export function AuthenticatedLayout({
       avatar: user.image ?? "",
     },
     items: [
-      { name: "Account Settings", href: "/account/settings" },
-      { name: "Theme", onClick: () => {}, content: <ThemeToggle /> },
+      { name: t("nav.accountSettings"), href: "/account/settings" },
+      {
+        name: t("userMenu.theme"),
+        onClick: () => {},
+        content: <ThemeToggle />,
+      },
+      {
+        name: t("userMenu.language"),
+        subItems: supportedLocales.map((localeOption) => ({
+          name: localeOption,
+          onClick: () => switchLocale(localeOption),
+          content: <LanguageMenuItemContent localeOption={localeOption} />,
+        })),
+      },
       ...(isLangfuseCloud
         ? [
             {
-              name: "Regions",
+              name: t("userMenu.regions"),
               subItems: regionMenuItems,
               content: (
                 <>
-                  Regions
+                  {t("userMenu.regions")}
                   <div className="ml-2 inline-flex rounded bg-black/5 p-1 text-xs dark:bg-white/10">
-                    Current: {currentRegion}
+                    {t("common.current", { value: currentRegion ?? "" })}
                   </div>
                 </>
               ),
             },
           ]
         : []),
-      { name: "Sign out", onClick: onSignOut },
+      { name: t("userMenu.signOut"), onClick: onSignOut },
     ],
   };
 

@@ -17,8 +17,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Switch } from "@/src/components/ui/switch";
 import { Label } from "@/src/components/ui/label";
+import { useI18n } from "@/src/features/i18n";
 
 export default function Experiments() {
+  const { t } = useI18n();
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const [isCreateExperimentDialogOpen, setIsCreateExperimentDialogOpen] =
@@ -68,7 +70,7 @@ export default function Experiments() {
     return (
       <Page
         headerProps={{
-          title: "Experiments",
+          title: t("experiments.title"),
         }}
       >
         <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
@@ -89,30 +91,27 @@ export default function Experiments() {
             </div>
 
             <h2 className="mb-3 text-center text-2xl font-semibold tracking-tight">
-              New Experiments Views
+              {t("experiments.beta.heroTitle")}
             </h2>
 
             <ul className="text-muted-foreground mb-6 space-y-3 text-sm">
               <li>
                 <span className="text-foreground block font-medium">
-                  Built on Fast Preview
+                  {t("experiments.beta.fastPreviewTitle")}
                 </span>
-                Experiments now leverage our rebuilt observation-centric data
-                model for dramatically faster loading and filtering
+                {t("experiments.beta.fastPreviewDescription")}
               </li>
               <li>
                 <span className="text-foreground block font-medium">
-                  Decoupled from Datasets
+                  {t("experiments.beta.decoupledTitle")}
                 </span>
-                Experiments is now a standalone first-class feature. Experiments
-                run against local data are now visible in UI.
+                {t("experiments.beta.decoupledDescription")}
               </li>
               <li>
                 <span className="text-foreground block font-medium">
-                  Polished UI/UX with extended filtering
+                  {t("experiments.beta.polishedTitle")}
                 </span>
-                More intuitive interface with enhanced filtering capabilities to
-                help you analyze and compare experiments efficiently
+                {t("experiments.beta.polishedDescription")}
               </li>
             </ul>
 
@@ -122,7 +121,7 @@ export default function Experiments() {
                   htmlFor="experiments-beta-toggle-hero"
                   className="cursor-pointer font-medium"
                 >
-                  Enable Experiments Beta
+                  {t("experiments.beta.enable")}
                 </Label>
                 <Switch
                   id="experiments-beta-toggle-hero"
@@ -132,7 +131,7 @@ export default function Experiments() {
               </div>
 
               <p className="text-muted-foreground text-center text-xs">
-                You can turn this off anytime from the toggle in the header
+                {t("experiments.beta.disableHint")}
               </p>
             </div>
           </div>
@@ -144,7 +143,7 @@ export default function Experiments() {
   return (
     <Page
       headerProps={{
-        title: "Experiments",
+        title: t("experiments.title"),
         actionButtonsLeft: canUseExperimentsBetaToggle ? (
           <ExperimentsBetaSwitch
             enabled={isExperimentsBetaEnabled}
@@ -163,7 +162,9 @@ export default function Experiments() {
                   onClick={() => capture("dataset_run:new_form_open")}
                 >
                   <FlaskConical className="h-4 w-4" />
-                  <span className="ml-2 hidden md:block">Run experiment</span>
+                  <span className="ml-2 hidden md:block">
+                    {t("datasets.runExperiment")}
+                  </span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">

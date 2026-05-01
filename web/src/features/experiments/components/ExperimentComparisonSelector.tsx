@@ -3,6 +3,7 @@ import { Check, X } from "lucide-react";
 import { MultiSelectCombobox } from "@/src/components/ui/multi-select-combobox";
 import { Badge } from "@/src/components/ui/badge";
 import { useExperimentSearch } from "@/src/features/experiments/hooks/useExperimentSearch";
+import { useI18n } from "@/src/features/i18n";
 
 export type ExperimentOption = {
   experimentId: string;
@@ -24,6 +25,7 @@ export function ExperimentComparisonSelector({
   onSelectedIdsChange,
   maxSelections = 4,
 }: ExperimentComparisonSelectorProps) {
+  const { t } = useI18n();
   const {
     searchResults,
     searchQuery,
@@ -75,8 +77,10 @@ export function ExperimentComparisonSelector({
         isLoading={isLoading}
         placeholder={
           isMaxReached
-            ? `Max ${maxSelections} comparisons`
-            : "Search experiments..."
+            ? t("experiments.comparison.maxComparisons", {
+                count: maxSelections,
+              })
+            : t("experiments.searchExperiments")
         }
         disabled={isMaxReached}
         getItemKey={(item) => item.experimentId}
@@ -120,7 +124,10 @@ export function ExperimentComparisonSelector({
       />
       {selectedIds.length > 0 && (
         <p className="text-muted-foreground text-xs">
-          {selectedIds.length} of {maxSelections} comparisons selected
+          {t("experiments.comparison.selectedCount", {
+            selected: selectedIds.length,
+            max: maxSelections,
+          })}
         </p>
       )}
     </div>

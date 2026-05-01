@@ -1,6 +1,7 @@
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { cn } from "@/src/utils/tailwind";
 import { type ReactNode, useState } from "react";
+import { useI18n } from "@/src/features/i18n";
 
 export type TabComponentProps = {
   tabs: {
@@ -10,13 +11,14 @@ export type TabComponentProps = {
 };
 
 export const TabComponent = ({ tabs }: TabComponentProps) => {
+  const { t } = useI18n();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const capture = usePostHogClientCapture();
   return (
     <div>
       <div className="sm:hidden">
         <label htmlFor="tabs" className="sr-only">
-          Select a tab
+          {t("common.selectTab")}
         </label>
         <select
           id="tabs"
@@ -34,7 +36,7 @@ export const TabComponent = ({ tabs }: TabComponentProps) => {
         <div className="border-border border-b">
           <nav
             className="-mb-px flex space-x-2 md:space-x-4 lg:space-x-6 xl:space-x-8"
-            aria-label="Tabs"
+            aria-label={t("common.tabs")}
           >
             {tabs.map((tab, index) => (
               <a

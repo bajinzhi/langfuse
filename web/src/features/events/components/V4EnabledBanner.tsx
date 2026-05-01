@@ -9,6 +9,7 @@ import {
   useTopBannerRegistration,
 } from "@/src/features/top-banner";
 import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
+import { useI18n } from "@/src/features/i18n";
 
 const CHANGELOG_URL =
   "https://langfuse.com/changelog/2026-03-10-simplify-for-scale";
@@ -17,6 +18,7 @@ const V4_BETA_BANNER_ID = "v4-beta-enabled-banner";
 const V4_BETA_BANNER_ORDER = 20;
 
 export function V4EnabledBanner() {
+  const { t } = useI18n();
   const session = useSession();
   const { isBetaEnabled } = useV4Beta();
   const { getTopBannerOffset } = useTopBanner();
@@ -65,16 +67,15 @@ export function V4EnabledBanner() {
         <ZapIcon className="h-4 w-4 shrink-0" />
         <p className="flex flex-1 flex-row gap-1 text-sm">
           <span className="font-semibold">
-            Faster Langfuse experience enabled (preview).
+            {t("events.v4.enabled.title")}
           </span>{" "}
-          Missing real-time data? Upgrade your Langfuse SDK to the latest major
-          version.{" "}
+          {t("events.v4.enabled.description")}{" "}
           <Link
             href={CHANGELOG_URL}
             target="_blank"
             className="flex flex-row items-center gap-1 underline underline-offset-2"
           >
-            Learn more
+            {t("events.v4.learnMore")}
             <ExternalLink className="h-3 w-3" />
           </Link>
         </p>
@@ -83,8 +84,8 @@ export function V4EnabledBanner() {
           size="sm"
           className="h-6 w-6 p-0"
           onClick={dismissBanner}
-          aria-label="Dismiss Preview (fast) banner"
-          title="Dismiss"
+          aria-label={t("events.v4.dismissFastPreviewBanner")}
+          title={t("events.v4.dismiss")}
         >
           <X className="h-4 w-4" />
         </Button>

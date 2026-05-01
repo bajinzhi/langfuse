@@ -8,6 +8,7 @@ import {
   isEventTarget,
   isExperimentTarget,
 } from "@/src/features/evals/utils/typeHelpers";
+import { translateClientMessage } from "@/src/features/i18n";
 
 type FormMappingValue = {
   templateVariable: string;
@@ -29,6 +30,16 @@ type ValidationResult =
       error: string;
     };
 
+type VariableMappingValidationMessages = {
+  completeAllMappings: string;
+};
+
+const defaultMessages: VariableMappingValidationMessages = {
+  completeAllMappings: translateClientMessage(
+    "evals.variableMapping.completeAllMappings",
+  ),
+};
+
 /**
  * Validates and transforms variable mappings based on the target type.
  * Returns validated data or an error message.
@@ -36,6 +47,7 @@ type ValidationResult =
 export function validateAndTransformVariableMapping(
   mappings: FormMappingValue[],
   target: EvalTargetObject,
+  messages: VariableMappingValidationMessages = defaultMessages,
 ): ValidationResult {
   const isEventOrExperimentTarget =
     isEventTarget(target) || isExperimentTarget(target);
@@ -51,7 +63,7 @@ export function validateAndTransformVariableMapping(
   if (incompleteMappings.length > 0) {
     return {
       success: false,
-      error: "Please complete all variable mappings",
+      error: messages.completeAllMappings,
     };
   }
 
@@ -67,7 +79,7 @@ export function validateAndTransformVariableMapping(
     if (missingObjectName.length > 0) {
       return {
         success: false,
-        error: "Please complete all variable mappings",
+        error: messages.completeAllMappings,
       };
     }
   }
@@ -109,7 +121,7 @@ export function validateAndTransformVariableMapping(
   if (!validatedVarMapping.success) {
     return {
       success: false,
-      error: "Please complete all variable mappings",
+      error: messages.completeAllMappings,
     };
   }
 

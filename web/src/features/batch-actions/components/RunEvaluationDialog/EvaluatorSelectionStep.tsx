@@ -9,6 +9,7 @@ import { Input } from "@/src/components/ui/input";
 import { EvaluatorPromptPreview } from "./EvaluatorPromptPreview";
 import { renderPromptPreviewFromObservation } from "./utils";
 import { Eye, Plus, X } from "lucide-react";
+import { useI18n } from "@/src/features/i18n";
 
 type Evaluator = RouterOutputs["evals"]["jobConfigsByTarget"][number];
 type ObservationPreview = RouterOutputs["observations"]["byId"];
@@ -31,6 +32,7 @@ type EvaluatorSelectionStepProps = {
 };
 
 export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
+  const { t } = useI18n();
   const {
     eligibleEvaluators,
     selectedEvaluators,
@@ -46,6 +48,10 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
     onToggleEvaluator,
     onCreateEvaluator,
   } = props;
+  const localizedEvaluatorScope =
+    evaluatorScopeLabel === "experiment"
+      ? t("batchActions.scopeExperiment")
+      : t("batchActions.scopeObservation");
 
   const filteredEvaluators = useMemo(() => {
     const normalizedSearch = evaluatorSearchQuery.trim().toLowerCase();
@@ -69,11 +75,11 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
 
   const getPromptPreview = (evaluator: Evaluator) => {
     if (isPreviewLoading) {
-      return "Loading preview...";
+      return t("batchActions.previewLoading");
     }
 
     if (!previewObservation) {
-      return "Preview unavailable for the current selection.";
+      return t("batchActions.previewUnavailable");
     }
 
     const mappingResult = observationVariableMappingList.safeParse(
@@ -81,7 +87,7 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
     );
 
     if (!mappingResult.success) {
-      return "Evaluator mapping is not valid for observation preview.";
+      return t("batchActions.evaluatorMappingInvalid");
     }
 
     return renderPromptPreviewFromObservation({
@@ -95,18 +101,23 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
     <div className="flex h-full flex-col gap-2">
       <div className="min-h-0 flex-1">
         {isQueryLoading ? (
-          <p className="text-muted-foreground text-sm">Loading evaluators...</p>
+          <p className="text-muted-foreground text-sm">
+            {t("common.loadingDots")}
+          </p>
         ) : isQueryError ? (
           <Card>
             <CardContent className="text-destructive p-4 text-sm">
-              Failed to load evaluators: {queryErrorMessage}
+              {t("batchActions.failedToLoadEvaluators", {
+                message: queryErrorMessage ?? "",
+              })}
             </CardContent>
           </Card>
         ) : eligibleEvaluators.length === 0 ? (
           <Card>
             <CardContent className="text-muted-foreground p-4 text-sm">
-              No {evaluatorScopeLabel}-scoped evaluators found. Create a new{" "}
-              {evaluatorScopeLabel}-scoped evaluator and it will appear here.
+              {t("batchActions.noScopedEvaluators", {
+                scope: localizedEvaluatorScope,
+              })}
             </CardContent>
           </Card>
         ) : (
@@ -115,7 +126,7 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
               <Input
                 autoFocus
                 className="pr-10"
-                placeholder="Search evaluators..."
+                placeholder={t("batchActions.searchEvaluators")}
                 value={evaluatorSearchQuery}
                 onChange={(event) =>
                   onSearchQueryChange(event.currentTarget.value)
@@ -128,7 +139,7 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
                   size="icon-sm"
                   className="absolute top-1/2 right-1.5 h-7 w-7 -translate-y-1/2"
                   onClick={() => onSearchQueryChange("")}
-                  aria-label="Clear evaluator search"
+                  aria-label={t("batchActions.clearEvaluatorSearch")}
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -151,7 +162,9 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
                             <span>{evaluator.scoreName}</span>
                             <button
                               type="button"
-                              aria-label={`Remove ${evaluator.scoreName}`}
+                              aria-label={t("batchActions.removeEvaluator", {
+                                name: evaluator.scoreName,
+                              })}
                               className="hover:bg-muted rounded p-0.5"
                               onClick={() => onToggleEvaluator(evaluator.id)}
                             >
@@ -164,7 +177,7 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
                   ))
                 ) : (
                   <p className="text-muted-foreground text-xs">
-                    No evaluators selected
+                    {t("batchActions.noEvaluatorsSelected")}
                   </p>
                 )}
               </div>
@@ -173,7 +186,7 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
             {filteredEvaluators.length === 0 ? (
               <div className="flex min-h-0 flex-1 items-center justify-center rounded-md border">
                 <p className="text-muted-foreground p-4 text-sm">
-                  No evaluators match your search.
+                  {t("batchActions.noEvaluatorsMatch")}
                 </p>
               </div>
             ) : (
@@ -189,8 +202,9 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
                           {item.scoreName}
                         </p>
                         <p className="text-muted-foreground truncate text-[11px]">
-                          Template:{" "}
-                          {item.evalTemplate?.name ?? "Deleted template"}
+                          {t("batchActions.template")}{" "}
+                          {item.evalTemplate?.name ??
+                            t("batchActions.deletedTemplate")}
                         </p>
                       </div>
                       <EvaluatorPromptPreview
@@ -205,7 +219,9 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
                               event.stopPropagation();
                             }}
                             onClick={(event) => event.stopPropagation()}
-                            aria-label={`Preview ${item.scoreName}`}
+                            aria-label={t("batchActions.previewEvaluator", {
+                              name: item.scoreName,
+                            })}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -213,7 +229,9 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
                       />
                       <Checkbox
                         checked={selectedEvaluatorIds.includes(item.id)}
-                        aria-label={`Select ${item.scoreName}`}
+                        aria-label={t("batchActions.selectEvaluator", {
+                          name: item.scoreName,
+                        })}
                         onClick={(event) => event.stopPropagation()}
                         onCheckedChange={() => onToggleEvaluator(item.id)}
                         className="mr-1"
@@ -237,7 +255,7 @@ export function EvaluatorSelectionStep(props: EvaluatorSelectionStepProps) {
         onClick={onCreateEvaluator}
       >
         <Plus className="mr-1 h-4 w-4" />
-        Create new Evaluator
+        {t("batchActions.createNewEvaluator")}
       </Button>
     </div>
   );

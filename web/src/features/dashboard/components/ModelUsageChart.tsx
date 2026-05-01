@@ -28,6 +28,7 @@ import { type DatabaseRow } from "@/src/server/api/services/sqlInterface";
 import { Chart } from "@/src/features/widgets/chart-library/Chart";
 import { timeSeriesToDataPoints } from "@/src/features/dashboard/lib/chart-data-adapters";
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
+import { useI18n } from "@/src/features/i18n";
 
 export const ModelUsageChart = ({
   className,
@@ -52,6 +53,7 @@ export const ModelUsageChart = ({
   metricsVersion?: ViewVersion;
   schedulerId?: string;
 }) => {
+  const { t } = useI18n();
   const {
     allModels,
     selectedModels,
@@ -300,41 +302,41 @@ export const ModelUsageChart = ({
 
   const data = [
     {
-      tabTitle: "Cost by model",
+      tabTitle: t("dashboard.modelUsage.costByModel"),
       data: costByModel,
       totalMetric: totalCostDashboardFormatted(totalCost),
-      metricDescription: `Cost`,
+      metricDescription: t("dashboard.modelUsage.cost"),
       formatter: totalCostDashboardFormatted,
     },
     {
-      tabTitle: "Cost by type",
+      tabTitle: t("dashboard.modelUsage.costByType"),
       data: costByType,
       totalMetric: totalCostDashboardFormatted(totalCost),
-      metricDescription: `Cost`,
+      metricDescription: t("dashboard.modelUsage.cost"),
       formatter: totalCostDashboardFormatted,
     },
     {
-      tabTitle: "Usage by model",
+      tabTitle: t("dashboard.modelUsage.usageByModel"),
       data: unitsByModel,
       totalMetric: totalTokens
         ? compactNumberFormatter(totalTokens)
         : compactNumberFormatter(0),
-      metricDescription: `Units`,
+      metricDescription: t("dashboard.modelUsage.units"),
     },
     {
-      tabTitle: "Usage by type",
+      tabTitle: t("dashboard.modelUsage.usageByType"),
       data: unitsByType,
       totalMetric: totalTokens
         ? compactNumberFormatter(totalTokens)
         : compactNumberFormatter(0),
-      metricDescription: `Units`,
+      metricDescription: t("dashboard.modelUsage.units"),
     },
   ];
 
   return (
     <DashboardCard
       className={className}
-      title="Model Usage"
+      title={t("dashboard.modelUsage.title")}
       isLoading={
         isLoading || (queryResult.isPending && selectedModels.length > 0)
       }

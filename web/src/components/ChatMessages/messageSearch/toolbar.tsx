@@ -14,8 +14,10 @@ import { Input } from "@/src/components/ui/input";
 import { cn } from "@/src/utils/tailwind";
 
 import { useMessageSearch } from "./context";
+import { useI18n } from "@/src/features/i18n";
 
 export function MessageSearchToolbar({ className }: { className?: string }) {
+  const { t } = useI18n();
   const {
     isOpen,
     openRequestCount,
@@ -47,10 +49,10 @@ export function MessageSearchToolbar({ className }: { className?: string }) {
         size="sm"
         className={cn("h-8 gap-2", className)}
         onClick={openSearch}
-        aria-label="Find in messages"
+        aria-label={t("playground.find.inMessages")}
       >
         <Search className="h-3.5 w-3.5" />
-        <span className="hidden lg:inline">Find</span>
+        <span className="hidden lg:inline">{t("playground.find.find")}</span>
       </Button>
     );
   }
@@ -73,7 +75,7 @@ export function MessageSearchToolbar({ className }: { className?: string }) {
         value={queryInput}
         onChange={(event) => setQueryInput(event.target.value)}
         onBlur={blurQueryInput}
-        placeholder="Find in messages"
+        placeholder={t("playground.find.inMessages")}
         className="h-6 min-w-40 border-0 px-1 text-xs shadow-none focus-visible:ring-0 sm:min-w-56"
         onKeyDown={(event) => {
           if (event.key === "Enter") {
@@ -100,17 +102,21 @@ export function MessageSearchToolbar({ className }: { className?: string }) {
       </div>
       <IconButton
         icon={ChevronUp}
-        label="Previous result"
+        label={t("playground.find.previousResult")}
         onClick={previousMatch}
         disabled={matches.length === 0}
       />
       <IconButton
         icon={ChevronDown}
-        label="Next result"
+        label={t("playground.find.nextResult")}
         onClick={nextMatch}
         disabled={matches.length === 0}
       />
-      <IconButton icon={X} label="Close search" onClick={closeSearch} />
+      <IconButton
+        icon={X}
+        label={t("playground.find.closeSearch")}
+        onClick={closeSearch}
+      />
     </div>
   );
 }

@@ -6,8 +6,10 @@ import { BracesIcon, Check, Copy, Plus } from "lucide-react";
 import { ToolCallCard } from "@/src/components/ChatMessages/ToolCallCard";
 import { copyTextToClipboard } from "@/src/utils/clipboard";
 import { ThinkingBlock } from "@/src/components/trace2/components/IOPreview/components/ThinkingBlock";
+import { useI18n } from "@/src/features/i18n";
 
 export const GenerationOutput = () => {
+  const { t } = useI18n();
   const [isCopied, setIsCopied] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [isJson, setIsJson] = useState(false);
@@ -61,7 +63,7 @@ export const GenerationOutput = () => {
           onClick={() => {
             setIsJson((prev) => !prev);
           }}
-          title="Toggle Input/Output JSON"
+          title={t("playground.toggleInputOutputJson")}
         >
           <BracesIcon size={15} />
         </Button>
@@ -70,7 +72,7 @@ export const GenerationOutput = () => {
           size="icon"
           variant="secondary"
           onClick={!isCopied ? handleCopy : undefined}
-          title="Copy output"
+          title={t("playground.copyOutput")}
         >
           {isCopied ? checkIcon : copyIcon}
         </Button>
@@ -79,11 +81,11 @@ export const GenerationOutput = () => {
           className="flex items-center gap-1 p-0 px-1 whitespace-nowrap"
           variant="secondary"
           onClick={!isAdded ? handleAddAssistantMessage : undefined}
-          title="Add as assistant message"
+          title={t("playground.addAssistantMessage")}
           disabled={isAdded}
         >
           {isAdded ? checkIcon : plusIcon}
-          <span className="text-xs">Add to messages</span>
+          <span className="text-xs">{t("playground.addToMessages")}</span>
         </Button>
       </div>
     ) : null;
@@ -96,7 +98,9 @@ export const GenerationOutput = () => {
       >
         <div className="bg-muted sticky top-0 z-10 p-3">
           <div className="flex w-full items-center">
-            <p className="flex-1 text-xs font-semibold">Output</p>
+            <p className="flex-1 text-xs font-semibold">
+              {t("playground.output")}
+            </p>
             {copyButton}
           </div>
         </div>

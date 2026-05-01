@@ -25,6 +25,7 @@ import { useSingleTemplateValidation } from "@/src/features/evals/hooks/useSingl
 import { getMaintainer } from "@/src/features/evals/utils/typeHelpers";
 import { MaintainerTooltip } from "@/src/features/evals/components/maintainer-tooltip";
 import Link from "next/link";
+import { useI18n } from "@/src/features/i18n";
 
 interface EvaluatorSelectorProps {
   projectId: string;
@@ -45,6 +46,7 @@ export function EvaluatorSelector({
   onTemplateSelect,
   onCreateNew,
 }: EvaluatorSelectorProps) {
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
 
   // Group templates by name and whether they are managed by Langfuse
@@ -102,7 +104,7 @@ export function EvaluatorSelector({
   return (
     <InputCommand className="flex h-full flex-col border-none">
       <InputCommandInput
-        placeholder="Search evaluators..."
+        placeholder={t("evals.select.searchEvaluators")}
         className="h-9 px-0"
         value={search}
         onValueChange={setSearch}
@@ -110,12 +112,14 @@ export function EvaluatorSelector({
       />
       <InputCommandList className="max-h-full flex-1 overflow-y-auto">
         {!hasResults && (
-          <InputCommandEmpty>No evaluator found.</InputCommandEmpty>
+          <InputCommandEmpty>
+            {t("evals.select.noEvaluatorFound")}
+          </InputCommandEmpty>
         )}
 
         {filteredTemplates.custom.length > 0 && (
           <>
-            <InputCommandGroup heading="Custom evaluators">
+            <InputCommandGroup heading={t("evals.select.customEvaluators")}>
               {filteredTemplates.custom.map(([name, templateData]) => {
                 const latestVersion = templateData[templateData.length - 1];
                 const isInvalid = isTemplateInvalid(latestVersion);
@@ -145,7 +149,9 @@ export function EvaluatorSelector({
                         side="right"
                         className="max-h-[300px] max-w-[400px] overflow-y-auto"
                       >
-                        <p className="mb-1 font-medium">Evaluation prompt</p>
+                        <p className="mb-1 font-medium">
+                          {t("evals.templateForm.evaluationPrompt")}
+                        </p>
                         <pre className="text-muted-foreground text-xs wrap-break-word whitespace-pre-wrap">
                           {latestVersion.prompt}
                         </pre>
@@ -157,7 +163,7 @@ export function EvaluatorSelector({
                           <AlertCircle className="ml-1 h-4 w-4 text-yellow-500" />
                         </TooltipTrigger>
                         <TooltipContent className="max-h-[50dvh] overflow-y-auto text-sm break-normal whitespace-normal">
-                          <p>Requires project-level evaluation model</p>
+                          <p>{t("evals.select.requiresDefaultModel")}</p>
                           <Link
                             href={`/project/${projectId}/evals/default-model`}
                             className="mt-2 flex items-center gap-1 text-blue-600 hover:underline"
@@ -165,7 +171,7 @@ export function EvaluatorSelector({
                             rel="noopener noreferrer"
                           >
                             <ExternalLinkIcon className="h-3 w-3" />
-                            Configure default model
+                            {t("evals.select.configureDefaultModel")}
                           </Link>
                         </TooltipContent>
                       </Tooltip>
@@ -206,7 +212,9 @@ export function EvaluatorSelector({
 
         {filteredTemplates.langfuse.length > 0 && (
           <>
-            <InputCommandGroup heading="Langfuse managed evaluators">
+            <InputCommandGroup
+              heading={t("evals.select.langfuseManagedEvaluators")}
+            >
               {filteredTemplates.langfuse.map(([name, templateData]) => {
                 const latestVersion = templateData[templateData.length - 1];
                 const isInvalid = isTemplateInvalid(latestVersion);
@@ -236,7 +244,9 @@ export function EvaluatorSelector({
                         side="right"
                         className="max-h-[300px] max-w-[400px] overflow-y-auto"
                       >
-                        <p className="mb-1 font-medium">Evaluation prompt</p>
+                        <p className="mb-1 font-medium">
+                          {t("evals.templateForm.evaluationPrompt")}
+                        </p>
                         <pre className="text-muted-foreground text-xs wrap-break-word whitespace-pre-wrap">
                           {latestVersion.prompt}
                         </pre>
@@ -251,7 +261,7 @@ export function EvaluatorSelector({
                           <AlertCircle className="ml-1 h-4 w-4 text-yellow-500" />
                         </TooltipTrigger>
                         <TooltipContent className="max-h-[50dvh] overflow-y-auto text-sm break-normal whitespace-normal">
-                          <p>Requires project-level evaluation model</p>
+                          <p>{t("evals.select.requiresDefaultModel")}</p>
                           <Link
                             href={`/project/${projectId}/evals/default-model`}
                             className="mt-2 flex items-center gap-1 text-blue-600 hover:underline"
@@ -259,7 +269,7 @@ export function EvaluatorSelector({
                             rel="noopener noreferrer"
                           >
                             <ExternalLinkIcon className="h-3 w-3" />
-                            Configure default model
+                            {t("evals.select.configureDefaultModel")}
                           </Link>
                         </TooltipContent>
                       </Tooltip>
@@ -302,7 +312,7 @@ export function EvaluatorSelector({
             <InputCommandSeparator alwaysRender />
             <InputCommandGroup forceMount>
               <InputCommandItem onSelect={onCreateNew}>
-                Create custom evaluator
+                {t("evals.select.createCustomEvaluator")}
                 <ExternalLink className="ml-auto h-4 w-4" />
               </InputCommandItem>
             </InputCommandGroup>

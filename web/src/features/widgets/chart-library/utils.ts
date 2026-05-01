@@ -1,20 +1,24 @@
 import { type DataPoint } from "./chart-props";
 import { type DashboardWidgetChartType } from "@langfuse/shared/src/db";
+import { translateClientMessage, type MessageKey } from "@/src/features/i18n";
 
 /**
  * Groups data by dimension to prepare it for time series breakdowns
  * @param data
  */
-export const groupDataByTimeDimension = (data: DataPoint[]) => {
+export const groupDataByTimeDimension = (
+  data: DataPoint[],
+  unknownLabel = translateClientMessage("common.unknown"),
+) => {
   // First, group by time_dimension
   const timeGroups = data.reduce(
     (acc: Record<string, Record<string, number>>, item: DataPoint) => {
-      const time = item.time_dimension || "Unknown";
+      const time = item.time_dimension || unknownLabel;
       if (!acc[time]) {
         acc[time] = {};
       }
 
-      const dimension = item.dimension || "Unknown";
+      const dimension = item.dimension || unknownLabel;
       acc[time][dimension] = item.metric as number;
 
       return acc;
@@ -69,26 +73,32 @@ export const formatAxisLabel = (label: string): string =>
 export function getChartTypeDisplayName(
   chartType: DashboardWidgetChartType,
 ): string {
+  return translateClientMessage(getChartTypeDisplayNameKey(chartType));
+}
+
+export function getChartTypeDisplayNameKey(
+  chartType: DashboardWidgetChartType,
+): MessageKey {
   switch (chartType) {
     case "LINE_TIME_SERIES":
-      return "Line Chart (Time Series)";
+      return "widgets.chartTypes.lineTimeSeries";
     case "AREA_TIME_SERIES":
-      return "Area Chart (Time Series)";
+      return "widgets.chartTypes.areaTimeSeries";
     case "BAR_TIME_SERIES":
-      return "Bar Chart (Time Series)";
+      return "widgets.chartTypes.barTimeSeries";
     case "HORIZONTAL_BAR":
-      return "Horizontal Bar Chart (Total Value)";
+      return "widgets.chartTypes.horizontalBarTotalValue";
     case "VERTICAL_BAR":
-      return "Vertical Bar Chart (Total Value)";
+      return "widgets.chartTypes.verticalBarTotalValue";
     case "PIE":
-      return "Pie Chart (Total Value)";
+      return "widgets.chartTypes.pieTotalValue";
     case "NUMBER":
-      return "Big Number (Total Value)";
+      return "widgets.chartTypes.bigNumberTotalValue";
     case "HISTOGRAM":
-      return "Histogram (Total Value)";
+      return "widgets.chartTypes.histogramTotalValue";
     case "PIVOT_TABLE":
-      return "Pivot Table (Total Value)";
+      return "widgets.chartTypes.pivotTableTotalValue";
     default:
-      return "Unknown Chart Type";
+      return "widgets.chartTypes.unknown";
   }
 }

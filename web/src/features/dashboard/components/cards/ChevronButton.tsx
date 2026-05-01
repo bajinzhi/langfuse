@@ -1,12 +1,13 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
+import { useI18n } from "@/src/features/i18n";
 
 export const ExpandListButton = ({
   isExpanded,
   setExpanded,
   totalLength,
   maxLength,
-  expandText = "See more",
+  expandText,
 }: {
   isExpanded: boolean;
   setExpanded: (isExpanded: boolean) => void;
@@ -14,6 +15,8 @@ export const ExpandListButton = ({
   maxLength: number;
   expandText?: string;
 }) => {
+  const { t } = useI18n();
+
   if (totalLength <= maxLength) {
     return null;
   }
@@ -26,11 +29,12 @@ export const ExpandListButton = ({
     >
       {isExpanded ? (
         <>
-          <ChevronUp className="mr-2 h-4 w-4" /> See less
+          <ChevronUp className="mr-2 h-4 w-4" /> {t("dashboard.seeLess")}
         </>
       ) : (
         <>
-          <ChevronDown className="mr-2 h-4 w-4" /> {expandText}
+          <ChevronDown className="mr-2 h-4 w-4" />{" "}
+          {expandText ?? t("dashboard.seeMore")}
         </>
       )}
     </Button>

@@ -24,54 +24,30 @@ import {
   stringifyDatasetItemData,
   type DatasetSchema,
 } from "../utils/datasetItemUtils";
+import { useI18n } from "@/src/features/i18n";
 
-const formSchema = z.object({
-  input: z.string().refine(
-    (value) => {
-      if (value === "") return true;
-      try {
-        JSON.parse(value);
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    {
-      message:
-        "Invalid input. Please provide a JSON object or double-quoted string.",
-    },
-  ),
-  expectedOutput: z.string().refine(
-    (value) => {
-      if (value === "") return true;
-      try {
-        JSON.parse(value);
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    {
-      message:
-        "Invalid input. Please provide a JSON object or double-quoted string.",
-    },
-  ),
-  metadata: z.string().refine(
-    (value) => {
-      if (value === "") return true;
-      try {
-        JSON.parse(value);
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    {
-      message:
-        "Invalid input. Please provide a JSON object or double-quoted string.",
-    },
-  ),
-});
+const isValidJsonInput = (value: string) => {
+  if (value === "") return true;
+  try {
+    JSON.parse(value);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const createFormSchema = (invalidJsonMessage: string) =>
+  z.object({
+    input: z.string().refine(isValidJsonInput, {
+      message: invalidJsonMessage,
+    }),
+    expectedOutput: z.string().refine(isValidJsonInput, {
+      message: invalidJsonMessage,
+    }),
+    metadata: z.string().refine(isValidJsonInput, {
+      message: invalidJsonMessage,
+    }),
+  });
 
 type EditDatasetItemDialogProps = {
   open: boolean;
@@ -89,6 +65,11 @@ export const EditDatasetItemDialog = ({
   dataset,
 }: EditDatasetItemDialogProps) => {
   const [formError, setFormError] = useState<string | null>(null);
+  const { t } = useI18n();
+  const formSchema = useMemo(
+    () => createFormSchema(t("datasets.invalidJson")),
+    [t],
+  );
   const hasAccess = useHasProjectAccess({
     projectId: projectId,
     scope: "datasets:CUD",
@@ -140,7 +121,7 @@ export const EditDatasetItemDialog = ({
     onError: (error) => setFormError(error.message),
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: DatasetItemFormValues) {
     if (!!!datasetItem) return;
     updateDatasetItemMutation.mutate({
       projectId: projectId,
@@ -156,7 +137,7 @@ export const EditDatasetItemDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="xl">
         <DialogHeader>
-          <DialogTitle>Edit Dataset Item</DialogTitle>
+          <DialogTitle>{t("datasets.editItem")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -166,7 +147,8 @@ export const EditDatasetItemDialog = ({
             <DialogBody>
               {formError ? (
                 <p className="text-destructive mb-4">
-                  <span className="font-bold">Error:</span> {formError}
+                  <span className="font-bold">{t("common.error")}:</span>{" "}
+                  {formError}
                 </p>
               ) : null}
               <DatasetItemFields
@@ -185,7 +167,7 @@ export const EditDatasetItemDialog = ({
                 onClick={() => onOpenChange(false)}
                 disabled={updateDatasetItemMutation.isPending}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -196,7 +178,7 @@ export const EditDatasetItemDialog = ({
                   (validation.hasSchemas && !validation.isValid)
                 }
               >
-                Save changes
+                {t("datasets.saveChanges")}
               </Button>
             </DialogFooter>
           </form>

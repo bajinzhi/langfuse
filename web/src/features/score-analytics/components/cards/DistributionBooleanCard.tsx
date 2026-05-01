@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { useScoreAnalytics } from "../ScoreAnalyticsProvider";
 import { ScoreDistributionBooleanChart } from "../charts/ScoreDistributionBooleanChart";
 import { SamplingDetailsHoverCard } from "../SamplingDetailsHoverCard";
+import { useI18n } from "@/src/features/i18n";
 
 type DistributionTab = "score1" | "score2" | "all" | "matched";
 
@@ -32,6 +33,7 @@ type DistributionTab = "score1" | "score2" | "all" | "matched";
 export function DistributionBooleanCard() {
   const { data, isLoading, params, colorMappings, getColorForScore } =
     useScoreAnalytics();
+  const { t } = useI18n();
 
   const [activeTab, setActiveTab] = useState<DistributionTab>("all");
 
@@ -57,9 +59,14 @@ export function DistributionBooleanCard() {
           distribution1Data: distribution.score1,
           distribution2Data: undefined,
           categories: distribution.categories ?? [],
-          description: `${statistics.score1.total.toLocaleString()} observations${
+          description: `${t("scoreAnalytics.observations", {
+            count: statistics.score1.total.toLocaleString(),
+          })}${
             statistics.score1.mode
-              ? ` | Most frequent: ${statistics.score1.mode.category} (${statistics.score1.mode.count.toLocaleString()})`
+              ? ` | ${t("scoreAnalytics.mostFrequent", {
+                  category: statistics.score1.mode.category,
+                  count: statistics.score1.mode.count.toLocaleString(),
+                })}`
               : ""
           }`,
         };
@@ -72,31 +79,47 @@ export function DistributionBooleanCard() {
             distribution1Data: distribution.score1Individual,
             distribution2Data: undefined,
             categories: distribution.categories ?? [],
-            description: `${score1.name} - ${statistics.score1.total.toLocaleString()} observations`,
+            description: t("scoreAnalytics.scoreObservations", {
+              scoreName: score1.name,
+              count: statistics.score1.total.toLocaleString(),
+            }),
           };
         case "score2":
           return {
             distribution1Data: distribution.score2Individual,
             distribution2Data: undefined,
             categories: distribution.score2Categories ?? [],
-            description: `${score2?.name ?? "Score 2"} - ${statistics.score2?.total.toLocaleString()} observations`,
+            description: t("scoreAnalytics.scoreObservations", {
+              scoreName: score2?.name ?? t("scoreAnalytics.score2Fallback"),
+              count: statistics.score2?.total.toLocaleString() ?? "0",
+            }),
           };
         case "all":
           return {
             distribution1Data: distribution.score1Individual,
             distribution2Data: distribution.score2Individual,
             categories: distribution.categories ?? [],
-            description: `${score1.name} (${statistics.score1.total.toLocaleString()}) vs ${score2?.name} (${statistics.score2?.total.toLocaleString()})`,
+            description: t("scoreAnalytics.scoreComparisonDescription", {
+              score1Name: score1.name,
+              score1Count: statistics.score1.total.toLocaleString(),
+              score2Name: score2?.name ?? t("scoreAnalytics.score2Fallback"),
+              score2Count: statistics.score2?.total.toLocaleString() ?? "0",
+            }),
           };
         case "matched":
           return {
             distribution1Data: distribution.score1Matched,
             distribution2Data: distribution.score2Matched,
             categories: distribution.categories ?? [],
-            description: `${score1.name} vs ${score2?.name} - ${statistics.comparison?.matchedCount.toLocaleString()} matched`,
+            description: t("scoreAnalytics.scoreMatched", {
+              score1Name: score1.name,
+              score2Name: score2?.name ?? t("scoreAnalytics.score2Fallback"),
+              count:
+                statistics.comparison?.matchedCount.toLocaleString() ?? "0",
+            }),
           };
       }
-    }, [data, activeTab, params]);
+    }, [data, activeTab, params, t]);
 
   // Build color mapping for boolean charts
   const chartColors = useMemo(() => {
@@ -124,8 +147,8 @@ export function DistributionBooleanCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Distribution</CardTitle>
-          <CardDescription>Loading chart...</CardDescription>
+          <CardTitle>{t("scoreAnalytics.distribution")}</CardTitle>
+          <CardDescription>{t("scoreAnalytics.loadingChart")}</CardDescription>
         </CardHeader>
         <CardContent className="flex h-[340px] flex-col items-center justify-center pl-0">
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
@@ -139,11 +162,13 @@ export function DistributionBooleanCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Distribution</CardTitle>
-          <CardDescription>No data available</CardDescription>
+          <CardTitle>{t("scoreAnalytics.distribution")}</CardTitle>
+          <CardDescription>
+            {t("scoreAnalytics.noDataAvailable")}
+          </CardDescription>
         </CardHeader>
         <CardContent className="text-muted-foreground flex h-[340px] flex-col items-center justify-center pl-0 text-sm">
-          Select a score to view distribution
+          {t("scoreAnalytics.selectScoreToViewDistribution")}
         </CardContent>
       </Card>
     );
@@ -172,7 +197,7 @@ export function DistributionBooleanCard() {
     ? score2.name === score1.name
       ? `${score2.source} · ${score2.name}`
       : score2.name
-    : "Score 2";
+    : t("scoreAnalytics.score2Fallback");
 
   return (
     <Card>
@@ -181,7 +206,7 @@ export function DistributionBooleanCard() {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <CardTitle className="flex items-center gap-2">
-                Distribution
+                {t("scoreAnalytics.distribution")}
                 {data.samplingMetadata.isSampled && (
                   <SamplingDetailsHoverCard
                     samplingMetadata={data.samplingMetadata}
@@ -213,10 +238,10 @@ export function DistributionBooleanCard() {
                   {truncateLabel(score2FullLabel)}
                 </TabsTrigger>
                 <TabsTrigger value="all" className="h-5 px-2 text-xs">
-                  all
+                  {t("scoreAnalytics.all")}
                 </TabsTrigger>
                 <TabsTrigger value="matched" className="h-5 px-2 text-xs">
-                  matched
+                  {t("scoreAnalytics.matched")}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -249,7 +274,7 @@ export function DistributionBooleanCard() {
           />
         ) : (
           <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
-            No distribution data available for the selected time range
+            {t("scoreAnalytics.distributionNoDataForTimeRange")}
           </div>
         )}
       </CardContent>

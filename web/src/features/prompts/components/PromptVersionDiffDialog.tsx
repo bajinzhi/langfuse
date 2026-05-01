@@ -13,6 +13,7 @@ import {
 import { type Prompt } from "@langfuse/shared";
 import DiffViewer from "@/src/components/DiffViewer";
 import { FileDiffIcon } from "lucide-react";
+import { useI18n } from "@/src/features/i18n";
 
 type PromptVersionDiffDialogProps = {
   isOpen: boolean;
@@ -59,6 +60,7 @@ const createSmartDiff = (
 export const PromptVersionDiffDialog: React.FC<PromptVersionDiffDialogProps> = (
   props,
 ) => {
+  const { t } = useI18n();
   const { leftPrompt, rightPrompt, isOpen, setIsOpen } = props;
 
   return (
@@ -77,7 +79,7 @@ export const PromptVersionDiffDialog: React.FC<PromptVersionDiffDialogProps> = (
           onClick={(event) => {
             event.stopPropagation();
           }}
-          title="Compare with selected prompt"
+          title={t("prompts.diff.compareTitle")}
         >
           <FileDiffIcon className="h-4 w-4" />
         </Button>
@@ -94,18 +96,25 @@ export const PromptVersionDiffDialog: React.FC<PromptVersionDiffDialogProps> = (
       >
         <DialogHeader>
           <DialogTitle>
-            Changes v{leftPrompt.version} → v{rightPrompt.version}
+            {t("prompts.diff.title", {
+              leftVersion: leftPrompt.version,
+              rightVersion: rightPrompt.version,
+            })}
           </DialogTitle>
 
           <DialogDescription className="flex items-center gap-2">
-            <span className="font-medium">Prompt {leftPrompt.name}</span>
+            <span className="font-medium">
+              {t("prompts.diff.promptName", { name: leftPrompt.name })}
+            </span>
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
           <div className="space-y-6">
             <div className="space-y-4">
               <div>
-                <h3 className="mb-2 text-base font-medium">Content</h3>
+                <h3 className="mb-2 text-base font-medium">
+                  {t("prompts.content")}
+                </h3>
                 <DiffViewer
                   {...createSmartDiff(leftPrompt, rightPrompt)}
                   oldLabel={`v${leftPrompt.version}`}
@@ -115,7 +124,9 @@ export const PromptVersionDiffDialog: React.FC<PromptVersionDiffDialogProps> = (
                 />
               </div>
               <div>
-                <h3 className="mb-2 text-base font-medium">Config</h3>
+                <h3 className="mb-2 text-base font-medium">
+                  {t("prompts.config")}
+                </h3>
                 <DiffViewer
                   oldString={JSON.stringify(leftPrompt.config, null, 2)}
                   newString={JSON.stringify(rightPrompt.config, null, 2)}
@@ -133,7 +144,7 @@ export const PromptVersionDiffDialog: React.FC<PromptVersionDiffDialogProps> = (
               setIsOpen(false);
             }}
           >
-            Close
+            {t("common.close")}
           </Button>
         </DialogFooter>
       </DialogContent>

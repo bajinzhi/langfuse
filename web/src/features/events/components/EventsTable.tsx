@@ -96,6 +96,7 @@ import useSessionStorage from "@/src/components/useSessionStorage";
 import { api } from "@/src/utils/api";
 import { RunEvaluationDialog } from "@/src/features/batch-actions/components/RunEvaluationDialog/index";
 import { AddObservationsToDatasetDialog } from "@/src/features/batch-actions/components/AddObservationsToDatasetDialog/index";
+import { useI18n } from "@/src/features/i18n";
 
 export type EventsTableRow = {
   // Identity fields
@@ -190,12 +191,51 @@ export default function ObservationsEventsTable({
   limitRows,
   sessionId,
 }: EventsTableProps) {
+  const { t } = useI18n();
   const peekContext = usePeekTableState();
   const router = useRouter();
   const { viewId } = router.query;
+  const eventColumnLabels: Record<string, string> = {
+    startTime: t("observability.columns.startTime"),
+    type: t("observability.columns.type"),
+    name: t("observability.columns.name"),
+    traceName: t("observability.columns.traceName"),
+    input: t("observability.columns.input"),
+    output: t("observability.columns.output"),
+    metadata: t("observability.columns.metadata"),
+    level: t("observability.columns.level"),
+    statusMessage: t("observability.columns.statusMessage"),
+    latency: t("observability.columns.latency"),
+    totalCost: t("observability.columns.totalCost"),
+    cost: t("observability.columns.cost"),
+    inputCost: t("observability.columns.inputCost"),
+    outputCost: t("observability.columns.outputCost"),
+    toolDefinitions: t("observability.columns.availableTools"),
+    toolCalls: t("observability.columns.toolCalls"),
+    timeToFirstToken: t("observability.columns.timeToFirstToken"),
+    usage: t("observability.columns.usage"),
+    tokensPerSecond: t("observability.columns.tokensPerSecond"),
+    inputTokens: t("observability.columns.inputTokens"),
+    outputTokens: t("observability.columns.outputTokens"),
+    totalTokens: t("observability.columns.totalTokens"),
+    providedModelName: t("observability.columns.model"),
+    promptName: t("observability.columns.prompt"),
+    environment: t("observability.columns.environment"),
+    traceTags: t("observability.columns.traceTags"),
+    scores: t("observability.columns.scores"),
+    traceScores: t("observability.columns.traceScores"),
+    endTime: t("observability.columns.endTime"),
+    traceId: t("observability.columns.traceId"),
+    modelId: t("observability.columns.modelId"),
+    version: t("observability.columns.version"),
+    userId: t("observability.columns.userId"),
+    sessionId: t("observability.columns.sessionId"),
+  };
+  const getEventColumnLabel = (id: string) =>
+    eventColumnLabels[id] ?? getEventsColumnName(id, t);
   const eventsFilterConfig = useMemo(
-    () => getObservationEventsFilterConfig(omittedFilter),
-    [omittedFilter],
+    () => getObservationEventsFilterConfig(omittedFilter, t),
+    [omittedFilter, t],
   );
 
   const { setDetailPageList } = useDetailPageLists();
@@ -522,9 +562,9 @@ export default function ObservationsEventsTable({
     {
       id: ActionId.ObservationAddToAnnotationQueue,
       type: BatchActionType.Create,
-      label: "Add to Annotation Queue",
-      description: "Add selected observations to an annotation queue.",
-      targetLabel: "Annotation Queue",
+      label: t("observability.actions.addToAnnotationQueue"),
+      description: t("observability.events.actions.addQueue.description"),
+      targetLabel: t("observability.actions.annotationQueue"),
       execute: handleAddToAnnotationQueue,
       accessCheck: {
         scope: "annotationQueues:CUD",
@@ -533,8 +573,8 @@ export default function ObservationsEventsTable({
     {
       id: ActionId.ObservationAddToDataset,
       type: BatchActionType.Create,
-      label: "Add to Dataset",
-      description: "Add selected observations to a dataset",
+      label: t("observability.actions.addToDataset"),
+      description: t("observability.events.actions.addDataset.description"),
       customDialog: true,
       accessCheck: {
         scope: "datasets:CUD",
@@ -543,8 +583,8 @@ export default function ObservationsEventsTable({
     {
       id: ActionId.ObservationBatchEvaluation,
       type: BatchActionType.Create,
-      label: "Evaluate",
-      description: "Run evaluations on selected observations.",
+      label: t("observability.actions.evaluate"),
+      description: t("observability.events.actions.evaluate.description"),
       customDialog: true,
       icon: <LightbulbIcon className="h-4 w-4 sm:mr-2" />,
       accessCheck: {
@@ -560,7 +600,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "startTime",
       id: "startTime",
-      header: getEventsColumnName("startTime"),
+      header: getEventColumnLabel("startTime"),
       size: 150,
       enableHiding: true,
       enableSorting,
@@ -572,7 +612,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "type",
       id: "type",
-      header: getEventsColumnName("type"),
+      header: getEventColumnLabel("type"),
       size: 50,
       loadingCell: <TableIconBadgeLoadingCell />,
       enableSorting,
@@ -588,7 +628,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "name",
       id: "name",
-      header: getEventsColumnName("name"),
+      header: getEventColumnLabel("name"),
       size: 150,
       enableSorting,
       cell: ({ row }) => {
@@ -599,7 +639,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "traceName",
       id: "traceName",
-      header: getEventsColumnName("traceName"),
+      header: getEventColumnLabel("traceName"),
       size: 150,
       enableSorting: true,
       cell: ({ row }) => {
@@ -609,7 +649,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "input",
-      header: getEventsColumnName("input"),
+      header: getEventColumnLabel("input"),
       id: "input",
       size: 300,
       loadingCell: () => (
@@ -643,7 +683,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "output",
       id: "output",
-      header: getEventsColumnName("output"),
+      header: getEventColumnLabel("output"),
       size: 300,
       loadingCell: () => (
         <JsonSkeleton
@@ -676,7 +716,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "metadata",
-      header: "Metadata",
+      header: getEventColumnLabel("metadata"),
       size: 300,
       loadingCell: () => (
         <JsonSkeleton
@@ -686,7 +726,7 @@ export default function ObservationsEventsTable({
         />
       ),
       headerTooltip: {
-        description: "Add metadata to traces to track additional information.",
+        description: t("observability.traces.tooltip.metadata"),
         href: "https://langfuse.com/docs/observability/features/metadata",
       },
       cell: ({ row }) => {
@@ -713,11 +753,10 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "level",
       id: "level",
-      header: getEventsColumnName("level"),
+      header: getEventColumnLabel("level"),
       size: 100,
       headerTooltip: {
-        description:
-          "You can differentiate the importance of observations with the level attribute to control the verbosity of your traces and highlight errors and warnings.",
+        description: t("observability.events.tooltip.level"),
         href: "https://langfuse.com/docs/observability/features/log-levels",
       },
       enableHiding: true,
@@ -739,12 +778,11 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "statusMessage",
-      header: getEventsColumnName("statusMessage"),
+      header: getEventColumnLabel("statusMessage"),
       id: "statusMessage",
       size: 150,
       headerTooltip: {
-        description:
-          "Use a statusMessage to e.g. provide additional information on a status such as level=ERROR.",
+        description: t("observability.events.tooltip.statusMessage"),
         href: "https://langfuse.com/docs/observability/features/log-levels",
       },
       enableHiding: true,
@@ -763,7 +801,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "latency",
       id: "latency",
-      header: getEventsColumnName("latency"),
+      header: getEventColumnLabel("latency"),
       size: 100,
       cell: ({ row }) => {
         const latency: number | undefined = row.getValue("latency");
@@ -776,7 +814,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "totalCost",
-      header: getEventsColumnName("totalCost"),
+      header: getEventColumnLabel("totalCost"),
       id: "totalCost",
       size: 120,
       cell: ({ row }) => {
@@ -800,7 +838,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "cost",
-      header: "Cost",
+      header: getEventColumnLabel("cost"),
       id: "cost",
       enableHiding: true,
       defaultHidden: true,
@@ -813,7 +851,7 @@ export default function ObservationsEventsTable({
         {
           accessorKey: "inputCost",
           id: "inputCost",
-          header: getEventsColumnName("inputCost"),
+          header: getEventColumnLabel("inputCost"),
           size: 120,
           loadingCell: <TableTextLoadingCell />,
           cell: ({ row }) => {
@@ -833,7 +871,7 @@ export default function ObservationsEventsTable({
         {
           accessorKey: "outputCost",
           id: "outputCost",
-          header: getEventsColumnName("outputCost"),
+          header: getEventColumnLabel("outputCost"),
           size: 120,
           loadingCell: <TableTextLoadingCell />,
           cell: ({ row }) => {
@@ -855,7 +893,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "toolDefinitions",
       id: "toolDefinitions",
-      header: getEventsColumnName("toolDefinitions"),
+      header: getEventColumnLabel("toolDefinitions"),
       size: 120,
       enableHiding: true,
       enableSorting,
@@ -870,7 +908,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "toolCalls",
       id: "toolCalls",
-      header: getEventsColumnName("toolCalls"),
+      header: getEventColumnLabel("toolCalls"),
       size: 100,
       enableHiding: true,
       enableSorting,
@@ -885,7 +923,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "timeToFirstToken",
       id: "timeToFirstToken",
-      header: getEventsColumnName("timeToFirstToken"),
+      header: getEventColumnLabel("timeToFirstToken"),
       size: 150,
       enableHiding: true,
       enableSorting,
@@ -902,7 +940,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "usage",
-      header: "Usage",
+      header: getEventColumnLabel("usage"),
       id: "usage",
       enableHiding: true,
       defaultHidden: true,
@@ -915,7 +953,7 @@ export default function ObservationsEventsTable({
         {
           accessorKey: "tokensPerSecond",
           id: "tokensPerSecond",
-          header: "Tokens per second",
+          header: getEventColumnLabel("tokensPerSecond"),
           size: 200,
           cell: ({ row }) => {
             const latency: number | undefined = row.getValue("latency");
@@ -940,7 +978,7 @@ export default function ObservationsEventsTable({
         {
           accessorKey: "inputTokens",
           id: "inputTokens",
-          header: getEventsColumnName("inputTokens"),
+          header: getEventColumnLabel("inputTokens"),
           size: 100,
           loadingCell: <TableTextLoadingCell />,
           enableHiding: true,
@@ -958,7 +996,7 @@ export default function ObservationsEventsTable({
         {
           accessorKey: "outputTokens",
           id: "outputTokens",
-          header: getEventsColumnName("outputTokens"),
+          header: getEventColumnLabel("outputTokens"),
           size: 100,
           loadingCell: <TableTextLoadingCell />,
           enableHiding: true,
@@ -976,7 +1014,7 @@ export default function ObservationsEventsTable({
         {
           accessorKey: "totalTokens",
           id: "totalTokens",
-          header: getEventsColumnName("totalTokens"),
+          header: getEventColumnLabel("totalTokens"),
           size: 100,
           loadingCell: <TableTextLoadingCell />,
           enableHiding: true,
@@ -996,7 +1034,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "providedModelName",
       id: "providedModelName",
-      header: getEventsColumnName("providedModelName"),
+      header: getEventColumnLabel("providedModelName"),
       size: 150,
       enableHiding: true,
       enableSorting,
@@ -1040,9 +1078,9 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "promptName",
       id: "promptName",
-      header: getEventsColumnName("promptName"),
+      header: getEventColumnLabel("promptName"),
       headerTooltip: {
-        description: "Link to prompt version in Langfuse prompt management.",
+        description: t("observability.events.tooltip.prompt"),
         href: "https://langfuse.com/docs/prompt-management/get-started",
       },
       size: 200,
@@ -1057,7 +1095,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "environment",
-      header: getEventsColumnName("environment"),
+      header: getEventColumnLabel("environment"),
       id: "environment",
       size: 150,
       enableHiding: true,
@@ -1078,7 +1116,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "traceTags",
       id: "traceTags",
-      header: getEventsColumnName("traceTags"),
+      header: getEventColumnLabel("traceTags"),
       size: 250,
       enableHiding: true,
       loadingCell: <TableTextLoadingCell />,
@@ -1101,7 +1139,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "scores",
-      header: "Scores",
+      header: getEventColumnLabel("scores"),
       id: "scores",
       enableHiding: true,
       defaultHidden: true,
@@ -1112,7 +1150,7 @@ export default function ObservationsEventsTable({
     },
     {
       accessorKey: "traceScores",
-      header: "Trace Scores",
+      header: getEventColumnLabel("traceScores"),
       id: "traceScores",
       enableHiding: true,
       defaultHidden: true,
@@ -1124,7 +1162,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "endTime",
       id: "endTime",
-      header: getEventsColumnName("endTime"),
+      header: getEventColumnLabel("endTime"),
       size: 150,
       enableHiding: true,
       enableSorting,
@@ -1137,7 +1175,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "traceId",
       id: "traceId",
-      header: getEventsColumnName("traceId"),
+      header: getEventColumnLabel("traceId"),
       size: 100,
       cell: ({ row }) => {
         const value = row.getValue("traceId");
@@ -1152,7 +1190,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "modelId",
       id: "modelId",
-      header: getEventsColumnName("modelId"),
+      header: getEventColumnLabel("modelId"),
       size: 100,
       enableHiding: true,
       defaultHidden: true,
@@ -1160,10 +1198,10 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "version",
       id: "version",
-      header: getEventsColumnName("version"),
+      header: getEventColumnLabel("version"),
       size: 100,
       headerTooltip: {
-        description: "Track changes via the version tag.",
+        description: t("observability.traces.tooltip.version"),
         href: "https://langfuse.com/docs/experimentation",
       },
       enableHiding: true,
@@ -1173,7 +1211,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "userId",
       id: "userId",
-      header: getEventsColumnName("userId"),
+      header: getEventColumnLabel("userId"),
       size: 150,
       enableHiding: true,
       defaultHidden: true,
@@ -1181,7 +1219,7 @@ export default function ObservationsEventsTable({
     {
       accessorKey: "sessionId",
       id: "sessionId",
-      header: getEventsColumnName("sessionId"),
+      header: getEventColumnLabel("sessionId"),
       size: 150,
       enableHiding: true,
       defaultHidden: true,
@@ -1342,7 +1380,12 @@ export default function ObservationsEventsTable({
             columns={columns}
             filterState={queryFilter.explicitFilterState}
             searchConfig={{
-              metadataSearchFields: ["ID", "Name", "Trace Name", "Model"],
+              metadataSearchFields: [
+                t("observability.columns.id"),
+                t("observability.columns.name"),
+                t("observability.columns.traceName"),
+                t("observability.columns.model"),
+              ],
               updateQuery: setSearchQuery,
               currentQuery: searchQuery ?? undefined,
               searchType,

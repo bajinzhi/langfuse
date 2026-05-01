@@ -12,6 +12,7 @@ import { Command, CommandList, CommandGroup } from "cmdk";
 import { cn } from "@/src/utils/tailwind";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { Label } from "@/src/components/ui/label";
+import { useI18n } from "@/src/features/i18n";
 
 type TagManagerProps = {
   itemName: "prompt" | "trace";
@@ -36,6 +37,7 @@ const TagManager = ({
   isTableCell = false,
   allowTagRemoval = true,
 }: TagManagerProps) => {
+  const { t } = useI18n();
   const {
     selectedTags,
     inputValue,
@@ -118,7 +120,9 @@ const TagManager = ({
           }
         }}
       >
-        <Label className="text-base capitalize">{itemName} Tags</Label>
+        <Label className="text-base capitalize">
+          {itemName === "prompt" ? t("tags.promptTags") : t("tags.traceTags")}
+        </Label>
         <Command
           shouldFilter={false} // we do not use cmdk's filter feature as it does not support virtualization for large lists
         >
@@ -131,7 +135,7 @@ const TagManager = ({
           />
           <CommandList>
             <CommandGroup
-              heading={filteredTags.length > 0 ? "Available Tags" : ""}
+              heading={filteredTags.length > 0 ? t("tags.available") : ""}
               className={cn(
                 "mt-2 max-h-52 overflow-auto text-sm font-medium *:[[cmdk-group-heading]]:mb-2",
                 filteredTags.length > 0 && "mb-2",

@@ -20,6 +20,7 @@ import { Label } from "@/src/components/ui/label";
 import { api } from "@/src/utils/api";
 import { CopyIcon, ExternalLinkIcon } from "lucide-react";
 import { copyTextToClipboard } from "@/src/utils/clipboard";
+import { useI18n } from "@/src/features/i18n";
 
 type PromptSelectionDialogProps = {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export function PromptSelectionDialog({
   onSelect,
   projectId,
 }: PromptSelectionDialogProps) {
+  const { t } = useI18n();
   const [selectedPromptName, setSelectedPromptName] = useState<string>("");
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [selectionType, setSelectionType] = useState<"version" | "label">(
@@ -102,18 +104,18 @@ export function PromptSelectionDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add inline prompt reference</DialogTitle>
+          <DialogTitle>{t("prompts.reference.addInline")}</DialogTitle>
         </DialogHeader>
         <DialogBody>
           <div className="flex flex-col gap-4">
             <p className="text-muted-foreground text-sm">
-              Referenced prompts are dynamically resolved and inserted when
-              fetched via API/SDK. This enables modular design—create complex
-              prompts from reusable, independently maintained components.
+              {t("prompts.reference.description")}
             </p>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="prompt-name">Prompt name</Label>
+              <Label htmlFor="prompt-name">
+                {t("prompts.reference.promptName")}
+              </Label>
               <Select
                 value={selectedPromptName}
                 onValueChange={(value) => {
@@ -122,7 +124,9 @@ export function PromptSelectionDialog({
                 }}
               >
                 <SelectTrigger id="prompt-name">
-                  <SelectValue placeholder="Select a text prompt" />
+                  <SelectValue
+                    placeholder={t("prompts.reference.selectPrompt")}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {promptOptions?.map((prompt) => (
@@ -133,13 +137,15 @@ export function PromptSelectionDialog({
                 </SelectContent>
               </Select>
               <p className="text-muted-foreground text-xs">
-                Only text prompts can be referenced inline.
+                {t("prompts.reference.onlyText")}
               </p>
             </div>
 
             {selectedPromptName && (
               <div className="flex flex-col gap-2">
-                <Label htmlFor="selection-type">Reference by</Label>
+                <Label htmlFor="selection-type">
+                  {t("prompts.reference.referenceBy")}
+                </Label>
                 <Select
                   value={selectionType}
                   onValueChange={(value: "version" | "label") => {
@@ -148,11 +154,15 @@ export function PromptSelectionDialog({
                   }}
                 >
                   <SelectTrigger id="selection-type">
-                    <SelectValue placeholder="Select link type" />
+                    <SelectValue
+                      placeholder={t("prompts.reference.selectLinkType")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="label">Label</SelectItem>
-                    <SelectItem value="version">Version</SelectItem>
+                    <SelectItem value="label">{t("prompts.label")}</SelectItem>
+                    <SelectItem value="version">
+                      {t("prompts.version")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -161,7 +171,9 @@ export function PromptSelectionDialog({
             {selectedPromptName && (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="version-or-label">
-                  {selectionType === "version" ? "Version" : "Label"}
+                  {selectionType === "version"
+                    ? t("prompts.version")
+                    : t("prompts.label")}
                 </Label>
                 <div className="flex gap-2">
                   <Select
@@ -172,8 +184,8 @@ export function PromptSelectionDialog({
                       <SelectValue
                         placeholder={
                           selectionType === "version"
-                            ? "Select a version"
-                            : "Select a label"
+                            ? t("prompts.reference.selectVersion")
+                            : t("prompts.reference.selectLabel")
                         }
                       />
                     </SelectTrigger>
@@ -212,7 +224,7 @@ export function PromptSelectionDialog({
 
           {selectedTag && (
             <div className="space-y-2">
-              <Label>Tag preview</Label>
+              <Label>{t("prompts.reference.tagPreview")}</Label>
               <div className="relative">
                 <div className="bg-muted rounded-md border p-3 pr-10 font-mono text-xs">
                   {selectedTag}
@@ -229,8 +241,8 @@ export function PromptSelectionDialog({
               </div>
               <p className="text-muted-foreground text-xs">
                 {onSelect
-                  ? "This tag will be inserted into the prompt content."
-                  : "This tag will be copied to clipboard to be then inserted into the prompt"}
+                  ? t("prompts.reference.inserted")
+                  : t("prompts.reference.copied")}
               </p>
             </div>
           )}
@@ -238,10 +250,10 @@ export function PromptSelectionDialog({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="button" onClick={handleConfirm} disabled={!selectedTag}>
-            {onSelect ? "Insert" : "Copy and close"}
+            {onSelect ? t("prompts.insert") : t("prompts.copyAndClose")}
           </Button>
         </DialogFooter>
       </DialogContent>

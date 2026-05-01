@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUpRight } from "lucide-react";
@@ -32,14 +32,16 @@ import { api } from "@/src/utils/api";
 import { JSONSchemaFormSchema, type LlmSchema } from "@langfuse/shared";
 import { CodeMirrorEditor } from "@/src/components/editor";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
+import { useI18n } from "@/src/features/i18n";
 
-const formSchema = z.object({
-  name: LLMSchemaNameSchema,
-  description: z.string().min(1, "Description is required"),
-  schema: JSONSchemaFormSchema,
-});
+const createFormSchema = (messages: { descriptionRequired: string }) =>
+  z.object({
+    name: LLMSchemaNameSchema,
+    description: z.string().min(1, messages.descriptionRequired),
+    schema: JSONSchemaFormSchema,
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 type CreateOrEditLLMSchemaDialog = {
   children: React.ReactNode;
@@ -58,6 +60,14 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
   CreateOrEditLLMSchemaDialog
 > = (props) => {
   const { children, projectId, onSave, existingLlmSchema } = props;
+  const { t } = useI18n();
+  const formSchema = useMemo(
+    () =>
+      createFormSchema({
+        descriptionRequired: t("playground.dialog.descriptionRequired"),
+      }),
+    [t],
+  );
 
   const utils = api.useUtils();
   const createLlmSchema = api.llmSchemas.create.useMutation();
@@ -142,8 +152,8 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
       form.setValue("schema", prettified);
     } catch {
       showErrorToast(
-        "Failed to prettify JSON",
-        "Please verify your input is valid JSON",
+        t("playground.dialog.failedPrettifyTitle"),
+        t("playground.dialog.failedPrettifyDescription"),
         "WARNING",
       );
     }
@@ -155,10 +165,12 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
       <DialogContent className="flex flex-col sm:min-w-128 md:min-w-160">
         <DialogHeader>
           <DialogTitle>
-            {existingLlmSchema ? "Edit LLM Schema" : "Create LLM Schema"}
+            {existingLlmSchema
+              ? t("playground.dialog.editLlmSchema")
+              : t("playground.dialog.createLlmSchema")}
           </DialogTitle>
           <DialogDescription>
-            Define a JSON Schema for structured outputs
+            {t("playground.dialog.defineSchema")}
           </DialogDescription>
         </DialogHeader>
 
@@ -179,7 +191,7 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>{t("playground.dialog.name")}</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g., get_weather" {...field} />
                       </FormControl>
@@ -193,10 +205,12 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>
+                        {t("playground.dialog.description")}
+                      </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe the schema"
+                          placeholder={t("playground.dialog.describeSchema")}
                           className="max-h-[120px] focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                           {...field}
                           onKeyDown={(e) => {
@@ -214,17 +228,18 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                   name="schema"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>JSON Schema</FormLabel>
+                      <FormLabel>
+                        {t("playground.dialog.jsonSchema")}
+                      </FormLabel>
                       <FormDescription>
-                        Define the structure of your schema using JSON Schema
-                        format.{" "}
+                        {t("playground.dialog.jsonSchemaDescription")}{" "}
                         <a
                           href="https://json-schema.org/learn/miscellaneous-examples"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center"
                         >
-                          See JSON Schema examples here
+                          {t("playground.dialog.seeJsonSchemaExamples")}
                           <ArrowUpRight className="h-3 w-3" />
                         </a>
                       </FormDescription>
@@ -244,12 +259,12 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                             onClick={prettifyJson}
                             className="absolute top-3 right-3 text-xs"
                           >
-                            Prettify
+                            {t("playground.dialog.prettify")}
                           </Button>
                         </div>
                       </FormControl>
                       <p className="text-muted-foreground text-xs">
-                        Parameters must be a valid JSON Schema object
+                        {t("playground.dialog.parametersMustBeJsonSchema")}
                       </p>
                       <FormMessage />
                     </FormItem>
@@ -261,8 +276,7 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
             <DialogFooter className="bg-background sticky bottom-0 mt-4 flex flex-col gap-2 border-t pt-4">
               <div className="flex w-full flex-col gap-2">
                 <p className="text-muted-foreground text-xs">
-                  Note: Changes to schemas are reflected to all members of this
-                  project.
+                  {t("playground.dialog.noteSchemas")}
                 </p>
                 <div className="flex items-center justify-between gap-2">
                   {existingLlmSchema && (
@@ -272,7 +286,7 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                       onClick={handleDelete}
                       className="mr-auto"
                     >
-                      Delete
+                      {t("common.delete")}
                     </Button>
                   )}
                   <Button
@@ -280,9 +294,9 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                     variant="outline"
                     onClick={() => setOpen(false)}
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
-                  <Button type="submit">Save</Button>
+                  <Button type="submit">{t("common.save")}</Button>
                 </div>
               </div>
             </DialogFooter>

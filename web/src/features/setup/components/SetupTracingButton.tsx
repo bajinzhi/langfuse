@@ -8,8 +8,10 @@ import { LockIcon } from "lucide-react";
 import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
+import { useI18n } from "@/src/features/i18n";
 
 const SetupTracingButton = () => {
+  const { t } = useI18n();
   const { project } = useQueryProjectOrOrganization();
 
   const router = useRouter();
@@ -53,13 +55,13 @@ const SetupTracingButton = () => {
     return (
       <Button disabled>
         <LockIcon className="mr-2 -ml-0.5 h-4 w-4" aria-hidden="true" />
-        Configure Tracing
+        {t("setup.configureTracing")}
       </Button>
     );
 
   return (
     <Link href={setupTracingRoute(project.id)}>
-      <Button>Configure Tracing</Button>
+      <Button>{t("setup.configureTracing")}</Button>
     </Link>
   );
 };

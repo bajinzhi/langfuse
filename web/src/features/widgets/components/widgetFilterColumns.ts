@@ -5,8 +5,12 @@ import {
 import { type views } from "@/src/features/query/types";
 import { type ViewVersion } from "@/src/features/query";
 import { type z } from "zod";
+import type { MessageKey, MessageValues } from "@/src/features/i18n";
+
+type Translate = (key: MessageKey, values?: MessageValues) => string;
 
 type GetWidgetFilterColumnsParams = {
+  t: Translate;
   selectedView: z.infer<typeof views>;
   viewVersion: ViewVersion;
   environmentOptions: SingleValueOption[];
@@ -24,6 +28,7 @@ type WidgetFilterColumnSpec = {
 };
 
 const getWidgetFilterColumnSpecs = ({
+  t,
   selectedView,
   viewVersion,
   environmentOptions,
@@ -37,7 +42,7 @@ const getWidgetFilterColumnSpecs = ({
   const filterColumns: WidgetFilterColumnSpec[] = [
     {
       column: {
-        name: "Environment",
+        name: t("observability.columns.environment"),
         id: "environment",
         type: "stringOptions",
         options: environmentOptions,
@@ -47,7 +52,7 @@ const getWidgetFilterColumnSpecs = ({
     },
     {
       column: {
-        name: "Trace Name",
+        name: t("observability.columns.traceName"),
         id: "traceName",
         type: "stringOptions",
         options: nameOptions,
@@ -57,7 +62,7 @@ const getWidgetFilterColumnSpecs = ({
     },
     {
       column: {
-        name: "Observation Name",
+        name: t("observability.columns.observationName"),
         id: "observationName",
         type: "string",
         internal: "internalValue",
@@ -65,7 +70,7 @@ const getWidgetFilterColumnSpecs = ({
     },
     {
       column: {
-        name: "Score Name",
+        name: t("observability.columns.scoreName"),
         id: "scoreName",
         type: "string",
         internal: "internalValue",
@@ -73,7 +78,7 @@ const getWidgetFilterColumnSpecs = ({
     },
     {
       column: {
-        name: "Tags",
+        name: t("observability.columns.tags"),
         id: "tags",
         type: "arrayOptions",
         options: tagsOptions,
@@ -83,7 +88,7 @@ const getWidgetFilterColumnSpecs = ({
     },
     {
       column: {
-        name: "User",
+        name: t("observability.columns.user"),
         id: "user",
         type: "string",
         internal: "internalValue",
@@ -91,7 +96,7 @@ const getWidgetFilterColumnSpecs = ({
     },
     {
       column: {
-        name: "Session",
+        name: t("observability.columns.session"),
         id: "session",
         type: "string",
         internal: "internalValue",
@@ -99,7 +104,7 @@ const getWidgetFilterColumnSpecs = ({
     },
     {
       column: {
-        name: "Metadata",
+        name: t("observability.columns.metadata"),
         id: "metadata",
         type: "stringObject",
         internal: "internalValue",
@@ -107,7 +112,7 @@ const getWidgetFilterColumnSpecs = ({
     },
     {
       column: {
-        name: "Version",
+        name: t("observability.columns.version"),
         id: "version",
         type: "string",
         internal: "internalValue",
@@ -118,7 +123,7 @@ const getWidgetFilterColumnSpecs = ({
   if (selectedView !== "observations") {
     filterColumns.push({
       column: {
-        name: "Release",
+        name: t("observability.columns.release"),
         id: "release",
         type: "string",
         internal: "internalValue",
@@ -132,7 +137,7 @@ const getWidgetFilterColumnSpecs = ({
         ? [
             {
               column: {
-                name: "Observation Release",
+                name: t("observability.columns.observationRelease"),
                 id: "release",
                 type: "string",
                 internal: "internalValue",
@@ -142,7 +147,7 @@ const getWidgetFilterColumnSpecs = ({
         : []),
       {
         column: {
-          name: "Tool Names (Available)",
+          name: t("observability.columns.toolNamesAvailable"),
           id: "toolNames",
           type: "arrayOptions",
           options: toolNamesOptions,
@@ -152,7 +157,7 @@ const getWidgetFilterColumnSpecs = ({
       },
       {
         column: {
-          name: "Tool Names (Called)",
+          name: t("observability.columns.toolNamesCalled"),
           id: "calledToolNames",
           type: "arrayOptions",
           options: calledToolNamesOptions,
@@ -162,7 +167,7 @@ const getWidgetFilterColumnSpecs = ({
       },
       {
         column: {
-          name: "Trace Release",
+          name: t("observability.columns.traceRelease"),
           id: "traceRelease",
           type: "string",
           internal: "internalValue",
@@ -170,7 +175,7 @@ const getWidgetFilterColumnSpecs = ({
       },
       {
         column: {
-          name: "Trace Version",
+          name: t("observability.columns.traceVersion"),
           id: "traceVersion",
           type: "string",
           internal: "internalValue",
@@ -178,7 +183,7 @@ const getWidgetFilterColumnSpecs = ({
       },
       {
         column: {
-          name: "Model",
+          name: t("observability.columns.model"),
           id: "providedModelName",
           type: "stringOptions",
           options: modelOptions,
@@ -188,7 +193,7 @@ const getWidgetFilterColumnSpecs = ({
       },
       {
         column: {
-          name: "Level",
+          name: t("observability.columns.level"),
           id: "level",
           type: "stringOptions",
           options: observationLevelOptions,
@@ -201,7 +206,7 @@ const getWidgetFilterColumnSpecs = ({
   if (selectedView === "scores-categorical") {
     filterColumns.push({
       column: {
-        name: "Score String Value",
+        name: t("observability.columns.scoreStringValue"),
         id: "stringValue",
         type: "string",
         internal: "internalValue",
@@ -212,7 +217,7 @@ const getWidgetFilterColumnSpecs = ({
   if (selectedView === "scores-numeric") {
     filterColumns.push({
       column: {
-        name: "Score Value",
+        name: t("observability.columns.scoreValue"),
         id: "value",
         type: "number",
         internal: "internalValue",

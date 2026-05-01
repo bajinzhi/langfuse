@@ -15,6 +15,7 @@ import {
   getScoreCategoryColors,
   getScoreBooleanColors,
 } from "@/src/features/score-analytics/lib/color-scales";
+import { useI18n } from "@/src/features/i18n";
 
 type TimelineTab = "score1" | "score2" | "all" | "matched";
 
@@ -35,6 +36,7 @@ type TimelineTab = "score1" | "score2" | "all" | "matched";
 export function TimelineChartCard() {
   const { data, isLoading, params, colorMappings, getColorForScore } =
     useScoreAnalytics();
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<TimelineTab>("all");
 
   // Calculate overall average for numeric data (for description)
@@ -179,7 +181,14 @@ export function TimelineChartCard() {
 
     // Interval description
     parts.push(
-      `${dataType === "NUMERIC" ? "Average" : "Count"} by ${interval.count} ${interval.unit}${interval.count > 1 ? "s" : ""}`,
+      t("scoreAnalytics.averageOrCountBy", {
+        metric:
+          dataType === "NUMERIC"
+            ? t("scoreAnalytics.average")
+            : t("scoreAnalytics.count"),
+        count: interval.count,
+        unit: `${interval.unit}${interval.count > 1 ? "s" : ""}`,
+      }),
     );
 
     // Overall average for numeric
@@ -188,28 +197,37 @@ export function TimelineChartCard() {
       overallAverage !== null &&
       overallAverage > 0
     ) {
-      parts.push(`Overall avg: ${overallAverage.toFixed(3)}`);
+      parts.push(
+        t("scoreAnalytics.overallAverage", {
+          value: overallAverage.toFixed(3),
+        }),
+      );
     }
 
     // Matched count for two-score mode
     if (mode === "two" && statistics.comparison) {
       if (activeTab === "matched") {
         parts.push(
-          `${statistics.comparison.matchedCount.toLocaleString()} matched`,
+          t("scoreAnalytics.scoreMatched", {
+            score1Name: params.score1.name,
+            score2Name:
+              params.score2?.name ?? t("scoreAnalytics.score2Fallback"),
+            count: statistics.comparison.matchedCount.toLocaleString(),
+          }),
         );
       }
     }
 
     return parts.join(" | ");
-  }, [data, overallAverage, activeTab, params]);
+  }, [data, overallAverage, activeTab, params, t]);
 
   // Loading state
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Trend Over Time</CardTitle>
-          <CardDescription>Loading chart...</CardDescription>
+          <CardTitle>{t("scoreAnalytics.trendOverTime")}</CardTitle>
+          <CardDescription>{t("scoreAnalytics.loadingChart")}</CardDescription>
         </CardHeader>
         <CardContent className="flex h-[340px] grow items-center justify-center">
           <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
@@ -223,11 +241,11 @@ export function TimelineChartCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Trend Over Time</CardTitle>
-          <CardDescription>No data available</CardDescription>
+          <CardTitle>{t("scoreAnalytics.trendOverTime")}</CardTitle>
+          <CardDescription>{t("scoreAnalytics.noDataAvailable")}</CardDescription>
         </CardHeader>
         <CardContent className="text-muted-foreground flex h-[340px] items-center justify-center text-sm">
-          Select a score to view trends
+          {t("scoreAnalytics.selectScoreToViewTrends")}
         </CardContent>
       </Card>
     );
@@ -262,7 +280,7 @@ export function TimelineChartCard() {
     ? score2.name === score1.name
       ? `${score2.source} · ${score2.name}`
       : score2.name
-    : "Score 2";
+    : t("scoreAnalytics.score2Fallback");
 
   return (
     <Card>
@@ -271,7 +289,7 @@ export function TimelineChartCard() {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <CardTitle className="flex items-center gap-2">
-                Trend Over Time
+                {t("scoreAnalytics.trendOverTime")}
                 {data.samplingMetadata.isSampled && (
                   <SamplingDetailsHoverCard
                     samplingMetadata={data.samplingMetadata}
@@ -303,10 +321,10 @@ export function TimelineChartCard() {
                   {truncateLabel(score2FullLabel)}
                 </TabsTrigger>
                 <TabsTrigger value="all" className="h-5 px-2 text-xs">
-                  all
+                  {t("scoreAnalytics.all")}
                 </TabsTrigger>
                 <TabsTrigger value="matched" className="h-5 px-2 text-xs">
-                  matched
+                  {t("scoreAnalytics.matched")}
                 </TabsTrigger>
               </TabsList>
             </Tabs>

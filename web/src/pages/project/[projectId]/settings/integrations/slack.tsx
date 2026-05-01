@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { Badge } from "@/src/components/ui/badge";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
+import { useI18n } from "@/src/features/i18n";
 import {
   Card,
   CardContent,
@@ -23,6 +24,7 @@ import {
 export default function SlackIntegrationSettings() {
   const router = useRouter();
   const projectId = router.query.projectId as string;
+  const { t } = useI18n();
 
   // Handle popup OAuth completion
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function SlackIntegrationSettings() {
         window.opener.postMessage(
           {
             type: "slack-oauth-success",
-            teamName: teamName || "your Slack workspace",
+            teamName: teamName || t("integrations.slack.oauthWorkspaceFallback"),
           },
           window.location.origin,
         );
@@ -62,7 +64,7 @@ export default function SlackIntegrationSettings() {
         window.close();
       }
     }
-  }, [router.query]);
+  }, [router.query, t]);
 
   const { data: integrationStatus, isLoading } =
     api.slack.getIntegrationStatus.useQuery(
@@ -92,9 +94,9 @@ export default function SlackIntegrationSettings() {
   return (
     <ContainerPage
       headerProps={{
-        title: "Slack Integration",
+        title: t("integrations.slack.title"),
         breadcrumb: [
-          { name: "Settings", href: `/project/${projectId}/settings` },
+          { name: t("nav.settings"), href: `/project/${projectId}/settings` },
         ],
         actionButtonsLeft: <>{status && <StatusBadge type={status} />}</>,
         actionButtonsRight: <AutomationButton projectId={projectId} />,
@@ -109,16 +111,16 @@ export default function SlackIntegrationSettings() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Test Integration
+                {t("integrations.slack.testIntegration")}
               </CardTitle>
               <CardDescription>
-                Test your Slack integration by sending a message to a channel.
+                {t("integrations.slack.testDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <h4 className="mb-2 text-sm font-medium">
-                  Select Test Channel
+                  {t("integrations.slack.selectTestChannel")}
                 </h4>
                 <div className="max-w-md">
                   <ChannelSelector
@@ -126,7 +128,7 @@ export default function SlackIntegrationSettings() {
                     selectedChannelId={selectedChannel?.id}
                     selectedChannel={selectedChannel}
                     onChannelSelect={setSelectedChannel}
-                    placeholder="Choose a channel to test"
+                    placeholder={t("integrations.slack.chooseChannelPlaceholder")}
                     showRefreshButton={true}
                   />
                 </div>
@@ -136,32 +138,40 @@ export default function SlackIntegrationSettings() {
                 <div className="space-y-4 border-t pt-4">
                   <div>
                     <h4 className="mb-3 text-sm font-medium">
-                      Channel Information
+                      {t("integrations.slack.channelInformation")}
                     </h4>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <p className="text-sm font-medium">Channel Name</p>
+                        <p className="text-sm font-medium">
+                          {t("integrations.slack.channelName")}
+                        </p>
                         <p className="text-muted-foreground text-sm">
                           #{selectedChannel.name}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium">Channel Type</p>
+                        <p className="text-sm font-medium">
+                          {t("integrations.slack.channelType")}
+                        </p>
                         {isManualEntry ? (
                           <span className="text-muted-foreground text-xs">
-                            Available after sending a test message
+                            {t("integrations.slack.availableAfterTest")}
                           </span>
                         ) : (
                           <Badge variant="outline" className="text-xs">
-                            {selectedChannel.isPrivate ? "Private" : "Public"}
+                            {selectedChannel.isPrivate
+                              ? t("integrations.slack.private")
+                              : t("integrations.slack.public")}
                           </Badge>
                         )}
                       </div>
                       <div>
-                        <p className="text-sm font-medium">Channel ID</p>
+                        <p className="text-sm font-medium">
+                          {t("integrations.slack.channelId")}
+                        </p>
                         {isManualEntry ? (
                           <span className="text-muted-foreground text-xs">
-                            Available after sending a test message
+                            {t("integrations.slack.availableAfterTest")}
                           </span>
                         ) : (
                           <p className="text-muted-foreground font-mono text-sm">
@@ -198,12 +208,10 @@ export default function SlackIntegrationSettings() {
 
               {!selectedChannel && (
                 <div className="text-muted-foreground text-sm">
-                  Select a channel above to view its details and test message
-                  delivery. For private channels, invite the app first with{" "}
+                  {t("integrations.slack.noChannelSelected")}{" "}
                   <code className="bg-muted rounded px-1 py-0.5">
                     /invite @Langfuse
                   </code>{" "}
-                  in that channel.
                 </div>
               )}
             </CardContent>

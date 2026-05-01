@@ -12,6 +12,7 @@ import {
   unsetActiveSearchMarkCodeMirrorRange,
   setActiveSearchMarkCodeMirrorRange,
 } from "@/src/components/editor";
+import { translateClientMessage } from "@/src/features/i18n";
 
 export type MessageSearchMatch = {
   key: string;
@@ -109,15 +110,22 @@ function getMessageSearchText(message: ChatMessageWithId) {
 }
 
 function getMessageSearchLabel(message: ChatMessageWithId, index: number) {
+  const number = index + 1;
+
   if (message.type === ChatMessageType.Placeholder) {
-    return `Placeholder ${index + 1}`;
+    return translateClientMessage("playground.find.placeholderResult", {
+      number,
+    });
   }
 
   if ("role" in message) {
-    return `${capitalize(message.role)} message ${index + 1}`;
+    return translateClientMessage("playground.find.roleMessageResult", {
+      role: capitalize(message.role),
+      number,
+    });
   }
 
-  return `Message ${index + 1}`;
+  return translateClientMessage("playground.find.messageResult", { number });
 }
 
 function getMatchKey(match: Omit<MessageSearchMatch, "key">) {

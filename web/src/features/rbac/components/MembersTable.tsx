@@ -38,6 +38,7 @@ import { SettingsTableCard } from "@/src/components/layouts/settings-table-card"
 import useSessionStorage from "@/src/components/useSessionStorage";
 import { useQueryParam, withDefault, StringParam } from "use-query-params";
 import { useEffect } from "react";
+import { useI18n } from "@/src/features/i18n";
 
 export type MembersTableRow = {
   user: {
@@ -64,6 +65,7 @@ export function MembersTable({
   project?: { id: string; name: string };
   showSettingsCard?: boolean;
 }) {
+  const { t } = useI18n();
   // Create a unique key for this table's pagination state
   const paginationKey = project
     ? `projectMembers_${project.id}_pagination`
@@ -150,7 +152,7 @@ export function MembersTable({
     {
       accessorKey: "user",
       id: "user",
-      header: "Name",
+      header: t("auth.name"),
       cell: ({ row }) => {
         const { name, image } = row.getValue("user") as MembersTableRow["user"];
         return (
@@ -158,7 +160,7 @@ export function MembersTable({
             <Avatar className="h-7 w-7">
               <AvatarImage
                 src={image ?? undefined}
-                alt={name ?? "User Avatar"}
+                alt={name ?? t("rbac.userAvatar")}
               />
               <AvatarFallback>
                 {name
@@ -178,12 +180,12 @@ export function MembersTable({
     {
       accessorKey: "email",
       id: "email",
-      header: "Email",
+      header: t("auth.email"),
     },
     {
       accessorKey: "providers",
       id: "providers",
-      header: "SSO Provider",
+      header: t("rbac.ssoProvider"),
       enableHiding: true,
       cell: ({ row }) => {
         const providers = row.getValue("providers") as string[];
@@ -195,10 +197,9 @@ export function MembersTable({
     {
       accessorKey: "orgRole",
       id: "orgRole",
-      header: "Organization Role",
+      header: t("rbac.organizationRole"),
       headerTooltip: {
-        description:
-          "The org-role is the default role for this user in this organization and applies to the organization and all its projects.",
+        description: t("rbac.organizationRoleTooltip"),
         href: "https://langfuse.com/docs/administration/rbac",
       },
       cell: ({ row }) => {
@@ -233,14 +234,14 @@ export function MembersTable({
                     side="right"
                   >
                     <p className="text-xs">
-                      The organization-level role can to be edited in the{" "}
+                      {t("rbac.editOrgRoleInPrefix")}{" "}
                       <Link
                         href={`/organization/${orgId}/settings/members`}
                         className="underline"
                       >
-                        organization settings
+                        {t("rbac.organizationSettings")}
                       </Link>
-                      .
+                      {t("rbac.editOrgRoleInSuffix")}
                     </p>
                   </HoverCardContent>
                 </HoverCardPortal>
@@ -257,10 +258,9 @@ export function MembersTable({
           {
             accessorKey: "projectRole",
             id: "projectRole",
-            header: "Project Role",
+            header: t("rbac.projectRole"),
             headerTooltip: {
-              description:
-                "The role for this user in this specific project. This role overrides the default project role.",
+              description: t("rbac.projectRoleTooltip"),
               href: "https://langfuse.com/docs/administration/rbac",
             },
             cell: ({ row }) => {
@@ -271,7 +271,7 @@ export function MembersTable({
                 "meta",
               ) as MembersTableRow["meta"];
 
-              if (!projectRolesEntitlement) return "N/A on plan";
+              if (!projectRolesEntitlement) return t("rbac.notAvailableOnPlan");
 
               return (
                 <ProjectRoleDropdown
@@ -292,7 +292,7 @@ export function MembersTable({
     {
       accessorKey: "createdAt",
       id: "createdAt",
-      header: "Member Since",
+      header: t("rbac.memberSince"),
       enableHiding: true,
       defaultHidden: true,
       cell: ({ row }) => {
@@ -303,7 +303,7 @@ export function MembersTable({
     {
       accessorKey: "meta",
       id: "meta",
-      header: "Actions",
+      header: t("rbac.actions"),
       enableHiding: false,
       cell: ({ row }) => {
         const { orgMembershipId, userId } = row.getValue(
@@ -313,12 +313,13 @@ export function MembersTable({
           (userId && userId === session.data?.user?.id) ? (
           <div className="flex space-x-2">
             <button
+              aria-label={t("rbac.removeMember")}
               onClick={() => {
                 if (
                   confirm(
                     userId === session.data?.user?.id
-                      ? "Are you sure you want to leave the organization?"
-                      : "Are you sure you want to remove this member from the organization?",
+                      ? t("rbac.confirmLeaveOrganization")
+                      : t("rbac.confirmRemoveMember"),
                   )
                 ) {
                   mutDeleteMember.mutate({ orgId, orgMembershipId });
@@ -367,9 +368,9 @@ export function MembersTable({
   if (project ? !hasProjectViewAccess : !hasOrgViewAccess) {
     return (
       <Alert>
-        <AlertTitle>Access Denied</AlertTitle>
+        <AlertTitle>{t("batchActions.accessDenied")}</AlertTitle>
         <AlertDescription>
-          You do not have permission to view members of this organization.
+          {t("rbac.membersAccessDenied")}
         </AlertDescription>
       </Alert>
     );
@@ -387,7 +388,7 @@ export function MembersTable({
           <CreateProjectMemberButton orgId={orgId} project={project} />
         }
         searchConfig={{
-          metadataSearchFields: ["Name", "Email"],
+          metadataSearchFields: [t("auth.name"), t("auth.email")],
           updateQuery: setSearchQuery,
           currentQuery: searchQuery ?? undefined,
           tableAllowsFullTextSearch: false,
@@ -480,6 +481,7 @@ const OrgRoleDropdown = ({
   userId: string;
   hasCudAccess: boolean;
 }) => {
+  const { t } = useI18n();
   const utils = api.useUtils();
   const session = useSession();
   const mut = api.members.updateOrgMembership.useMutation({
@@ -487,8 +489,8 @@ const OrgRoleDropdown = ({
       utils.members.invalidate();
       if (data.userId === session.data?.user?.id) void session.update();
       showSuccessToast({
-        title: "Saved",
-        description: "Organization role updated successfully",
+        title: t("rbac.roleUpdatedTitle"),
+        description: t("rbac.organizationRoleUpdated"),
         duration: 2000,
       });
     },
@@ -501,9 +503,7 @@ const OrgRoleDropdown = ({
       onValueChange={(value) => {
         if (
           userId !== session.data?.user?.id ||
-          confirm(
-            "Are you sure that you want to change your own organization role?",
-          )
+          confirm(t("rbac.confirmChangeOwnOrganizationRole"))
         ) {
           mut.mutate({
             orgId,
@@ -540,6 +540,7 @@ const ProjectRoleDropdown = ({
   projectId: string;
   hasCudAccess: boolean;
 }) => {
+  const { t } = useI18n();
   const utils = api.useUtils();
   const session = useSession();
   const mut = api.members.updateProjectRole.useMutation({
@@ -547,8 +548,8 @@ const ProjectRoleDropdown = ({
       utils.members.invalidate();
       if (data.userId === session.data?.user?.id) void session.update();
       showSuccessToast({
-        title: "Saved",
-        description: "Project role updated successfully",
+        title: t("rbac.roleUpdatedTitle"),
+        description: t("rbac.projectRoleUpdated"),
         duration: 2000,
       });
     },
@@ -561,7 +562,7 @@ const ProjectRoleDropdown = ({
       onValueChange={(value) => {
         if (
           userId !== session.data?.user?.id ||
-          confirm("Are you sure that you want to change your own project role?")
+          confirm(t("rbac.confirmChangeOwnProjectRole"))
         ) {
           mut.mutate({
             orgId,

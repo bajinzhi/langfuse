@@ -1,4 +1,5 @@
 import { useEmptyScoreConfigs } from "@/src/features/scores/hooks/useEmptyConfigs";
+import { useI18n } from "@/src/features/i18n";
 import { resolveConfigValue } from "@/src/features/scores/lib/annotationFormHelpers";
 import {
   type AnnotateFormSchemaType,
@@ -48,6 +49,7 @@ export function useScoreConfigSelection({
     changedValueId?: string,
   ) => void;
 } {
+  const { t } = useI18n();
   const { emptySelectedConfigIds, setEmptySelectedConfigIds } =
     useEmptyScoreConfigs();
 
@@ -103,7 +105,7 @@ export function useScoreConfigSelection({
         // Config was deselected
         const field = controlledFields[fieldIndex];
         if (field?.id) {
-          toast.error("Cannot deselect a populated score");
+          toast.error(t("scores.cannotDeselectPopulated"));
           return;
         } else {
           // No score -> remove row from form and empty selected config ids
@@ -121,6 +123,7 @@ export function useScoreConfigSelection({
       remove,
       emptySelectedConfigIds,
       setEmptySelectedConfigIds,
+      t,
     ],
   );
 

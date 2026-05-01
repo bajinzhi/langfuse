@@ -20,6 +20,7 @@ import {
 } from "@/src/features/score-analytics/components/ScoreAnalyticsProvider";
 import { ScoreAnalyticsHeader } from "@/src/features/score-analytics/components/ScoreAnalyticsHeader";
 import { ScoreAnalyticsDashboard } from "@/src/features/score-analytics/components/ScoreAnalyticsDashboard";
+import { useI18n } from "@/src/features/i18n";
 
 /**
  * Score Analytics V2 - Refactored Architecture
@@ -36,6 +37,7 @@ import { ScoreAnalyticsDashboard } from "@/src/features/score-analytics/componen
  *
  */
 export default function ScoresAnalyticsV2Page() {
+  const { t } = useI18n();
   const router = useRouter();
   const projectId = router.query.projectId as string;
 
@@ -189,15 +191,14 @@ export default function ScoresAnalyticsV2Page() {
   return (
     <Page
       headerProps={{
-        title: "Scores",
-        breadcrumb: [{ name: "Scores", href: `/project/${projectId}/scores` }],
+        title: t("nav.scores"),
+        breadcrumb: [{ name: t("nav.scores"), href: `/project/${projectId}/scores` }],
         help: {
-          description:
-            "A score is an evaluation of a trace or observation. It can be created from user feedback, model-based evaluations, or manual review. See docs to learn more.",
+          description: t("scores.help"),
           href: "https://langfuse.com/docs/evaluation/overview",
         },
         tabsProps: {
-          tabs: getScoresTabs(projectId),
+          tabs: getScoresTabs(projectId, t),
           activeTab: SCORES_TABS.ANALYTICS,
         },
       }}
@@ -219,9 +220,11 @@ export default function ScoresAnalyticsV2Page() {
             <div className="bg-destructive/10 flex flex-col items-center justify-center gap-4 rounded-lg border p-12">
               <BarChart3 className="text-destructive h-12 w-12" />
               <div className="text-center">
-                <h3 className="text-lg font-semibold">Error Loading Scores</h3>
+                <h3 className="text-lg font-semibold">
+                  {t("scoreAnalytics.errorLoadingScores")}
+                </h3>
                 <p className="text-muted-foreground mt-2 text-sm">
-                  Failed to load score data. Please try refreshing the page.
+                  {t("scoreAnalytics.errorLoadingScoresDescription")}
                 </p>
               </div>
             </div>
@@ -229,10 +232,11 @@ export default function ScoresAnalyticsV2Page() {
             <div className="bg-muted/20 flex flex-col items-center justify-center gap-4 rounded-lg border p-12">
               <BarChart3 className="text-muted-foreground h-12 w-12" />
               <div className="text-center">
-                <h3 className="text-lg font-semibold">No Scores Available</h3>
+                <h3 className="text-lg font-semibold">
+                  {t("scoreAnalytics.noScoresAvailable")}
+                </h3>
                 <p className="text-muted-foreground mt-2 text-sm">
-                  Create scores by adding evaluations to your traces and
-                  observations.
+                  {t("scoreAnalytics.noScoresAvailableDescription")}
                 </p>
               </div>
             </div>
@@ -240,26 +244,24 @@ export default function ScoresAnalyticsV2Page() {
             <div className="bg-muted/20 flex flex-col items-center justify-center gap-6 rounded-lg border p-12">
               <BarChart3 className="text-muted-foreground h-16 w-16" />
               <div className="max-w-2xl text-center">
-                <h3 className="text-2xl font-semibold">Select a Score</h3>
+                <h3 className="text-2xl font-semibold">
+                  {t("scoreAnalytics.selectScore")}
+                </h3>
                 <p className="text-muted-foreground mt-3 text-base">
-                  Choose one or two scores from the dropdowns above to view
-                  analytics
+                  {t("scoreAnalytics.selectScoreDescription")}
                 </p>
                 <div className="text-muted-foreground mt-6 space-y-3 text-sm">
                   <div className="bg-background/50 rounded-lg p-4">
                     <p className="text-foreground mb-1 font-semibold">
-                      Single score selected:
+                      {t("scoreAnalytics.singleScoreSelected")}
                     </p>
-                    <p>View distribution and trends over time</p>
+                    <p>{t("scoreAnalytics.singleScoreSelectedDescription")}</p>
                   </div>
                   <div className="bg-background/50 rounded-lg p-4">
                     <p className="text-foreground mb-1 font-semibold">
-                      Two scores selected:
+                      {t("scoreAnalytics.twoScoresSelected")}
                     </p>
-                    <p>
-                      Compare scores with heatmaps, correlation analysis, and
-                      statistical metrics
-                    </p>
+                    <p>{t("scoreAnalytics.twoScoresSelectedDescription")}</p>
                   </div>
                 </div>
               </div>

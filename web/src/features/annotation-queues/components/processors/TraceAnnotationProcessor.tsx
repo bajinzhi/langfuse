@@ -15,6 +15,7 @@ import { api } from "@/src/utils/api";
 import { castToNumberMap } from "@/src/utils/map-utils";
 import { useIsAuthenticatedAndProjectMember } from "@/src/features/auth/hooks";
 import { buildTraceUiData } from "@/src/components/trace2/lib/helpers";
+import { useI18n } from "@/src/features/i18n";
 
 interface TraceAnnotationProcessorProps {
   item: AnnotationQueueItem & {
@@ -30,6 +31,7 @@ interface TraceAnnotationProcessorProps {
 export const TraceAnnotationProcessor: React.FC<
   TraceAnnotationProcessorProps
 > = ({ item, data, view, configs, projectId }) => {
+  const { t } = useI18n();
   const traceId = item.parentTraceId ?? item.objectId;
 
   const [, setCurrentObservationId] = useQueryParam("observation", StringParam);
@@ -86,7 +88,7 @@ export const TraceAnnotationProcessor: React.FC<
     return buildTraceUiData(data, data.observations);
   }, [data]);
 
-  if (!data) return <div className="p-3">Loading...</div>;
+  if (!data) return <div className="p-3">{t("common.loadingDots")}</div>;
 
   const leftPanel =
     view === "hideTree" ? (

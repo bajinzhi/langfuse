@@ -23,6 +23,7 @@ import { LegacyEvalCallout } from "@/src/features/evals/components/legacy-eval-c
 import { EvaluatorPausedCallout } from "@/src/features/evals/components/evaluator-paused-callout";
 import { isLegacyEvalTarget } from "@/src/features/evals/utils/typeHelpers";
 import { useLazyEvaluatorExecutionCounts } from "@/src/features/evals/hooks/useLazyEvaluatorExecutionCounts";
+import { useI18n } from "@/src/features/i18n";
 
 export const PeekViewEvaluatorConfigDetail = ({
   projectId,
@@ -30,6 +31,7 @@ export const PeekViewEvaluatorConfigDetail = ({
   projectId: string;
 }) => {
   const router = useRouter();
+  const { t } = useI18n();
   const peekId = router.query.peek as string | undefined;
   const [isEditMode, setIsEditMode] = useState(false);
   const utils = api.useUtils();
@@ -57,7 +59,9 @@ export const PeekViewEvaluatorConfigDetail = ({
     <div className="grid h-full flex-1 grid-rows-[auto_auto_1fr] gap-2 overflow-hidden p-3 contain-layout">
       <div className="flex items-center justify-between">
         <div className="flex flex-row items-center gap-2">
-          <span className="max-h-fit text-lg font-medium">Configuration</span>
+          <span className="max-h-fit text-lg font-medium">
+            {t("evals.configuration")}
+          </span>
           <div className="flex items-center gap-2">
             <StatusBadge
               type={displayStatus.toLowerCase()}
@@ -76,7 +80,7 @@ export const PeekViewEvaluatorConfigDetail = ({
           <span
             className={cn("text-sm", isEditMode ? "" : "text-muted-foreground")}
           >
-            Edit Mode
+            {t("evals.editMode")}
           </span>
           <Switch
             disabled={
@@ -105,7 +109,9 @@ export const PeekViewEvaluatorConfigDetail = ({
       <EvaluatorPausedCallout projectId={projectId} evalConfig={evalConfig} />
 
       <CardDescription className="flex items-center text-sm">
-        <span className="mr-2 text-sm font-medium">Referenced Evaluator</span>
+        <span className="mr-2 text-sm font-medium">
+          {t("evals.referencedEvaluator")}
+        </span>
         {evalConfig.evalTemplate && (
           <TableLink
             path={`/project/${projectId}/evals/templates/${evalConfig.evalTemplate.id}`}
@@ -151,8 +157,8 @@ export const PeekViewEvaluatorConfigDetail = ({
             setIsEditMode(false);
             utils.evals.invalidate();
             showSuccessToast({
-              title: "Running Evaluator updated",
-              description: "The evaluator configuration has been updated.",
+              title: t("evals.runningEvaluatorUpdated"),
+              description: t("evals.runningEvaluatorUpdatedDescription"),
             });
           }}
         />

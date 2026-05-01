@@ -14,6 +14,7 @@ import { IntroSection } from "@/src/features/support-chat/IntroSection";
 import { SuccessSection } from "@/src/features/support-chat/SuccessSection";
 import { SupportFormSection } from "@/src/features/support-chat/SupportFormSection";
 import { cn } from "@/src/utils/tailwind";
+import { useI18n } from "@/src/features/i18n";
 
 export const SupportDrawer = ({
   showCloseButton = true,
@@ -22,6 +23,7 @@ export const SupportDrawer = ({
   showCloseButton?: boolean;
   className?: string;
 }) => {
+  const { t } = useI18n();
   const { open, setOpen } = useSupportDrawer();
   const [currentMode, setCurrentMode] = useState<"intro" | "form" | "success">(
     "intro",
@@ -43,7 +45,7 @@ export const SupportDrawer = ({
             <BreadcrumbList>
               {currentMode === "intro" ? (
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Support</BreadcrumbPage>
+                  <BreadcrumbPage>{t("nav.support")}</BreadcrumbPage>
                 </BreadcrumbItem>
               ) : (
                 <>
@@ -54,7 +56,7 @@ export const SupportDrawer = ({
                         onClick={() => setCurrentMode("intro")}
                         className="text-foreground"
                       >
-                        Support
+                        {t("nav.support")}
                       </button>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
@@ -62,7 +64,9 @@ export const SupportDrawer = ({
                     <Slash />
                   </BreadcrumbSeparator>
                   <BreadcrumbItem>
-                    <BreadcrumbPage>Email Engineer</BreadcrumbPage>
+                    <BreadcrumbPage>
+                      {t("support.breadcrumb.emailEngineer")}
+                    </BreadcrumbPage>
                   </BreadcrumbItem>
                 </>
               )}
@@ -73,7 +77,7 @@ export const SupportDrawer = ({
               variant="ghost"
               size="icon"
               onClick={close}
-              aria-label="Close"
+              aria-label={t("support.close")}
             >
               <X className="h-4 w-4" />
             </Button>

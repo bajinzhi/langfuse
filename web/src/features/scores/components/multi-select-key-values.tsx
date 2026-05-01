@@ -5,6 +5,7 @@ import { cn } from "@/src/utils/tailwind";
 import { Badge } from "@/src/components/ui/badge";
 import { Button, type ButtonProps } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
+import { useI18n } from "@/src/features/i18n";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -59,7 +60,7 @@ type MultiSelectKeyValuesProps<
 export function MultiSelectKeyValues<
   T extends { key: string; value: string } | string,
 >({
-  title = "Select",
+  title,
   placeholder,
   values,
   onValueChange,
@@ -67,7 +68,7 @@ export function MultiSelectKeyValues<
   groupedOptions,
   className,
   disabled,
-  items = "items",
+  items,
   align = "center",
   controlButtons,
   hideClearButton = false,
@@ -76,8 +77,10 @@ export function MultiSelectKeyValues<
   variant = "secondary",
   showSelectedValueStrings = true,
 }: MultiSelectKeyValuesProps<T>) {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const itemLabel = items ?? t("scores.items");
 
   const selectedValueKeys = new Set(
     values.map((value) => (typeof value === "string" ? value : value.key)),
@@ -181,7 +184,7 @@ export function MultiSelectKeyValues<
           disabled={disabled}
         >
           {iconLeft}
-          {title}
+          {title ?? t("common.select")}
           {iconRight}
           <ChevronDown className="h-4 w-4 opacity-50" />
           {selectedValueKeys.size > 0 && (
@@ -273,7 +276,7 @@ export function MultiSelectKeyValues<
                 (group) => filterOptions(group.options).length > 0,
               )) && (
               <div className="text-muted-foreground px-2 py-1.5 text-sm">
-                No results found.
+                {t("scores.noResults")}
               </div>
             )}
 
@@ -286,7 +289,7 @@ export function MultiSelectKeyValues<
                   onValueChange([]);
                 }}
               >
-                Clear {items}
+                {t("scores.clearItems", { items: itemLabel })}
               </DropdownMenuItem>
             </>
           )}

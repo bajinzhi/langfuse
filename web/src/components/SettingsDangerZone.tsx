@@ -1,4 +1,5 @@
 import Header from "@/src/components/layouts/header";
+import { useI18n } from "@/src/features/i18n";
 import React from "react";
 
 export const SettingsDangerZone: React.FC<{
@@ -8,9 +9,11 @@ export const SettingsDangerZone: React.FC<{
     button: React.ReactNode;
   }[];
 }> = ({ items }) => {
+  const { t } = useI18n();
+
   return (
     <div className="space-y-3">
-      <Header title="Danger Zone" />
+      <Header title={t("settings.dangerZone")} />
       <div className="rounded-lg border">
         {items.map((item, index) => (
           <div

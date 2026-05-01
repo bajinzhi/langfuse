@@ -4,19 +4,18 @@ import { useHasEntitlement } from "@/src/features/entitlements/hooks";
 import Header from "@/src/components/layouts/header";
 import { Button } from "@/src/components/ui/button";
 import { useSupportDrawer } from "@/src/features/support-chat/SupportDrawerProvider";
+import { useI18n } from "@/src/features/i18n";
 
 export const SSOSettings = () => {
   const hasEntitlement = useHasEntitlement("cloud-multi-tenant-sso");
   const { setOpen: setSupportDrawerOpen } = useSupportDrawer();
+  const { t } = useI18n();
 
   const commonContent = (
     <>
-      <Header title="SSO Configuration" />
+      <Header title={t("sso.configurationTitle")} />
       <p className="text-muted-foreground mb-4 text-sm">
-        Configure Single Sign-On (SSO) for your organization. SSO allows your
-        team to use your existing identity provider for authentication, e.g.
-        Okta, AzureAD/EntraID. Alternatively, you can enforce the use of a
-        public provider such as Google, GitHub and Microsoft.
+        {t("sso.configurationDescription")}
       </p>
     </>
   );
@@ -27,10 +26,9 @@ export const SSOSettings = () => {
         {commonContent}
         <Alert>
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Not available</AlertTitle>
+          <AlertTitle>{t("sso.notAvailable")}</AlertTitle>
           <AlertDescription>
-            Enterprise SSO and SSO Enforcement are not available on your plan.
-            Please upgrade to access this feature.
+            {t("sso.notAvailableDescription")}
           </AlertDescription>
         </Alert>
       </div>
@@ -42,17 +40,14 @@ export const SSOSettings = () => {
       {commonContent}
       <Alert>
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Contact Langfuse Support</AlertTitle>
+        <AlertTitle>{t("sso.contactSupportTitle")}</AlertTitle>
         <AlertDescription className="flex flex-col gap-3">
-          <p>
-            To set up or change your SSO configuration, please reach out to our
-            support engineering team.
-          </p>
+          <p>{t("sso.contactSupportDescription")}</p>
           <Button
             onClick={() => setSupportDrawerOpen(true)}
             className="self-start"
           >
-            Contact Support
+            {t("sso.contactSupport")}
           </Button>
         </AlertDescription>
       </Alert>

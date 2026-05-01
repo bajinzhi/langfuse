@@ -5,6 +5,7 @@ import { FormLabel } from "@/src/components/ui/form";
 import { PricePreview } from "../PricePreview";
 import type { UseFormReturn } from "react-hook-form";
 import type { FormUpsertModel } from "../../validation";
+import { useI18n } from "@/src/features/i18n";
 
 type TierPriceEditorProps = {
   tierIndex: number;
@@ -19,19 +20,20 @@ export function TierPriceEditor({
   form,
   isDefault,
 }: TierPriceEditorProps) {
+  const { t } = useI18n();
   const prices = form.watch(`pricingTiers.${tierIndex}.prices`) || {};
 
   return (
     <div className="space-y-3">
-      <FormLabel>Prices</FormLabel>
+      <FormLabel>{t("models.tiers.prices")}</FormLabel>
       <div className="text-muted-foreground grid grid-cols-2 gap-1 text-sm">
-        <span>Usage type</span>
-        <span>Price</span>
+        <span>{t("models.tiers.usageType")}</span>
+        <span>{t("models.price.price")}</span>
       </div>
       {Object.entries(prices).map(([key, value], index) => (
         <div key={index} className="grid grid-cols-2 gap-1">
           <Input
-            placeholder="Key (e.g. input, output)"
+            placeholder={t("models.price.keyPlaceholder")}
             value={key}
             disabled={!isDefault}
             onChange={(e) => {
@@ -53,7 +55,7 @@ export function TierPriceEditor({
           <div className="flex gap-1">
             <Input
               type="number"
-              placeholder="Price per unit"
+              placeholder={t("models.price.pricePerUnit")}
               value={value as number}
               step="0.000001"
               onChange={(e) => {
@@ -67,7 +69,7 @@ export function TierPriceEditor({
               <Button
                 type="button"
                 variant="outline"
-                title="Remove price"
+                title={t("models.price.removePrice")}
                 size="icon"
                 onClick={() => {
                   const newPrices = { ...prices };
@@ -101,7 +103,7 @@ export function TierPriceEditor({
           className="flex items-center gap-1"
         >
           <PlusCircle className="h-4 w-4" />
-          <span>Add Price</span>
+          <span>{t("models.price.addPrice")}</span>
         </Button>
       )}
       <PricePreview prices={prices} />

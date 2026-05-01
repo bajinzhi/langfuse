@@ -45,6 +45,7 @@ import { type DataTablePeekViewProps } from "@/src/components/table/peek";
 import isEqual from "lodash/isEqual";
 import { useRouter } from "next/router";
 import { useColumnSizing } from "@/src/components/table/hooks/useColumnSizing";
+import { useI18n } from "@/src/features/i18n";
 
 interface DataTableProps<TData, TValue> {
   columns: LangfuseColumnDef<TData, TValue>[];
@@ -180,6 +181,7 @@ export function DataTable<TData extends object, TValue>({
   topAlignCells = false,
   cellPadding = "compact",
 }: DataTableProps<TData, TValue>) {
+  const { t } = useI18n();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const rowheighttw = getRowHeightTailwindClass(rowHeight, customRowHeights);
   const capture = usePostHogClientCapture();
@@ -392,7 +394,10 @@ export function DataTable<TData extends object, TValue>({
                               />
                             )}
                             {orderBy?.column === columnDef.id
-                              ? renderOrderingIndicator(orderBy)
+                              ? renderOrderingIndicator(
+                                  orderBy,
+                                  t("table.sort.title"),
+                                )
                               : null}
 
                             <div
@@ -476,12 +481,12 @@ export function DataTable<TData extends object, TValue>({
   );
 }
 
-function renderOrderingIndicator(orderBy?: OrderByState) {
+function renderOrderingIndicator(orderBy?: OrderByState, title?: string) {
   if (!orderBy) return null;
   if (orderBy.order === "ASC") return <span className="ml-1">▲</span>;
   else
     return (
-      <span className="ml-1" title="Sort by this column">
+      <span className="ml-1" title={title}>
         ▼
       </span>
     );
@@ -568,6 +573,7 @@ function TableBodyComponent<TData>({
   cellPadding = "compact",
   tableSnapshot: _tableSnapshot,
 }: TableBodyComponentProps<TData>) {
+  const { t } = useI18n();
   const visibleColumns = table.getVisibleLeafColumns();
   const skeletonRowCount = Math.max(
     1,
@@ -700,7 +706,7 @@ function TableBodyComponent<TData>({
             <div className="pointer-events-none absolute left-[50%] flex -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center">
               {noResultsMessage ?? (
                 <>
-                  No results.{" "}
+                  {t("table.empty.noResults")}{" "}
                   {help && (
                     <DocPopup description={help.description} href={help.href} />
                   )}

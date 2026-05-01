@@ -29,11 +29,13 @@ import { useDatasetVersion } from "@/src/features/datasets/hooks/useDatasetVersi
 import { useExperimentAccess } from "@/src/features/experiments/hooks/useExperimentAccess";
 import { ExperimentsBetaSwitch } from "@/src/features/experiments/components/ExperimentsBetaSwitch";
 import { getDatasetBreadcrumb } from "@/src/features/datasets/utils/getDatasetBreadcrumb";
+import { useI18n } from "@/src/features/i18n";
 
 function DatasetItemsView() {
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const datasetId = router.query.datasetId as string;
+  const { t } = useI18n();
 
   const { selectedVersion, resetToLatest } = useDatasetVersion();
   const isViewingOldVersion = selectedVersion !== null;
@@ -75,7 +77,7 @@ function DatasetItemsView() {
     setIsVersionPanelOpen(open);
   };
 
-  const breadcrumb = getDatasetBreadcrumb(projectId, dataset.data?.name);
+  const breadcrumb = getDatasetBreadcrumb(projectId, dataset.data?.name, t);
 
   const betaSwitch = canUseExperimentsBetaToggle ? (
     <ExperimentsBetaSwitch
@@ -91,7 +93,7 @@ function DatasetItemsView() {
         itemType: "DATASET",
         breadcrumb,
         tabsProps: {
-          tabs: getDatasetTabs(projectId, datasetId),
+          tabs: getDatasetTabs(projectId, datasetId, t),
           activeTab: DATASET_TABS.ITEMS,
         },
         actionButtonsLeft: betaSwitch,
@@ -163,7 +165,7 @@ function DatasetItemsView() {
               variant="outline"
               size="icon"
               onClick={() => setIsVersionPanelOpen(!isVersionPanelOpen)}
-              title="Version History"
+              title={t("datasets.versionHistory")}
             >
               <History className="h-4 w-4" />
             </Button>
@@ -191,7 +193,7 @@ function DatasetItemsView() {
               open: isVersionPanelOpen,
               onOpenChange: handlePanelOpenChange,
             }}
-            mobileTitle="Version History"
+            mobileTitle={t("datasets.versionHistory")}
           >
             <SidePanelContent className="h-full">
               <DatasetVersionHistoryPanel

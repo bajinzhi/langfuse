@@ -23,12 +23,14 @@ function createScoreColumns<T extends Record<string, any>>(
   prefix?: string,
   defaultHidden?: boolean,
   rawKey?: boolean,
+  headerPrefix?: string,
 ): LangfuseColumnDef<T>[] {
   return scoreColumns.map(({ key, name, source, dataType }) => {
     // Apply prefix to both column ID/accessor and header
     const accessorKey = prefix ? `${prefix}-${key}` : key;
-    const header = prefix
-      ? `${prefix}: ${getScoreDataTypeIcon(dataType)} ${name} (${source.toLowerCase()})`
+    const displayPrefix = headerPrefix ?? prefix;
+    const header = displayPrefix
+      ? `${displayPrefix}: ${getScoreDataTypeIcon(dataType)} ${name} (${source.toLowerCase()})`
       : `${getScoreDataTypeIcon(dataType)} ${name} (${source.toLowerCase()})`;
 
     return {
@@ -72,6 +74,7 @@ export function useScoreColumns<T extends Record<string, any>>({
   displayFormat = "smart",
   defaultHidden,
   rawKey = false,
+  headerPrefix,
 }: {
   projectId: string;
   scoreColumnKey: keyof T & string;
@@ -83,6 +86,7 @@ export function useScoreColumns<T extends Record<string, any>>({
   displayFormat?: "smart" | "aggregate";
   defaultHidden?: boolean;
   rawKey?: boolean;
+  headerPrefix?: string;
 }) {
   const scoreColumnsQuery = api.scores.getScoreColumns.useQuery(
     {
@@ -106,6 +110,7 @@ export function useScoreColumns<T extends Record<string, any>>({
       prefix,
       defaultHidden,
       rawKey,
+      headerPrefix,
     );
   }, [
     scoreColumnsQuery.data?.scoreColumns,
@@ -114,6 +119,7 @@ export function useScoreColumns<T extends Record<string, any>>({
     displayFormat,
     defaultHidden,
     rawKey,
+    headerPrefix,
   ]);
 
   return {

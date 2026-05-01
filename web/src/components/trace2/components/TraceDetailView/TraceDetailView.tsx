@@ -48,6 +48,7 @@ import { TraceLogView } from "../TraceLogView/TraceLogView";
 import { TRACE_VIEW_CONFIG } from "@/src/components/trace2/config/trace-view-config";
 import ScoresTable from "@/src/components/table/use-cases/scores";
 import { getMostRecentCorrection } from "@/src/features/corrections/utils/getMostRecentCorrection";
+import { useI18n } from "@/src/features/i18n";
 
 export interface TraceDetailViewProps {
   trace: Omit<WithStringifiedMetadata<TraceDomain>, "input" | "output"> & {
@@ -68,6 +69,7 @@ export function TraceDetailView({
   corrections,
   projectId,
 }: TraceDetailViewProps) {
+  const { t } = useI18n();
   // Tab and view state from URL (via SelectionContext)
   const { selectedTab, setSelectedTab } = useSelection();
   const [isPrettyViewAvailable, setIsPrettyViewAvailable] = useState(true);
@@ -211,23 +213,25 @@ export function TraceDetailView({
       >
         <TooltipProvider>
           <TabsBarList>
-            <TabsBarTrigger value="preview">Preview</TabsBarTrigger>
+            <TabsBarTrigger value="preview">{t("trace.preview")}</TabsBarTrigger>
             {showLogViewTab && (
               <TabsBarTrigger value="log">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span>Log View</span>
+                    <span>{t("trace.logView")}</span>
                   </TooltipTrigger>
                   <TooltipContent className="text-xs">
                     {isLogViewVirtualized
-                      ? `Shows all ${observations.length} observations with virtualization enabled.`
-                      : "Shows all observations concatenated. Great for quickly scanning through them."}
+                      ? t("trace.logViewVirtualizedTooltip", {
+                          count: observations.length,
+                        })
+                      : t("trace.logViewTooltip")}
                   </TooltipContent>
                 </Tooltip>
               </TabsBarTrigger>
             )}
             {showScoresTab && (
-              <TabsBarTrigger value="scores">Scores</TabsBarTrigger>
+              <TabsBarTrigger value="scores">{t("trace.scores")}</TabsBarTrigger>
             )}
 
             {/* View toggle (Formatted/JSON) - show for preview and log tabs when pretty view available */}
@@ -256,7 +260,7 @@ export function TraceDetailView({
                 >
                   <TabsList className="h-fit py-0.5">
                     <TabsTrigger value="pretty" className="h-fit px-1 text-xs">
-                      Formatted
+                      {t("trace.formatted")}
                     </TabsTrigger>
                     {selectedTab === "log" && isLogViewVirtualized ? (
                       <HoverCard openDelay={200}>
@@ -266,7 +270,7 @@ export function TraceDetailView({
                             className="h-fit px-1 text-xs"
                             disabled
                           >
-                            JSON
+                            {t("trace.json")}
                           </TabsTrigger>
                         </HoverCardTrigger>
                         <HoverCardContent
@@ -274,17 +278,21 @@ export function TraceDetailView({
                           className="w-64 text-sm"
                           sideOffset={8}
                         >
-                          <p className="font-medium">JSON view unavailable</p>
+                          <p className="font-medium">
+                            {t("trace.jsonViewUnavailable")}
+                          </p>
                           <p className="text-muted-foreground mt-1">
-                            Disabled for traces with{" "}
-                            {TRACE_VIEW_CONFIG.logView.virtualizationThreshold}+
-                            observations to maintain performance.
+                            {t("trace.jsonViewUnavailableDescription", {
+                              count:
+                                TRACE_VIEW_CONFIG.logView
+                                  .virtualizationThreshold,
+                            })}
                           </p>
                         </HoverCardContent>
                       </HoverCard>
                     ) : (
                       <TabsTrigger value="json" className="h-fit px-1 text-xs">
-                        JSON
+                        {t("trace.json")}
                       </TabsTrigger>
                     )}
                   </TabsList>
@@ -299,7 +307,7 @@ export function TraceDetailView({
                         onCheckedChange={handleBetaToggle}
                       />
                       <span className="text-muted-foreground text-xs">
-                        Beta
+                        {t("trace.beta")}
                       </span>
                     </div>
                   )}
@@ -326,7 +334,7 @@ export function TraceDetailView({
                 <div
                   className={`px-2 pt-2 text-sm font-medium ${currentView !== "pretty" ? "shrink-0" : ""}`}
                 >
-                  Tags
+                  {t("trace.tags")}
                 </div>
                 <div
                   className={`flex flex-wrap gap-x-1 gap-y-1 px-2 pb-2 ${currentView !== "pretty" ? "shrink-0" : ""}`}

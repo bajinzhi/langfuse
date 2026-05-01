@@ -1,4 +1,5 @@
 import { Button } from "@/src/components/ui/button";
+import { useI18n } from "@/src/features/i18n";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { useSupportDrawer } from "@/src/features/support-chat/SupportDrawerProvider";
 import { AlertTriangle, X } from "lucide-react";
@@ -20,6 +21,7 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
   toast,
   path,
 }) => {
+  const { t } = useI18n();
   const { setOpen } = useSupportDrawer();
   const capture = usePostHogClientCapture();
   const isError = type === "ERROR";
@@ -54,7 +56,7 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
         )}
         {path && (
           <div className={`text-sm leading-tight ${textColor}`}>
-            Path: {path}
+            {t("notifications.path", { path })}
           </div>
         )}
 
@@ -70,7 +72,7 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
               setOpen(true);
             }}
           >
-            Report issue to Langfuse team
+            {t("notifications.reportIssue")}
           </Button>
         )}
       </div>
@@ -91,7 +93,7 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
           e.stopPropagation();
           e.preventDefault();
         }}
-        aria-label="Close"
+        aria-label={t("notifications.close")}
       >
         <X size={14} />
       </button>

@@ -50,6 +50,7 @@ import {
 import { useSyncMessageSearchMessages } from "@/src/components/ChatMessages/MessageSearch";
 import { getFinalModelParams } from "@/src/utils/getFinalModelParams";
 import { STREAMING_PREF_KEY } from "@/src/features/playground/page/storage/keys";
+import { translateClientMessage, useI18n } from "@/src/features/i18n";
 
 type PlaygroundContextType = {
   windowId: string;
@@ -99,6 +100,7 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
 }) => {
   const effectiveWindowId = windowId || MULTI_WINDOW_CONFIG.DEFAULT_WINDOW_ID;
   const capture = usePostHogClientCapture();
+  const { t } = useI18n();
   const projectId = useProjectIdFromURL();
   const { playgroundCache, setPlaygroundCache } = usePlaygroundCache(windowId);
   const [promptVariables, setPromptVariables] = useState<PromptVariable[]>([]);
@@ -327,10 +329,11 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
           promptVariables,
           messages,
           messagePlaceholders,
+          t,
         );
 
         if (finalMessages.length === 0) {
-          throw new Error("Please add at least one message with content.");
+          throw new Error(t("playground.errors.addMessageContent"));
         }
 
         const leftOverVariables = extractVariables(
@@ -340,17 +343,15 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
         );
 
         if (!modelParams.provider.value || !modelParams.model.value) {
-          throw new Error("Please select a model");
+          throw new Error(t("playground.errors.selectModel"));
         }
 
         if (leftOverVariables.length > 0) {
-          throw Error("Error replacing variables. Please check your inputs.");
+          throw Error(t("playground.errors.variableReplacement"));
         }
 
         if (tools.length > 0 && structuredOutputSchema) {
-          throw new Error(
-            "Cannot use both tools and structured output at the same time",
-          );
+          throw new Error(t("playground.errors.cannotUseToolsAndSchema"));
         }
 
         let response = "";
@@ -438,8 +439,8 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
         });
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : "An error occurred";
-        showErrorToast("Error", errorMessage);
+          err instanceof Error ? err.message : t("playground.errors.generic");
+        showErrorToast(t("common.error"), errorMessage);
       } finally {
         setIsStreaming(false);
       }
@@ -454,6 +455,7 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
       setPlaygroundCache,
       structuredOutputSchema,
       projectId,
+      t,
     ],
   );
 
@@ -730,7 +732,8 @@ async function getChatCompletionWithTools(
   tools: unknown[],
   streaming: boolean = false,
 ): Promise<ToolCallResponse & { reasoning?: string }> {
-  if (!projectId) throw Error("Project ID is not set");
+  if (!projectId)
+    throw Error(translateClientMessage("playground.errors.projectIdNotSet"));
 
   const body = JSON.stringify({
     projectId,
@@ -775,7 +778,8 @@ async function getChatCompletionWithStructuredOutput(
   structuredOutputSchema: PlaygroundSchema | null,
   streaming: boolean = false,
 ): Promise<string> {
-  if (!projectId) throw Error("Project ID is not set");
+  if (!projectId)
+    throw Error(translateClientMessage("playground.errors.projectIdNotSet"));
 
   const body = JSON.stringify({
     projectId,
@@ -815,7 +819,7 @@ async function* getChatCompletionStream(
   modelParams: UIModelParams,
 ) {
   if (!projectId) {
-    console.error("Project ID is not set");
+    console.error(translateClientMessage("playground.errors.projectIdNotSet"));
     return;
   }
 
@@ -850,7 +854,7 @@ async function* getChatCompletionStream(
 
   const reader = result.body?.getReader();
   if (!reader) {
-    throw new Error("Failed to read response body");
+    throw new Error(translateClientMessage("playground.errors.readResponseBody"));
   }
 
   const decoder = new TextDecoder("utf-8");
@@ -876,7 +880,7 @@ async function getChatCompletionNonStreaming(
   modelParams: UIModelParams,
 ): Promise<{ content: string; reasoning?: string }> {
   if (!projectId) {
-    throw new Error("Project ID is not set");
+    throw new Error(translateClientMessage("playground.errors.projectIdNotSet"));
   }
 
   const hasToolResults = messages.some(
@@ -918,13 +922,14 @@ function getFinalMessages(
   promptVariables: PromptVariable[],
   messages: ChatMessageWithId[],
   messagePlaceholders: PlaceholderMessageFillIn[],
+  t: ReturnType<typeof useI18n>["t"],
 ): ChatMessageWithIdNoPlaceholders[] {
   const missingVariables = promptVariables.filter((v) => !v.value && v.isUsed);
   if (missingVariables.length > 0) {
     throw new Error(
-      `Please set a value for the following variables: ${missingVariables
-        .map((v) => v.name)
-        .join(", ")}`,
+      t("playground.errors.setVariables", {
+        variables: missingVariables.map((v) => v.name).join(", "),
+      }),
     );
   }
 
@@ -933,9 +938,9 @@ function getFinalMessages(
   );
   if (missingPlaceholders.length > 0) {
     throw new Error(
-      `Please set values for the following message placeholders: ${missingPlaceholders
-        .map((p) => p.name)
-        .join(", ")}`,
+      t("playground.errors.setPlaceholders", {
+        placeholders: missingPlaceholders.map((p) => p.name).join(", "),
+      }),
     );
   }
 

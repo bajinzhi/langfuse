@@ -15,6 +15,7 @@ import {
 } from "@/src/features/events/lib/eventsTablePaths";
 import { copyTextToClipboard } from "@/src/utils/clipboard";
 import { type ObservationType } from "@langfuse/shared";
+import { useI18n } from "@/src/features/i18n";
 
 type IdItem = {
   name: string;
@@ -34,6 +35,7 @@ export function DetailHeaderActionsMenu({
   projectId,
   spanName,
 }: DetailHeaderActionsMenuProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -67,10 +69,10 @@ export function DetailHeaderActionsMenu({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          aria-label="Options"
+          aria-label={t("trace.options")}
           className="mt-0.5 shrink-0"
           size="icon-xs"
-          title="Options"
+          title={t("trace.options")}
           variant="ghost"
         >
           <EllipsisVertical className="h-4 w-4" />
@@ -85,7 +87,7 @@ export function DetailHeaderActionsMenu({
                 onSelect={() => void router.push(href)}
               >
                 <span className="max-w-[260px] truncate" title={spanName}>
-                  filter by{" "}
+                  {t("trace.filterBy")}{" "}
                   <span className="font-semibold">name:{spanName}</span>
                 </span>
               </DropdownMenuItem>
@@ -99,7 +101,7 @@ export function DetailHeaderActionsMenu({
                   className="max-w-[260px] truncate"
                   title={filterTypeLabel}
                 >
-                  filter by{" "}
+                  {t("trace.filterBy")}{" "}
                   <span className="font-semibold">{filterTypeLabel}</span>
                 </span>
               </DropdownMenuItem>
@@ -119,7 +121,7 @@ export function DetailHeaderActionsMenu({
               <CopyIcon className="mr-2 h-4 w-4" />
             )}
             <span className="max-w-[260px] truncate" title={item.id}>
-              Copy {item.name}
+              {t("trace.copyItem", { item: item.name })}
             </span>
           </DropdownMenuItem>
         ))}

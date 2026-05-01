@@ -2,10 +2,12 @@ import { Clock, Info } from "lucide-react";
 import { useScoreAnalytics } from "./ScoreAnalyticsProvider";
 import { useState, useEffect } from "react";
 import { SamplingDetailsHoverCard } from "./SamplingDetailsHoverCard";
+import { useI18n } from "@/src/features/i18n";
 
 export function ScoreAnalyticsNoticeBanner() {
   const { isEstimating, estimate, isLoading, data } = useScoreAnalytics();
   const [showLoadingBanner, setShowLoadingBanner] = useState(false);
+  const { t } = useI18n();
 
   // Track when estimation starts and set delay for showing loading banner
   useEffect(() => {
@@ -44,17 +46,29 @@ export function ScoreAnalyticsNoticeBanner() {
           <div className="flex-1 space-y-1">
             <div className="text-sm font-medium">
               {showLargeDataset
-                ? "Processing large dataset..."
-                : "Loading analytics..."}
+                ? t("scoreAnalytics.processingLargeDataset")
+                : t("scoreAnalytics.loadingAnalytics")}
             </div>
             {estimate && (
               <div className="text-muted-foreground text-sm">
                 {estimate.mode === "single"
-                  ? `Analyzing ~${estimate.score1Count.toLocaleString()} scores`
-                  : `Analyzing ~${estimate.score1Count.toLocaleString()} (Score 1) and ~${estimate.score2Count.toLocaleString()} (Score 2) scores`}
-                {estimate.willSample && " • Sampling will be applied"}
+                  ? t("scoreAnalytics.analyzingScores", {
+                      scoreCount: estimate.score1Count.toLocaleString(),
+                    })
+                  : t("scoreAnalytics.analyzingTwoScores", {
+                      score1Count: estimate.score1Count.toLocaleString(),
+                      score2Count: estimate.score2Count.toLocaleString(),
+                    })}
+                {estimate.willSample &&
+                  ` • ${t("scoreAnalytics.samplingWillBeApplied")}`}
                 {estimate.estimatedQueryTime && (
-                  <> • Est. time: {estimate.estimatedQueryTime}</>
+                  <>
+                    {" "}
+                    •{" "}
+                    {t("scoreAnalytics.estimatedTime", {
+                      duration: estimate.estimatedQueryTime,
+                    })}
+                  </>
                 )}
               </div>
             )}
@@ -72,7 +86,7 @@ export function ScoreAnalyticsNoticeBanner() {
           <Info className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2 text-sm font-medium">
-              Sampled Data
+              {t("scoreAnalytics.sampledData")}
               <SamplingDetailsHoverCard
                 samplingMetadata={data.samplingMetadata}
                 mode={data.metadata.mode}
@@ -80,8 +94,25 @@ export function ScoreAnalyticsNoticeBanner() {
             </div>
             <div className="text-muted-foreground text-sm">
               {data.metadata.mode === "single"
-                ? `Results based on a ${(data.samplingMetadata.samplingRate * 100).toFixed(2)}% sample of ~${data.samplingMetadata.preflightEstimates?.score1Count.toLocaleString()} scores.`
-                : `Results based on a ${(data.samplingMetadata.samplingRate * 100).toFixed(2)}% sample of ~${data.samplingMetadata.preflightEstimates?.score1Count.toLocaleString()} Score 1 and ~${data.samplingMetadata.preflightEstimates?.score2Count.toLocaleString()} Score 2 data.`}
+                ? t("scoreAnalytics.sampledResultsSingle", {
+                    sampleRate: (
+                      data.samplingMetadata.samplingRate * 100
+                    ).toFixed(2),
+                    scoreCount:
+                      data.samplingMetadata.preflightEstimates?.score1Count.toLocaleString() ??
+                      "0",
+                  })
+                : t("scoreAnalytics.sampledResultsTwo", {
+                    sampleRate: (
+                      data.samplingMetadata.samplingRate * 100
+                    ).toFixed(2),
+                    score1Count:
+                      data.samplingMetadata.preflightEstimates?.score1Count.toLocaleString() ??
+                      "0",
+                    score2Count:
+                      data.samplingMetadata.preflightEstimates?.score2Count.toLocaleString() ??
+                      "0",
+                  })}
             </div>
           </div>
         </div>

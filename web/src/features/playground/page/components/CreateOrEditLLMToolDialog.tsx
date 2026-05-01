@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUpRight } from "lucide-react";
@@ -32,14 +32,16 @@ import { api } from "@/src/utils/api";
 import { CodeMirrorEditor } from "@/src/components/editor";
 import { JSONSchemaFormSchema, type LlmTool } from "@langfuse/shared";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
+import { useI18n } from "@/src/features/i18n";
 
-const formSchema = z.object({
-  name: LLMToolNameSchema,
-  description: z.string().min(1, "Description is required"),
-  parameters: JSONSchemaFormSchema,
-});
+const createFormSchema = (messages: { descriptionRequired: string }) =>
+  z.object({
+    name: LLMToolNameSchema,
+    description: z.string().min(1, messages.descriptionRequired),
+    parameters: JSONSchemaFormSchema,
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 type CreateOrEditLLMToolDialog = {
   children: React.ReactNode;
@@ -58,6 +60,14 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
   props,
 ) => {
   const { children, projectId, onSave, existingLlmTool } = props;
+  const { t } = useI18n();
+  const formSchema = useMemo(
+    () =>
+      createFormSchema({
+        descriptionRequired: t("playground.dialog.descriptionRequired"),
+      }),
+    [t],
+  );
 
   const utils = api.useUtils();
   const createLlmTool = api.llmTools.create.useMutation();
@@ -142,8 +152,8 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
       form.setValue("parameters", prettified);
     } catch {
       showErrorToast(
-        "Failed to prettify JSON",
-        "Please verify your input is valid JSON",
+        t("playground.dialog.failedPrettifyTitle"),
+        t("playground.dialog.failedPrettifyDescription"),
         "WARNING",
       );
     }
@@ -160,10 +170,12 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
       >
         <DialogHeader>
           <DialogTitle>
-            {existingLlmTool ? "Edit LLM Tool" : "Create LLM Tool"}
+            {existingLlmTool
+              ? t("playground.dialog.editLlmTool")
+              : t("playground.dialog.createLlmTool")}
           </DialogTitle>
           <DialogDescription>
-            Define a tool for LLM function calling
+            {t("playground.dialog.defineTool")}
           </DialogDescription>
         </DialogHeader>
 
@@ -179,7 +191,7 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>{t("playground.dialog.name")}</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g., get_weather" {...field} />
                       </FormControl>
@@ -193,14 +205,15 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>
+                        {t("playground.dialog.description")}
+                      </FormLabel>
                       <FormDescription>
-                        This description will be sent to the LLM to help it
-                        understand the tool&apos;s purpose and functionality.
+                        {t("playground.dialog.toolDescriptionHelp")}
                       </FormDescription>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe the tool's purpose and usage"
+                          placeholder={t("playground.dialog.describeTool")}
                           className="max-h-[120px] focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                           {...field}
                           onKeyDown={(e) => {
@@ -218,17 +231,20 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
                   name="parameters"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Parameters (JSON Schema)</FormLabel>
+                      <FormLabel>
+                        {t("playground.dialog.parametersJsonSchema")}
+                      </FormLabel>
                       <FormDescription>
-                        Define the structure of your tool parameters using JSON
-                        Schema format.{" "}
+                        {t(
+                          "playground.dialog.toolParametersDescription",
+                        )}{" "}
                         <a
                           href="https://json-schema.org/learn/miscellaneous-examples"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center"
                         >
-                          See JSON Schema examples here
+                          {t("playground.dialog.seeJsonSchemaExamples")}
                           <ArrowUpRight className="h-3 w-3" />
                         </a>
                       </FormDescription>
@@ -248,12 +264,12 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
                             onClick={prettifyJson}
                             className="absolute top-3 right-3 text-xs"
                           >
-                            Prettify
+                            {t("playground.dialog.prettify")}
                           </Button>
                         </div>
                       </FormControl>
                       <p className="text-muted-foreground text-xs">
-                        Parameters must be a valid JSON Schema object
+                        {t("playground.dialog.parametersMustBeJsonSchema")}
                       </p>
                       <FormMessage />
                     </FormItem>
@@ -265,8 +281,7 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
             <DialogFooter className="bg-background sticky bottom-0 mt-4 flex flex-col gap-2 border-t pt-4">
               <div className="flex w-full flex-col gap-2">
                 <p className="text-muted-foreground text-xs">
-                  Note: Changes to tools are reflected to all members of this
-                  project.
+                  {t("playground.dialog.noteTools")}
                 </p>
                 <div className="flex items-center justify-between gap-2">
                   {existingLlmTool && (
@@ -276,7 +291,7 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
                       onClick={handleDelete}
                       className="mr-auto"
                     >
-                      Delete
+                      {t("common.delete")}
                     </Button>
                   )}
                   <Button
@@ -284,9 +299,9 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
                     variant="outline"
                     onClick={() => setOpen(false)}
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
-                  <Button type="submit">Save</Button>
+                  <Button type="submit">{t("common.save")}</Button>
                 </div>
               </div>
             </DialogFooter>

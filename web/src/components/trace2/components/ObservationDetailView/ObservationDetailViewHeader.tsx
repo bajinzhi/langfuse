@@ -48,6 +48,7 @@ import { type ScoreDomain } from "@langfuse/shared";
 import { type AggregatedTraceMetrics } from "@/src/components/trace2/lib/trace-aggregation";
 import type Decimal from "decimal.js";
 import { DetailHeaderActionsMenu } from "@/src/components/trace2/components/_shared/DetailHeaderActionsMenu";
+import { useI18n } from "@/src/features/i18n";
 
 export interface ObservationDetailViewHeaderProps {
   observation: ObservationReturnTypeWithMetadata;
@@ -90,6 +91,7 @@ export const ObservationDetailViewHeader = memo(
     treeNodeTotalCost,
   }: ObservationDetailViewHeaderProps) {
     // Format cost and usage values
+    const { t } = useI18n();
     const totalCost = observation.totalCost;
     const totalUsage = observation.totalUsage;
     const inputUsage = observation.inputUsage;
@@ -108,8 +110,11 @@ export const ObservationDetailViewHeader = memo(
             </span>
             <DetailHeaderActionsMenu
               idItems={[
-                { id: traceId, name: "Trace ID" },
-                { id: observation.id, name: "Observation ID" },
+                { id: traceId, name: t("observability.columns.traceId") },
+                {
+                  id: observation.id,
+                  name: t("observability.columns.observationId"),
+                },
               ]}
               observationType={observation.type}
               projectId={projectId}

@@ -2,6 +2,12 @@ import { omitFilterFacets } from "@/src/features/filters/lib/filter-config";
 import { sessionsViewCols } from "@langfuse/shared";
 import type { FilterConfig } from "@/src/features/filters/lib/filter-config";
 import type { ColumnToBackendKeyMap } from "@/src/features/filters/lib/filter-transform";
+import {
+  defaultTranslate,
+  getFilterColumnLabel,
+  translateFilterColumnDefinitions,
+  type Translate,
+} from "@/src/features/filters/config/filter-labels";
 
 export type SessionOmittableFilterColumn = "userIds";
 
@@ -13,10 +19,24 @@ export const SESSION_COLUMN_TO_BACKEND_KEY: ColumnToBackendKeyMap = {
   tags: "traceTags",
 };
 
-export const sessionFilterConfig: FilterConfig = {
+const SESSION_LABEL_OVERRIDES = {
+  id: "observability.columns.sessionId",
+  tags: "observability.columns.traceTags",
+} as const;
+
+const sessionColumnLabel = (id: string, t: Translate) =>
+  getFilterColumnLabel(sessionsViewCols, id, t, SESSION_LABEL_OVERRIDES);
+
+const createSessionFilterConfig = (
+  t: Translate = defaultTranslate,
+): FilterConfig => ({
   tableName: "sessions",
 
-  columnDefinitions: sessionsViewCols,
+  columnDefinitions: translateFilterColumnDefinitions(
+    sessionsViewCols,
+    t,
+    SESSION_LABEL_OVERRIDES,
+  ),
 
   defaultExpanded: ["environment", "bookmarked"],
 
@@ -24,34 +44,34 @@ export const sessionFilterConfig: FilterConfig = {
     {
       type: "categorical" as const,
       column: "environment",
-      label: "Environment",
+      label: sessionColumnLabel("environment", t),
     },
     {
       type: "string" as const,
       column: "id",
-      label: "Session ID",
+      label: sessionColumnLabel("id", t),
     },
     {
       type: "categorical" as const,
       column: "userIds",
-      label: "User IDs",
+      label: sessionColumnLabel("userIds", t),
     },
     {
       type: "categorical" as const,
       column: "tags",
-      label: "Trace Tags",
+      label: sessionColumnLabel("tags", t),
     },
     {
       type: "boolean" as const,
       column: "bookmarked",
-      label: "Bookmarked",
-      trueLabel: "Bookmarked",
-      falseLabel: "Not bookmarked",
+      label: sessionColumnLabel("bookmarked", t),
+      trueLabel: t("observability.filters.bookmarkedTrue"),
+      falseLabel: t("observability.filters.bookmarkedFalse"),
     },
     {
       type: "numeric" as const,
       column: "sessionDuration",
-      label: "Session Duration",
+      label: sessionColumnLabel("sessionDuration", t),
       min: 0,
       max: 3600,
       unit: "s",
@@ -59,35 +79,35 @@ export const sessionFilterConfig: FilterConfig = {
     {
       type: "numeric" as const,
       column: "countTraces",
-      label: "Traces Count",
+      label: sessionColumnLabel("countTraces", t),
       min: 0,
       max: 1000,
     },
     {
       type: "numeric" as const,
       column: "inputTokens",
-      label: "Input Tokens",
+      label: sessionColumnLabel("inputTokens", t),
       min: 0,
       max: 1000000,
     },
     {
       type: "numeric" as const,
       column: "outputTokens",
-      label: "Output Tokens",
+      label: sessionColumnLabel("outputTokens", t),
       min: 0,
       max: 1000000,
     },
     {
       type: "numeric" as const,
       column: "totalTokens",
-      label: "Total Tokens",
+      label: sessionColumnLabel("totalTokens", t),
       min: 0,
       max: 1000000,
     },
     {
       type: "numeric" as const,
       column: "inputCost",
-      label: "Input Cost",
+      label: sessionColumnLabel("inputCost", t),
       min: 0,
       max: 100,
       unit: "$",
@@ -95,7 +115,7 @@ export const sessionFilterConfig: FilterConfig = {
     {
       type: "numeric" as const,
       column: "outputCost",
-      label: "Output Cost",
+      label: sessionColumnLabel("outputCost", t),
       min: 0,
       max: 100,
       unit: "$",
@@ -103,7 +123,7 @@ export const sessionFilterConfig: FilterConfig = {
     {
       type: "numeric" as const,
       column: "totalCost",
-      label: "Total Cost",
+      label: sessionColumnLabel("totalCost", t),
       min: 0,
       max: 100,
       unit: "$",
@@ -111,30 +131,33 @@ export const sessionFilterConfig: FilterConfig = {
     {
       type: "keyValue" as const,
       column: "score_categories",
-      label: "Categorical Scores",
+      label: sessionColumnLabel("score_categories", t),
     },
     {
       type: "numericKeyValue" as const,
       column: "scores_avg",
-      label: "Numeric Scores",
+      label: sessionColumnLabel("scores_avg", t),
     },
     {
       type: "numeric" as const,
       column: "commentCount",
-      label: "Comment Count",
+      label: sessionColumnLabel("commentCount", t),
       min: 0,
       max: 100,
     },
     {
       type: "string" as const,
       column: "commentContent",
-      label: "Comment Content",
+      label: sessionColumnLabel("commentContent", t),
     },
   ],
-};
+});
+
+export const sessionFilterConfig: FilterConfig = createSessionFilterConfig();
 
 export function getSessionFilterConfig(
   omittedFilter: SessionOmittableFilterColumn[] = [],
+  t: Translate = defaultTranslate,
 ): FilterConfig {
-  return omitFilterFacets(sessionFilterConfig, omittedFilter);
+  return omitFilterFacets(createSessionFilterConfig(t), omittedFilter);
 }

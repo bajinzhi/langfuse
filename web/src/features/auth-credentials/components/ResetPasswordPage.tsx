@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -26,17 +26,23 @@ import Link from "next/link";
 import { ErrorPage } from "@/src/components/error-page";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { passwordSchema } from "@/src/features/auth/lib/signupSchema";
+import { useI18n } from "@/src/features/i18n";
 
-const resetPasswordSchema = z
-  .object({
-    email: z.email(),
-    password: passwordSchema,
-    confirmPassword: passwordSchema,
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+type Translate = ReturnType<typeof useI18n>["t"];
+
+const getResetPasswordSchema = (t: Translate) =>
+  z
+    .object({
+      email: z.email(),
+      password: passwordSchema,
+      confirmPassword: passwordSchema,
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("auth.password.noMatch"),
+      path: ["confirmPassword"],
+    });
+
+type ResetPasswordForm = z.infer<ReturnType<typeof getResetPasswordSchema>>;
 
 export function ResetPasswordPage({
   passwordResetAvailable,
@@ -45,6 +51,8 @@ export function ResetPasswordPage({
 }) {
   const session = useSession();
   const router = useRouter();
+  const { t } = useI18n();
+  const resetPasswordSchema = useMemo(() => getResetPasswordSchema(t), [t]);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showResetPasswordEmailButton, setShowResetPasswordEmailButton] =
@@ -57,7 +65,7 @@ export function ResetPasswordPage({
     session.data?.user?.emailVerified,
   );
 
-  const form = useForm({
+  const form = useForm<ResetPasswordForm>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       email: session.data?.user?.email ?? "",
@@ -66,7 +74,7 @@ export function ResetPasswordPage({
     },
   });
 
-  async function onSubmit(values: z.infer<typeof resetPasswordSchema>) {
+  async function onSubmit(values: ResetPasswordForm) {
     setFormError(null);
     setShowResetPasswordEmailButton(false);
     setIsSuccess(false);
@@ -89,7 +97,7 @@ export function ResetPasswordPage({
           setFormError(error.message);
         } else {
           console.error(error);
-          setFormError("An unknown error occurred");
+          setFormError(t("common.unexpectedError"));
         }
       });
   }
@@ -97,10 +105,10 @@ export function ResetPasswordPage({
   if (!passwordResetAvailable)
     return (
       <ErrorPage
-        title="Not available"
-        message="Password reset is not configured on this instance"
+        title={t("auth.password.resetUnavailableTitle")}
+        message={t("auth.password.resetUnavailable")}
         additionalButton={{
-          label: "Setup instructions",
+          label: t("auth.password.setupInstructions"),
           href: "https://langfuse.com/self-hosting/security/authentication-and-sso#auth-email-password",
         }}
       />
@@ -109,7 +117,7 @@ export function ResetPasswordPage({
   return (
     <>
       <Head>
-        <title>Reset Password | Langfuse</title>
+        <title>{`${t("auth.password.reset.title")} | Langfuse`}</title>
       </Head>
       <div className="flex flex-1 flex-col py-6 sm:min-h-full sm:justify-center sm:px-6 sm:py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -117,14 +125,14 @@ export function ResetPasswordPage({
             <LangfuseIcon className="mx-auto" />
           </Link>
           <h2 className="text-primary mt-4 text-center text-2xl leading-9 font-bold tracking-tight">
-            Reset your password
+            {t("auth.password.reset.title")}
           </h2>
           {session.status !== "authenticated" && (
             <div className="mt-2 flex justify-center">
               <Button asChild variant="ghost">
                 <Link href="/auth/sign-in">
                   <ArrowLeft className="mr-2 h-3 w-3" />
-                  Back to sign in
+                  {t("auth.backToSignIn")}
                 </Link>
               </Button>
             </div>
@@ -143,7 +151,7 @@ export function ResetPasswordPage({
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t("auth.email")}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
@@ -154,7 +162,7 @@ export function ResetPasswordPage({
                             {...field}
                           />
                           {emailVerified.verified && (
-                            <span title="Email verified">
+                            <span title={t("auth.emailVerified")}>
                               <ShieldCheck className="text-muted-green absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 transform" />
                             </span>
                           )}
@@ -171,7 +179,7 @@ export function ResetPasswordPage({
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>New Password</FormLabel>
+                          <FormLabel>{t("auth.password.new")}</FormLabel>
                           <FormControl>
                             <PasswordInput
                               autoComplete="new-password"
@@ -187,7 +195,7 @@ export function ResetPasswordPage({
                       name="confirmPassword"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Confirm New Password</FormLabel>
+                          <FormLabel>{t("auth.password.confirmNew")}</FormLabel>
                           <FormControl>
                             <PasswordInput
                               autoComplete="new-password"
@@ -211,7 +219,7 @@ export function ResetPasswordPage({
                         showResetPasswordEmailButton ? "secondary" : "default"
                       }
                     >
-                      Update Password
+                      {t("auth.password.update")}
                     </Button>
                   ) : (
                     <RequestResetPasswordEmailButton
@@ -229,7 +237,7 @@ export function ResetPasswordPage({
             ) : null}
             {isSuccess && (
               <div className="text-center text-sm font-medium">
-                Password successfully updated. Redirecting ...
+                {t("auth.password.success")}
               </div>
             )}
             {showResetPasswordEmailButton && (
@@ -242,13 +250,11 @@ export function ResetPasswordPage({
         </div>
         {session.status !== "authenticated" && (
           <div className="text-muted-foreground mx-auto mt-10 max-w-lg text-center text-xs">
-            You will only receive an email if an account with this email exists
-            and you have signed up with email and password. If you used an
-            authentication provider like Google, Gitlab, Okta, or GitHub, please{" "}
+            {t("auth.password.resetHelpBeforeLink")}
             <Link href="/auth/sign-in" className="underline">
-              sign in
+              {t("auth.password.resetHelpLink")}
             </Link>
-            .
+            {t("auth.password.resetHelpAfterLink")}
           </div>
         )}
       </div>

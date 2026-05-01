@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { type ChartProps } from "@/src/features/widgets/chart-library/chart-props";
 import { compactNumberFormatter, numberFormatter } from "@/src/utils/numbers";
+import { useI18n } from "@/src/features/i18n";
 
 /**
  * PieChart component
@@ -34,6 +35,9 @@ export const PieChart: React.FC<ChartProps> = ({
   valueFormatter = compactNumberFormatter,
   subtleFill = false,
 }) => {
+  const { t } = useI18n();
+  const unknownLabel = t("common.unknown");
+
   // Calculate total metric value for center label
   const totalValue = useMemo(() => {
     return data.reduce((acc, curr) => acc + (curr.metric as number), 0);
@@ -42,11 +46,11 @@ export const PieChart: React.FC<ChartProps> = ({
   // Transform data for PieChart
   const chartData = useMemo(() => {
     return data.map((item, index) => ({
-      name: item.dimension || "Unknown",
+      name: item.dimension || unknownLabel,
       value: item.metric,
       fill: `hsl(var(--chart-${(index % 8) + 1}))`,
     }));
-  }, [data]);
+  }, [data, unknownLabel]);
 
   const renderSector = (props: PieSectorShapeProps) => {
     const outerRadius =

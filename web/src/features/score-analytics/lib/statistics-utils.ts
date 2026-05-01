@@ -3,6 +3,7 @@
  * Provides functions for calculating Cohen's Kappa, F1 Score, Overall Agreement,
  * and interpretation functions for various statistical metrics.
  */
+import { translateClientMessage } from "@/src/features/i18n";
 
 // ============================================================================
 // Type Definitions
@@ -18,6 +19,30 @@ export interface InterpretationResult {
   strength: string;
   color: string;
   description: string;
+}
+
+type MessageKey = Parameters<typeof translateClientMessage>[0];
+type MessageValues = Parameters<typeof translateClientMessage>[1];
+
+const t = translateClientMessage;
+
+function getDirection(value: number): string {
+  if (value > 0) return t("scoreAnalytics.interpretation.direction.positive");
+  if (value < 0) return t("scoreAnalytics.interpretation.direction.negative");
+  return t("scoreAnalytics.interpretation.direction.none");
+}
+
+function makeInterpretation(
+  strengthKey: MessageKey,
+  color: string,
+  descriptionKey: MessageKey,
+  values?: MessageValues,
+): InterpretationResult {
+  return {
+    strength: t(strengthKey),
+    color,
+    description: t(descriptionKey, values),
+  };
 }
 
 // ============================================================================
@@ -204,49 +229,53 @@ export function interpretPearsonCorrelation(
   r: number | null,
 ): InterpretationResult {
   if (r === null) {
-    return {
-      strength: "N/A",
-      color: "gray",
-      description: "No data available",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.na",
+      "gray",
+      "scoreAnalytics.noDataAvailable",
+    );
   }
 
   const abs = Math.abs(r);
-  const direction = r > 0 ? "positive" : r < 0 ? "negative" : "no";
+  const direction = getDirection(r);
 
   if (abs >= 0.9) {
-    return {
-      strength: "Very Strong",
-      color: "green",
-      description: `Very strong ${direction} linear correlation`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.veryStrong",
+      "green",
+      "scoreAnalytics.interpretation.linear.veryStrong",
+      { direction },
+    );
   }
   if (abs >= 0.7) {
-    return {
-      strength: "Strong",
-      color: "blue",
-      description: `Strong ${direction} linear correlation`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.strong",
+      "blue",
+      "scoreAnalytics.interpretation.linear.strong",
+      { direction },
+    );
   }
   if (abs >= 0.5) {
-    return {
-      strength: "Moderate",
-      color: "yellow",
-      description: `Moderate ${direction} linear correlation`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.moderate",
+      "yellow",
+      "scoreAnalytics.interpretation.linear.moderate",
+      { direction },
+    );
   }
   if (abs >= 0.3) {
-    return {
-      strength: "Weak",
-      color: "orange",
-      description: `Weak ${direction} linear correlation`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.weak",
+      "orange",
+      "scoreAnalytics.interpretation.linear.weak",
+      { direction },
+    );
   }
-  return {
-    strength: "Very Weak",
-    color: "red",
-    description: `Very weak or no linear correlation`,
-  };
+  return makeInterpretation(
+    "scoreAnalytics.interpretation.strength.veryWeak",
+    "red",
+    "scoreAnalytics.interpretation.linear.veryWeak",
+  );
 }
 
 /**
@@ -260,49 +289,53 @@ export function interpretSpearmanCorrelation(
   rho: number | null,
 ): InterpretationResult {
   if (rho === null) {
-    return {
-      strength: "N/A",
-      color: "gray",
-      description: "No data available",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.na",
+      "gray",
+      "scoreAnalytics.noDataAvailable",
+    );
   }
 
   const abs = Math.abs(rho);
-  const direction = rho > 0 ? "positive" : rho < 0 ? "negative" : "no";
+  const direction = getDirection(rho);
 
   if (abs >= 0.9) {
-    return {
-      strength: "Very Strong",
-      color: "green",
-      description: `Very strong ${direction} monotonic relationship`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.veryStrong",
+      "green",
+      "scoreAnalytics.interpretation.monotonic.veryStrong",
+      { direction },
+    );
   }
   if (abs >= 0.7) {
-    return {
-      strength: "Strong",
-      color: "blue",
-      description: `Strong ${direction} monotonic relationship`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.strong",
+      "blue",
+      "scoreAnalytics.interpretation.monotonic.strong",
+      { direction },
+    );
   }
   if (abs >= 0.5) {
-    return {
-      strength: "Moderate",
-      color: "yellow",
-      description: `Moderate ${direction} monotonic relationship`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.moderate",
+      "yellow",
+      "scoreAnalytics.interpretation.monotonic.moderate",
+      { direction },
+    );
   }
   if (abs >= 0.3) {
-    return {
-      strength: "Weak",
-      color: "orange",
-      description: `Weak ${direction} monotonic relationship`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.weak",
+      "orange",
+      "scoreAnalytics.interpretation.monotonic.weak",
+      { direction },
+    );
   }
-  return {
-    strength: "Very Weak",
-    color: "red",
-    description: `Very weak or no monotonic relationship`,
-  };
+  return makeInterpretation(
+    "scoreAnalytics.interpretation.strength.veryWeak",
+    "red",
+    "scoreAnalytics.interpretation.monotonic.veryWeak",
+  );
 }
 
 /**
@@ -317,60 +350,60 @@ export function interpretCohensKappa(
   kappa: number | null,
 ): InterpretationResult {
   if (kappa === null) {
-    return {
-      strength: "N/A",
-      color: "gray",
-      description: "No data available",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.na",
+      "gray",
+      "scoreAnalytics.noDataAvailable",
+    );
   }
 
   if (kappa >= 1.0) {
-    return {
-      strength: "Perfect",
-      color: "green",
-      description: "perfect agreement between scores",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.perfect",
+      "green",
+      "scoreAnalytics.interpretation.kappa.perfect",
+    );
   }
   if (kappa >= 0.81) {
-    return {
-      strength: "Almost Perfect",
-      color: "green",
-      description: "Almost perfect agreement between scores",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.almostPerfect",
+      "green",
+      "scoreAnalytics.interpretation.kappa.almostPerfect",
+    );
   }
   if (kappa >= 0.61) {
-    return {
-      strength: "Substantial",
-      color: "blue",
-      description: "Substantial agreement between scores",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.substantial",
+      "blue",
+      "scoreAnalytics.interpretation.kappa.substantial",
+    );
   }
   if (kappa >= 0.41) {
-    return {
-      strength: "Moderate",
-      color: "yellow",
-      description: "Moderate agreement between scores",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.moderate",
+      "yellow",
+      "scoreAnalytics.interpretation.kappa.moderate",
+    );
   }
   if (kappa >= 0.21) {
-    return {
-      strength: "Fair",
-      color: "orange",
-      description: "Fair agreement between scores",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.fair",
+      "orange",
+      "scoreAnalytics.interpretation.kappa.fair",
+    );
   }
   if (kappa > 0) {
-    return {
-      strength: "Slight",
-      color: "red",
-      description: "Slight agreement between scores",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.slight",
+      "red",
+      "scoreAnalytics.interpretation.kappa.slight",
+    );
   }
-  return {
-    strength: "Poor",
-    color: "red",
-    description: "Poor agreement (worse than chance)",
-  };
+  return makeInterpretation(
+    "scoreAnalytics.interpretation.strength.poor",
+    "red",
+    "scoreAnalytics.interpretation.kappa.poor",
+  );
 }
 
 /**
@@ -382,46 +415,46 @@ export function interpretCohensKappa(
  */
 export function interpretF1Score(f1: number | null): InterpretationResult {
   if (f1 === null) {
-    return {
-      strength: "N/A",
-      color: "gray",
-      description: "No data available",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.na",
+      "gray",
+      "scoreAnalytics.noDataAvailable",
+    );
   }
 
   if (f1 >= 0.9) {
-    return {
-      strength: "Excellent",
-      color: "green",
-      description: "Excellent classification performance",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.excellent",
+      "green",
+      "scoreAnalytics.interpretation.classification.excellent",
+    );
   }
   if (f1 >= 0.8) {
-    return {
-      strength: "Good",
-      color: "blue",
-      description: "Good classification performance",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.good",
+      "blue",
+      "scoreAnalytics.interpretation.classification.good",
+    );
   }
   if (f1 >= 0.6) {
-    return {
-      strength: "Fair",
-      color: "yellow",
-      description: "Fair classification performance",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.fair",
+      "yellow",
+      "scoreAnalytics.interpretation.classification.fair",
+    );
   }
   if (f1 >= 0.4) {
-    return {
-      strength: "Poor",
-      color: "orange",
-      description: "Poor classification performance",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.poor",
+      "orange",
+      "scoreAnalytics.interpretation.classification.poor",
+    );
   }
-  return {
-    strength: "Very Poor",
-    color: "red",
-    description: "Very poor classification performance",
-  };
+  return makeInterpretation(
+    "scoreAnalytics.interpretation.strength.veryPoor",
+    "red",
+    "scoreAnalytics.interpretation.classification.veryPoor",
+  );
 }
 
 /**
@@ -434,48 +467,54 @@ export function interpretOverallAgreement(
   agreement: number | null,
 ): InterpretationResult {
   if (agreement === null) {
-    return {
-      strength: "N/A",
-      color: "gray",
-      description: "No data available",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.na",
+      "gray",
+      "scoreAnalytics.noDataAvailable",
+    );
   }
 
   const percentage = Math.round(agreement * 100);
+  const descriptionValues = { percentage };
 
   if (agreement >= 0.9) {
-    return {
-      strength: "Excellent",
-      color: "green",
-      description: `${percentage}% of predictions match`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.excellent",
+      "green",
+      "scoreAnalytics.interpretation.predictionsMatch",
+      descriptionValues,
+    );
   }
   if (agreement >= 0.8) {
-    return {
-      strength: "Good",
-      color: "blue",
-      description: `${percentage}% of predictions match`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.good",
+      "blue",
+      "scoreAnalytics.interpretation.predictionsMatch",
+      descriptionValues,
+    );
   }
   if (agreement >= 0.6) {
-    return {
-      strength: "Fair",
-      color: "yellow",
-      description: `${percentage}% of predictions match`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.fair",
+      "yellow",
+      "scoreAnalytics.interpretation.predictionsMatch",
+      descriptionValues,
+    );
   }
   if (agreement >= 0.4) {
-    return {
-      strength: "Poor",
-      color: "orange",
-      description: `${percentage}% of predictions match`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.poor",
+      "orange",
+      "scoreAnalytics.interpretation.predictionsMatch",
+      descriptionValues,
+    );
   }
-  return {
-    strength: "Very Poor",
-    color: "red",
-    description: `${percentage}% of predictions match`,
-  };
+  return makeInterpretation(
+    "scoreAnalytics.interpretation.strength.veryPoor",
+    "red",
+    "scoreAnalytics.interpretation.predictionsMatch",
+    descriptionValues,
+  );
 }
 
 /**
@@ -491,11 +530,11 @@ export function interpretMAE(
   scale?: { min: number; max: number },
 ): InterpretationResult {
   if (mae === null) {
-    return {
-      strength: "N/A",
-      color: "gray",
-      description: "No data available",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.na",
+      "gray",
+      "scoreAnalytics.noDataAvailable",
+    );
   }
 
   if (scale) {
@@ -503,46 +542,52 @@ export function interpretMAE(
     const relativeError = mae / range;
 
     if (relativeError <= 0.05) {
-      return {
-        strength: "Excellent",
-        color: "green",
-        description: `Very low error (${(relativeError * 100).toFixed(1)}% of range)`,
-      };
+      return makeInterpretation(
+        "scoreAnalytics.interpretation.strength.excellent",
+        "green",
+        "scoreAnalytics.interpretation.error.veryLow",
+        { percentage: (relativeError * 100).toFixed(1) },
+      );
     }
     if (relativeError <= 0.1) {
-      return {
-        strength: "Good",
-        color: "blue",
-        description: `Low error (${(relativeError * 100).toFixed(1)}% of range)`,
-      };
+      return makeInterpretation(
+        "scoreAnalytics.interpretation.strength.good",
+        "blue",
+        "scoreAnalytics.interpretation.error.low",
+        { percentage: (relativeError * 100).toFixed(1) },
+      );
     }
     if (relativeError <= 0.2) {
-      return {
-        strength: "Fair",
-        color: "yellow",
-        description: `Moderate error (${(relativeError * 100).toFixed(1)}% of range)`,
-      };
+      return makeInterpretation(
+        "scoreAnalytics.interpretation.strength.fair",
+        "yellow",
+        "scoreAnalytics.interpretation.error.moderate",
+        { percentage: (relativeError * 100).toFixed(1) },
+      );
     }
     if (relativeError <= 0.3) {
-      return {
-        strength: "Poor",
-        color: "orange",
-        description: `High error (${(relativeError * 100).toFixed(1)}% of range)`,
-      };
+      return makeInterpretation(
+        "scoreAnalytics.interpretation.strength.poor",
+        "orange",
+        "scoreAnalytics.interpretation.error.high",
+        { percentage: (relativeError * 100).toFixed(1) },
+      );
     }
-    return {
-      strength: "Very Poor",
-      color: "red",
-      description: `Very high error (${(relativeError * 100).toFixed(1)}% of range)`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.veryPoor",
+      "red",
+      "scoreAnalytics.interpretation.error.veryHigh",
+      { percentage: (relativeError * 100).toFixed(1) },
+    );
   }
 
   // Without scale context, just report the value
-  return {
-    strength: "N/A",
-    color: "gray",
-    description: `Average error: ${mae.toFixed(3)}`,
-  };
+  return makeInterpretation(
+    "scoreAnalytics.interpretation.strength.na",
+    "gray",
+    "scoreAnalytics.interpretation.error.average",
+    { value: mae.toFixed(3) },
+  );
 }
 
 /**
@@ -559,11 +604,11 @@ export function interpretRMSE(
   scale?: { min: number; max: number },
 ): InterpretationResult {
   if (rmse === null) {
-    return {
-      strength: "N/A",
-      color: "gray",
-      description: "No data available",
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.na",
+      "gray",
+      "scoreAnalytics.noDataAvailable",
+    );
   }
 
   if (scale) {
@@ -571,44 +616,50 @@ export function interpretRMSE(
     const relativeError = rmse / range;
 
     if (relativeError <= 0.05) {
-      return {
-        strength: "Excellent",
-        color: "green",
-        description: `Very low error (${(relativeError * 100).toFixed(1)}% of range)`,
-      };
+      return makeInterpretation(
+        "scoreAnalytics.interpretation.strength.excellent",
+        "green",
+        "scoreAnalytics.interpretation.error.veryLow",
+        { percentage: (relativeError * 100).toFixed(1) },
+      );
     }
     if (relativeError <= 0.1) {
-      return {
-        strength: "Good",
-        color: "blue",
-        description: `Low error (${(relativeError * 100).toFixed(1)}% of range)`,
-      };
+      return makeInterpretation(
+        "scoreAnalytics.interpretation.strength.good",
+        "blue",
+        "scoreAnalytics.interpretation.error.low",
+        { percentage: (relativeError * 100).toFixed(1) },
+      );
     }
     if (relativeError <= 0.2) {
-      return {
-        strength: "Fair",
-        color: "yellow",
-        description: `Moderate error (${(relativeError * 100).toFixed(1)}% of range)`,
-      };
+      return makeInterpretation(
+        "scoreAnalytics.interpretation.strength.fair",
+        "yellow",
+        "scoreAnalytics.interpretation.error.moderate",
+        { percentage: (relativeError * 100).toFixed(1) },
+      );
     }
     if (relativeError <= 0.3) {
-      return {
-        strength: "Poor",
-        color: "orange",
-        description: `High error (${(relativeError * 100).toFixed(1)}% of range)`,
-      };
+      return makeInterpretation(
+        "scoreAnalytics.interpretation.strength.poor",
+        "orange",
+        "scoreAnalytics.interpretation.error.high",
+        { percentage: (relativeError * 100).toFixed(1) },
+      );
     }
-    return {
-      strength: "Very Poor",
-      color: "red",
-      description: `Very high error (${(relativeError * 100).toFixed(1)}% of range)`,
-    };
+    return makeInterpretation(
+      "scoreAnalytics.interpretation.strength.veryPoor",
+      "red",
+      "scoreAnalytics.interpretation.error.veryHigh",
+      { percentage: (relativeError * 100).toFixed(1) },
+    );
   }
 
   // Without scale context, just report the value
-  return {
-    strength: "N/A",
-    color: "gray",
-    description: `Root mean squared error: ${rmse.toFixed(3)}`,
-  };
+  return makeInterpretation(
+    "scoreAnalytics.interpretation.strength.na",
+    "gray",
+    "scoreAnalytics.interpretation.error.rootMeanSquared",
+    { value: rmse.toFixed(3) },
+  );
 }

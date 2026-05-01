@@ -16,12 +16,14 @@ import { IOTableCell } from "@/src/components/ui/IOTableCell";
 import useColumnOrder from "@/src/features/column-visibility/hooks/useColumnOrder";
 import useColumnVisibility from "@/src/features/column-visibility/hooks/useColumnVisibility";
 import { useSidebarFilterState } from "@/src/features/filters/hooks/useSidebarFilterState";
-import { evalLogFilterConfig } from "@/src/features/filters/config/eval-logs-config";
+import { getEvalLogFilterConfig } from "@/src/features/filters/config/eval-logs-config";
 import { type RouterOutputs, api } from "@/src/utils/api";
 import { safeExtract } from "@/src/utils/map-utils";
 import { type Prisma } from "@langfuse/shared";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useQueryParams, withDefault, NumberParam } from "use-query-params";
+import { useI18n } from "@/src/features/i18n";
+import { useMemo } from "react";
 
 export type JobExecutionRow = {
   status: string;
@@ -51,6 +53,8 @@ export default function EvalLogTable({
   projectId: string;
   jobConfigurationId?: string;
 }) {
+  const { t, formatDate } = useI18n();
+  const evalLogFilterConfig = useMemo(() => getEvalLogFilterConfig(t), [t]);
   const [rowHeight, setRowHeight] = useRowHeightLocalStorage("evalLogs", "s");
   const [paginationState, setPaginationState] = useQueryParams({
     pageIndex: withDefault(NumberParam, 0),
@@ -79,7 +83,7 @@ export default function EvalLogTable({
   const columnHelper = createColumnHelper<JobExecutionRow>();
   const columns = [
     columnHelper.accessor("status", {
-      header: "Status",
+      header: t("evals.logs.status"),
       id: "status",
       cell: (row) => {
         const status = row.getValue();
@@ -93,21 +97,21 @@ export default function EvalLogTable({
     }),
     columnHelper.accessor("startTime", {
       id: "startTime",
-      header: "Start Time",
+      header: t("evals.logs.startTime"),
       enableHiding: true,
     }),
     columnHelper.accessor("endTime", {
       id: "endTime",
-      header: "End Time",
+      header: t("evals.logs.endTime"),
       enableHiding: true,
     }),
     columnHelper.accessor("scoreName", {
-      header: "Score Name",
+      header: t("evals.logs.scoreName"),
       id: "scoreName",
       enableHiding: true,
     }),
     columnHelper.accessor("scoreValue", {
-      header: "Score Value",
+      header: t("evals.logs.scoreValue"),
       id: "scoreValue",
       enableHiding: true,
       cell: (row) => {
@@ -122,7 +126,7 @@ export default function EvalLogTable({
       },
     }),
     columnHelper.accessor("scoreComment", {
-      header: "Score Comment",
+      header: t("evals.logs.scoreComment"),
       id: "scoreComment",
       enableHiding: true,
       cell: (row) => {
@@ -136,7 +140,7 @@ export default function EvalLogTable({
     }),
     columnHelper.accessor("error", {
       id: "error",
-      header: "Error",
+      header: t("common.error"),
       enableHiding: true,
       cell: (row) => {
         const value = row.getValue();
@@ -149,7 +153,7 @@ export default function EvalLogTable({
     }),
     columnHelper.accessor("traceId", {
       id: "traceId",
-      header: "Target Trace",
+      header: t("evals.logs.targetTrace"),
       cell: (row) => {
         const traceId = row.getValue();
         return traceId ? (
@@ -162,7 +166,7 @@ export default function EvalLogTable({
     }),
     columnHelper.accessor("executionTraceId", {
       id: "executionTraceId",
-      header: "Execution Trace",
+      header: t("evals.logs.executionTrace"),
       enableHiding: true,
       cell: (row) => {
         const traceId = row.getValue();
@@ -176,7 +180,7 @@ export default function EvalLogTable({
     }),
     columnHelper.accessor("templateId", {
       id: "templateId",
-      header: "Template",
+      header: t("evals.logs.template"),
       cell: (row) => {
         const templateId = row.getValue();
         return templateId ? (
@@ -193,7 +197,7 @@ export default function EvalLogTable({
     columns.push(
       columnHelper.accessor("evaluatorId", {
         id: "evaluatorId",
-        header: "Evaluator",
+        header: t("evals.logs.evaluator"),
         cell: (row) => {
           const evaluatorId = row.getValue();
           return evaluatorId ? (
@@ -225,8 +229,18 @@ export default function EvalLogTable({
         jobConfig.score?.stringValue ?? jobConfig.score?.value ?? undefined,
       scoreComment: jobConfig.score?.comment ?? undefined,
       scoreMetadata: jobConfig.score?.metadata ?? undefined,
-      startTime: jobConfig.startTime?.toLocaleString() ?? undefined,
-      endTime: jobConfig.endTime?.toLocaleString() ?? undefined,
+      startTime: jobConfig.startTime
+        ? formatDate(jobConfig.startTime, {
+            dateStyle: "short",
+            timeStyle: "medium",
+          })
+        : undefined,
+      endTime: jobConfig.endTime
+        ? formatDate(jobConfig.endTime, {
+            dateStyle: "short",
+            timeStyle: "medium",
+          })
+        : undefined,
       traceId: jobConfig.jobInputTraceId ?? undefined,
       executionTraceId: jobConfig.executionTraceId ?? undefined,
       templateId: jobConfig.jobTemplateId ?? "",

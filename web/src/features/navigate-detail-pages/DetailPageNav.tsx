@@ -13,6 +13,7 @@ import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePos
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/router";
 import { useCallback, useEffect } from "react";
+import { useI18n } from "@/src/features/i18n";
 
 export const DetailPageNav = (props: {
   currentId: string;
@@ -20,6 +21,7 @@ export const DetailPageNav = (props: {
   listKey: string;
   onNavigate?: (entry: ListEntry) => void;
 }) => {
+  const { t } = useI18n();
   const { currentId, path, listKey, onNavigate } = props;
   const { detailPagelists } = useDetailPageLists();
   const entries = detailPagelists[listKey] ?? [];
@@ -100,7 +102,7 @@ export const DetailPageNav = (props: {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <span>Navigate up</span>
+            <span>{t("detailPageNav.navigateUp")}</span>
             <InputCommandShortcut className="bg-muted ml-2 rounded-sm p-1 px-2">
               k
             </InputCommandShortcut>
@@ -128,7 +130,7 @@ export const DetailPageNav = (props: {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <span>Navigate down</span>
+            <span>{t("detailPageNav.navigateDown")}</span>
             <InputCommandShortcut className="bg-muted ml-2 rounded-sm p-1 px-2">
               j
             </InputCommandShortcut>

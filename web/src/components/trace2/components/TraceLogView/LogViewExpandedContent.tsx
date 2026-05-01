@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 import { PrettyJsonView } from "@/src/components/ui/PrettyJsonView";
 import { type TreeNode } from "@/src/components/trace2/lib/types";
 import { useLogViewObservationIO } from "./useLogViewObservationIO";
+import { useI18n } from "@/src/features/i18n";
 
 export interface LogViewExpandedContentProps {
   node: TreeNode;
@@ -36,6 +37,7 @@ export const LogViewExpandedContent = memo(function LogViewExpandedContent({
   externalExpansionState,
   onExternalExpansionChange,
 }: LogViewExpandedContentProps) {
+  const { t } = useI18n();
   // Fetch I/O data lazily
   const { data, isLoading, isError } = useLogViewObservationIO({
     observationId: node.id,
@@ -70,13 +72,15 @@ export const LogViewExpandedContent = memo(function LogViewExpandedContent({
       {isLoading && (
         <div className="flex items-center justify-center py-4">
           <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
-          <span className="text-muted-foreground ml-2 text-xs">Loading...</span>
+          <span className="text-muted-foreground ml-2 text-xs">
+            {t("common.loadingDots")}
+          </span>
         </div>
       )}
 
       {isError && (
         <div className="bg-destructive/10 text-destructive flex h-full w-full items-center px-6 py-2 text-xs">
-          Failed to load data
+          {t("trace.failedToLoadData")}
         </div>
       )}
 
@@ -98,7 +102,7 @@ export const LogViewExpandedContent = memo(function LogViewExpandedContent({
 
       {!jsonData && !isLoading && !isError && (
         <div className="text-muted-foreground py-2 pl-6 text-xs">
-          No input/output/metadata
+          {t("trace.noInputOutputMetadata")}
         </div>
       )}
     </div>

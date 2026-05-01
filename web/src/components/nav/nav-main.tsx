@@ -11,7 +11,11 @@ import {
 import Link from "next/link";
 import { type ReactNode } from "react";
 import { cn } from "@/src/utils/tailwind";
-import { type RouteGroup } from "@/src/components/layouts/routes";
+import {
+  routeGroupMessageKeys,
+  type RouteGroup,
+} from "@/src/components/layouts/routes";
+import { useI18n } from "@/src/features/i18n";
 
 export type NavMainItem = {
   title: string;
@@ -59,6 +63,8 @@ export function NavMain({
     ungrouped: NavMainItem[];
   };
 }) {
+  const { t } = useI18n();
+
   return (
     <>
       <SidebarGroup>
@@ -88,7 +94,9 @@ export function NavMain({
       {items.grouped &&
         Object.entries(items.grouped).map(([group, items]) => (
           <SidebarGroup key={group}>
-            <SidebarGroupLabel>{group}</SidebarGroupLabel>
+            <SidebarGroupLabel>
+              {t(routeGroupMessageKeys[group as RouteGroup])}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {items.map((item) => (

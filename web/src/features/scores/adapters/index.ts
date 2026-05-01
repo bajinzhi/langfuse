@@ -15,6 +15,7 @@ export class DashboardCategoricalScoreAdapter implements TimeseriesDataTransform
     private data: DatabaseRow[],
     private timestamp: string,
     private agg?: DashboardDateRangeAggregationOption,
+    private aggregationLabel?: string,
   ) {}
 
   toChartData(): ChartData {
@@ -22,6 +23,7 @@ export class DashboardCategoricalScoreAdapter implements TimeseriesDataTransform
       this.data,
       this.timestamp,
       this.agg,
+      this.aggregationLabel,
     );
     return { chartData, chartLabels: uniqueAndSort(chartLabels) };
   }

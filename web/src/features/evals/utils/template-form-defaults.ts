@@ -1,4 +1,7 @@
 import { ScoreDataTypeEnum } from "@langfuse/shared";
+import type { MessageKey, MessageValues } from "@/src/features/i18n";
+
+type Translate = (key: MessageKey, values?: MessageValues) => string;
 
 export const numericOutputDefinitionDefaults = {
   scoreDataType: ScoreDataTypeEnum.NUMERIC,
@@ -56,6 +59,55 @@ export const getDefaultOutputDefinitionFormValues = (params?: {
   return numericOutputDefinitionDefaults;
 };
 
+const getDefaultDescriptionKeys = (params?: {
+  scoreDataType?:
+    | typeof ScoreDataTypeEnum.NUMERIC
+    | typeof ScoreDataTypeEnum.BOOLEAN
+    | typeof ScoreDataTypeEnum.CATEGORICAL;
+  shouldAllowMultipleMatches?: boolean;
+}): { reasoningDescription: MessageKey; scoreDescription: MessageKey } => {
+  if (params?.scoreDataType === ScoreDataTypeEnum.CATEGORICAL) {
+    return params.shouldAllowMultipleMatches
+      ? {
+          reasoningDescription:
+            "evals.templateForm.defaults.categoricalMultiReasoning",
+          scoreDescription: "evals.templateForm.defaults.categoricalMultiScore",
+        }
+      : {
+          reasoningDescription:
+            "evals.templateForm.defaults.categoricalSingleReasoning",
+          scoreDescription:
+            "evals.templateForm.defaults.categoricalSingleScore",
+        };
+  }
+
+  if (params?.scoreDataType === ScoreDataTypeEnum.BOOLEAN) {
+    return {
+      reasoningDescription: "evals.templateForm.defaults.booleanReasoning",
+      scoreDescription: "evals.templateForm.defaults.booleanScore",
+    };
+  }
+
+  return {
+    reasoningDescription: "evals.templateForm.defaults.numericReasoning",
+    scoreDescription: "evals.templateForm.defaults.numericScore",
+  };
+};
+
+export const getLocalizedDefaultOutputDefinitionFormValues = (
+  params: Parameters<typeof getDefaultOutputDefinitionFormValues>[0],
+  t: Translate,
+) => {
+  const defaults = getDefaultOutputDefinitionFormValues(params);
+  const keys = getDefaultDescriptionKeys(params);
+
+  return {
+    ...defaults,
+    reasoningDescription: t(keys.reasoningDescription),
+    scoreDescription: t(keys.scoreDescription),
+  };
+};
+
 const defaultReasoningDescriptions = new Set(
   [
     numericOutputDefinitionDefaults.reasoningDescription,
@@ -79,6 +131,7 @@ const defaultScoreDescriptions = new Set(
 export const shouldReplaceDefaultOutputDefinitionField = (params: {
   currentValue?: string;
   field: "reasoningDescription" | "scoreDescription";
+  knownDefaults?: string[];
 }) => {
   const trimmedValue = params.currentValue?.trim() ?? "";
 
@@ -87,6 +140,8 @@ export const shouldReplaceDefaultOutputDefinitionField = (params: {
   }
 
   return params.field === "reasoningDescription"
-    ? defaultReasoningDescriptions.has(trimmedValue)
-    : defaultScoreDescriptions.has(trimmedValue);
+    ? defaultReasoningDescriptions.has(trimmedValue) ||
+        Boolean(params.knownDefaults?.includes(trimmedValue))
+    : defaultScoreDescriptions.has(trimmedValue) ||
+        Boolean(params.knownDefaults?.includes(trimmedValue));
 };

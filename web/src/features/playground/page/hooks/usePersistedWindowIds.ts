@@ -9,6 +9,7 @@ import {
   clearAllPlaygroundData,
 } from "../storage/windowStorage";
 import { toast } from "sonner";
+import { translateClientMessage } from "@/src/features/i18n";
 
 /**
  * Hook to persist window IDs across page refreshes.
@@ -44,7 +45,9 @@ export function usePersistedWindowIds() {
       }
       if (windowIds.length >= MULTI_WINDOW_CONFIG.MAX_WINDOWS) {
         toast.error(
-          `Maximum window limit of ${MULTI_WINDOW_CONFIG.MAX_WINDOWS} reached`,
+          translateClientMessage("playground.windowLimitReached", {
+            count: MULTI_WINDOW_CONFIG.MAX_WINDOWS,
+          }),
         );
         return null;
       }
@@ -63,7 +66,9 @@ export function usePersistedWindowIds() {
     (sourceWindowId?: string) => {
       if (windowIds.length >= MULTI_WINDOW_CONFIG.MAX_WINDOWS) {
         toast.error(
-          `Maximum window limit of ${MULTI_WINDOW_CONFIG.MAX_WINDOWS} reached`,
+          translateClientMessage("playground.windowLimitReached", {
+            count: MULTI_WINDOW_CONFIG.MAX_WINDOWS,
+          }),
         );
         return null;
       }
@@ -88,7 +93,7 @@ export function usePersistedWindowIds() {
   const removeWindowId = useCallback(
     (windowId: string) => {
       if (windowIds.length <= 1) {
-        toast.error("Cannot remove the last remaining window");
+        toast.error(translateClientMessage("playground.windowLastRemaining"));
         return;
       }
 

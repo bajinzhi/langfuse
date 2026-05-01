@@ -11,6 +11,7 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import type { Control, Path } from "react-hook-form";
 import type { SurveyQuestion, SurveyFormData } from "../lib/surveyTypes";
+import { useI18n } from "@/src/features/i18n";
 
 const AUTO_ADVANCE_DELAY = 300;
 
@@ -27,6 +28,7 @@ export function SurveyStep({
   onAutoAdvance,
   isLast = false,
 }: SurveyStepProps) {
+  const { t } = useI18n();
   const fieldName = question.id as keyof SurveyFormData;
 
   const handleAutoAdvanceWithTimeout = (selectedValue?: string) => {
@@ -52,7 +54,7 @@ export function SurveyStep({
         render={({ field }) => (
           <FormItem className="flex flex-col gap-2">
             <FormLabel className="text-xl font-semibold">
-              {question.question}
+              {t(question.questionKey)}
             </FormLabel>
             <FormControl>
               <RadioGroup
@@ -69,12 +71,12 @@ export function SurveyStep({
               >
                 {question.options.map((option) => (
                   <Label
-                    key={option}
-                    htmlFor={option}
+                    key={option.value}
+                    htmlFor={option.value}
                     className="border-border hover:bg-muted/50 flex flex-1 cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm leading-none font-medium transition-colors peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    <RadioGroupItem value={option} id={option} />
-                    <span className="flex-1">{option}</span>
+                    <RadioGroupItem value={option.value} id={option.value} />
+                    <span className="flex-1">{t(option.labelKey)}</span>
                   </Label>
                 ))}
               </RadioGroup>
@@ -95,14 +97,25 @@ export function SurveyStep({
         render={({ field }) => (
           <FormItem className="flex flex-col gap-2">
             <FormLabel className="text-xl font-semibold">
-              {question.question}
+              {t(question.questionKey)}
             </FormLabel>
             <FormControl>
               {question.id === "referralSource" ? (
-                <Input placeholder={question.placeholder} {...field} />
+                <Input
+                  placeholder={
+                    question.placeholderKey
+                      ? t(question.placeholderKey)
+                      : undefined
+                  }
+                  {...field}
+                />
               ) : (
                 <Textarea
-                  placeholder={question.placeholder}
+                  placeholder={
+                    question.placeholderKey
+                      ? t(question.placeholderKey)
+                      : undefined
+                  }
                   className="min-h-[170px] resize-none"
                   {...field}
                 />

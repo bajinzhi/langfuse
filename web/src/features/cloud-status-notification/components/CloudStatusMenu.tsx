@@ -3,8 +3,10 @@ import { cn } from "@/src/utils/tailwind";
 import Link from "next/link";
 import { SidebarMenuButton } from "@/src/components/ui/sidebar";
 import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
+import { useI18n } from "@/src/features/i18n";
 
 export function CloudStatusMenu() {
+  const { t } = useI18n();
   const { isLangfuseCloud } = useLangfuseCloudRegion();
   const { data, isLoading } = api.cloudStatus.getStatus.useQuery(undefined, {
     refetchOnMount: false,
@@ -27,7 +29,7 @@ export function CloudStatusMenu() {
   }
 
   return (
-    <SidebarMenuButton asChild tooltip="Status">
+    <SidebarMenuButton asChild tooltip={t("cloudStatus.status")}>
       <Link
         href="https://status.langfuse.com"
         target="_blank"
@@ -45,7 +47,7 @@ export function CloudStatusMenu() {
             )}
           ></span>
         </div>
-        Status
+        {t("cloudStatus.status")}
       </Link>
     </SidebarMenuButton>
   );

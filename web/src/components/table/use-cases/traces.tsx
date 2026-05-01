@@ -99,6 +99,7 @@ import { usePeekTableState } from "@/src/components/table/peek/contexts/PeekTabl
 import { useScoreColumns } from "@/src/features/scores/hooks/useScoreColumns";
 import { scoreFilters } from "@/src/features/scores/lib/scoreColumns";
 import TagList from "@/src/features/tag/components/TagList";
+import { useI18n } from "@/src/features/i18n";
 
 export type TracesTableRow = {
   // Shown by default
@@ -161,10 +162,11 @@ export default function TracesTable({
   externalDateRange,
   limitRows,
 }: TracesTableProps) {
+  const { t } = useI18n();
   const peekContext = usePeekTableState();
   const tracesFilterConfig = useMemo(
-    () => getTraceFilterConfig(omittedFilter),
-    [omittedFilter],
+    () => getTraceFilterConfig(omittedFilter, t),
+    [omittedFilter, t],
   );
   const utils = api.useUtils();
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
@@ -496,9 +498,8 @@ export default function TracesTable({
   const traceDeleteMutation = api.traces.deleteMany.useMutation({
     onSuccess: () => {
       showSuccessToast({
-        title: "Traces deleted",
-        description:
-          "Selected traces will be deleted. Traces are removed asynchronously and may continue to be visible for up to 15 minutes.",
+        title: t("observability.traces.toast.deleted.title"),
+        description: t("observability.traces.toast.deleted.description"),
       });
     },
     onSettled: () => {
@@ -508,12 +509,17 @@ export default function TracesTable({
 
   const addToQueueMutation = api.annotationQueueItems.createMany.useMutation({
     onSuccess: (data) => {
+      const queueName = data.queueName ?? "";
       showSuccessToast({
-        title: "Traces added to queue",
-        description: `Selected traces will be added to queue "${data.queueName}". This may take a minute.`,
+        title: t("observability.traces.toast.queue.title"),
+        description: t("observability.traces.toast.queue.description", {
+          queueName,
+        }),
         link: {
           href: `/project/${projectId}/annotation-queues/${data.queueId}`,
-          text: `View queue "${data.queueName}"`,
+          text: t("observability.traces.toast.queue.link", {
+            queueName,
+          }),
         },
       });
     },
@@ -563,13 +569,11 @@ export default function TracesTable({
     setSelectedRows({});
   };
 
-  const displayCount = totalCountQuery.isPending ? (
-    <span className="inline-block font-mono">...</span>
-  ) : selectAll ? (
-    compactNumberFormatter(totalCountQuery.data?.totalCount)
-  ) : (
-    compactNumberFormatter(Object.keys(selectedRows).length)
-  );
+  const displayCount = totalCountQuery.isPending
+    ? "..."
+    : selectAll
+      ? compactNumberFormatter(totalCountQuery.data?.totalCount)
+      : compactNumberFormatter(Object.keys(selectedRows).length);
 
   const tableActions: TableAction[] = [
     ...(hasTraceDeletionEntitlement
@@ -577,8 +581,10 @@ export default function TracesTable({
           {
             id: ActionId.TraceDelete,
             type: BatchActionType.Delete,
-            label: "Delete Traces",
-            description: `This action permanently deletes ${displayCount} traces and cannot be undone. Trace deletion happens asynchronously and may take up to 24 hours.`,
+            label: t("observability.traces.actions.delete.label"),
+            description: t("observability.traces.actions.delete.description", {
+              count: displayCount,
+            }),
             accessCheck: {
               scope: "traces:delete",
               entitlement: "trace-deletion",
@@ -590,9 +596,9 @@ export default function TracesTable({
     {
       id: ActionId.TraceAddToAnnotationQueue,
       type: BatchActionType.Create,
-      label: "Add to Annotation Queue",
-      description: "Add selected traces to an annotation queue.",
-      targetLabel: "Annotation Queue",
+      label: t("observability.actions.addToAnnotationQueue"),
+      description: t("observability.traces.actions.addQueue.description"),
+      targetLabel: t("observability.actions.annotationQueue"),
       execute: handleAddToAnnotationQueue,
       accessCheck: {
         scope: "annotationQueues:CUD",
@@ -634,7 +640,7 @@ export default function TracesTable({
         ] satisfies LangfuseColumnDef<TracesTableRow>[])),
     {
       accessorKey: "timestamp",
-      header: "Timestamp",
+      header: t("observability.columns.timestamp"),
       id: "timestamp",
       size: 150,
       enableHiding: true,
@@ -646,7 +652,7 @@ export default function TracesTable({
     },
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("observability.columns.name"),
       id: "name",
       size: 150,
       enableHiding: true,
@@ -658,7 +664,7 @@ export default function TracesTable({
     },
     {
       accessorKey: "input",
-      header: "Input",
+      header: t("observability.columns.input"),
       id: "input",
       size: 400,
       loadingCell: () => (
@@ -687,7 +693,7 @@ export default function TracesTable({
     },
     {
       accessorKey: "output",
-      header: "Output",
+      header: t("observability.columns.output"),
       id: "output",
       size: 400,
       loadingCell: () => (
@@ -717,7 +723,7 @@ export default function TracesTable({
     {
       accessorKey: "levelCounts",
       id: "levelCounts",
-      header: "Observation Levels",
+      header: t("observability.columns.observationLevels"),
       size: 150,
       loadingCell: <TableTextLoadingCell />,
       cell: ({ row }) => {
@@ -740,7 +746,7 @@ export default function TracesTable({
     {
       accessorKey: "latency",
       id: "latency",
-      header: "Latency",
+      header: t("observability.columns.latency"),
       size: 100,
       // add seconds to the end of the latency
       loadingCell: <TableTextLoadingCell />,
@@ -757,7 +763,7 @@ export default function TracesTable({
 
     {
       accessorKey: "tokens",
-      header: "Tokens",
+      header: t("observability.columns.tokens"),
       id: "tokens",
       size: 180,
       loadingCell: <TableTextLoadingCell />,
@@ -788,7 +794,7 @@ export default function TracesTable({
     {
       accessorKey: "totalCost",
       id: "totalCost",
-      header: "Total Cost",
+      header: t("observability.columns.totalCost"),
       size: 130,
       loadingCell: <TableTextLoadingCell />,
       cell: ({ row }) => {
@@ -812,7 +818,7 @@ export default function TracesTable({
     },
     {
       accessorKey: "environment",
-      header: "Environment",
+      header: t("observability.columns.environment"),
       id: "environment",
       size: 150,
       enableHiding: true,
@@ -833,24 +839,10 @@ export default function TracesTable({
     {
       accessorKey: "tags",
       id: "tags",
-      header: "Tags",
+      header: t("observability.columns.tags"),
       size: 150,
       headerTooltip: {
-        description: (
-          <>
-            Group traces with tags. Read more about implementing tags{" "}
-            <a
-              href="https://langfuse.com/docs/observability/features/tags"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="decoration-primary/30 hover:decoration-primary underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              here
-            </a>
-            .
-          </>
-        ),
+        description: t("observability.traces.tooltip.tags"),
         href: "https://langfuse.com/docs/observability/features/tags",
       },
       loadingCell: <TableTextLoadingCell />,
@@ -874,7 +866,7 @@ export default function TracesTable({
     },
     {
       accessorKey: "metadata",
-      header: "Metadata",
+      header: t("observability.columns.metadata"),
       size: 400,
       loadingCell: () => (
         <MemoizedIOTableCell
@@ -884,22 +876,7 @@ export default function TracesTable({
         />
       ),
       headerTooltip: {
-        description: (
-          <>
-            Add metadata to traces to track additional information. Read more
-            about adding metadata{" "}
-            <a
-              href="https://langfuse.com/docs/observability/features/metadata"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="decoration-primary/30 hover:decoration-primary underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              here
-            </a>
-            .
-          </>
-        ),
+        description: t("observability.traces.tooltip.metadata"),
         href: "https://langfuse.com/docs/observability/features/metadata",
       },
       cell: ({ row }) => {
@@ -923,7 +900,7 @@ export default function TracesTable({
       : [
           {
             accessorKey: "scores",
-            header: "Scores",
+            header: t("observability.columns.scores"),
             id: "scores",
             enableHiding: true,
             defaultHidden: true,
@@ -937,25 +914,10 @@ export default function TracesTable({
       accessorKey: "sessionId",
       enableColumnFilter: !omittedFilter.includes("sessionId"),
       id: "sessionId",
-      header: "Session",
+      header: t("observability.columns.session"),
       size: 150,
       headerTooltip: {
-        description: (
-          <>
-            Group traces into sessions to track longer conversations/workflows.
-            Read more about sessions{" "}
-            <a
-              href="https://langfuse.com/docs/observability/features/sessions"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="decoration-primary/30 hover:decoration-primary underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              here
-            </a>
-            .
-          </>
-        ),
+        description: t("observability.traces.tooltip.session"),
         href: "https://langfuse.com/docs/observability/features/sessions",
       },
       cell: ({ row }) => {
@@ -970,26 +932,11 @@ export default function TracesTable({
     },
     {
       accessorKey: "userId",
-      header: "User",
+      header: t("observability.columns.user"),
       id: "userId",
       size: 150,
       headerTooltip: {
-        description: (
-          <>
-            Add <code>userId</code> to traces to track users. Read more about
-            user tracking{" "}
-            <a
-              href="https://langfuse.com/docs/observability/features/users"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="decoration-primary/30 hover:decoration-primary underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              here
-            </a>
-            .
-          </>
-        ),
+        description: t("observability.traces.tooltip.user"),
         href: "https://langfuse.com/docs/observability/features/users",
       },
       cell: ({ row }) => {
@@ -1005,10 +952,10 @@ export default function TracesTable({
     {
       accessorKey: "observationCount",
       id: "observationCount",
-      header: "Observations",
+      header: t("observability.columns.observations"),
       size: 120,
       headerTooltip: {
-        description: "The number of observations in the trace.",
+        description: t("observability.traces.tooltip.observations"),
       },
       enableHiding: true,
       defaultHidden: true,
@@ -1023,7 +970,7 @@ export default function TracesTable({
     {
       accessorKey: "level",
       id: "level",
-      header: "Level",
+      header: t("observability.columns.level"),
       size: 75,
       loadingCell: <TableTextLoadingCell />,
       cell: ({ row }) => {
@@ -1050,24 +997,10 @@ export default function TracesTable({
     {
       accessorKey: "version",
       id: "version",
-      header: "Version",
+      header: t("observability.columns.version"),
       size: 100,
       headerTooltip: {
-        description: (
-          <>
-            Track changes via the version tag. Read more about versions{" "}
-            <a
-              href="https://langfuse.com/docs/observability/features/releases-and-versioning"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="decoration-primary/30 hover:decoration-primary underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              here
-            </a>
-            .
-          </>
-        ),
+        description: t("observability.traces.tooltip.version"),
         href: "https://langfuse.com/docs/observability/features/releases-and-versioning",
       },
       defaultHidden: true,
@@ -1077,25 +1010,10 @@ export default function TracesTable({
     {
       accessorKey: "release",
       id: "release",
-      header: "Release",
+      header: t("observability.columns.release"),
       size: 100,
       headerTooltip: {
-        description: (
-          <>
-            Track changes to your application via the release tag. Read more
-            about the release tag{" "}
-            <a
-              href="https://langfuse.com/docs/observability/features/releases-and-versioning"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="decoration-primary/30 hover:decoration-primary underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              here
-            </a>
-            .
-          </>
-        ),
+        description: t("observability.traces.tooltip.release"),
         href: "https://langfuse.com/docs/observability/features/releases-and-versioning",
       },
       defaultHidden: true,
@@ -1104,7 +1022,7 @@ export default function TracesTable({
     },
     {
       accessorKey: "id",
-      header: "Trace ID",
+      header: t("observability.columns.traceId"),
       id: "id",
       size: 90,
       cell: ({ row }) => {
@@ -1120,7 +1038,7 @@ export default function TracesTable({
     },
     {
       accessorKey: "cost",
-      header: "Cost",
+      header: t("observability.columns.cost"),
       id: "cost",
       enableHiding: true,
       defaultHidden: true,
@@ -1131,7 +1049,7 @@ export default function TracesTable({
         {
           accessorKey: "inputCost",
           id: "inputCost",
-          header: "Input Cost",
+          header: t("observability.columns.inputCost"),
           size: 100,
           loadingCell: <TableTextLoadingCell />,
           cell: ({ row }) => {
@@ -1154,7 +1072,7 @@ export default function TracesTable({
         {
           accessorKey: "outputCost",
           id: "outputCost",
-          header: "Output Cost",
+          header: t("observability.columns.outputCost"),
           size: 100,
           loadingCell: <TableTextLoadingCell />,
           cell: ({ row }) => {
@@ -1178,7 +1096,7 @@ export default function TracesTable({
     },
     {
       accessorKey: "usage",
-      header: "Usage",
+      header: t("observability.columns.usage"),
       id: "usage",
       enableHiding: true,
       defaultHidden: true,
@@ -1189,7 +1107,7 @@ export default function TracesTable({
         {
           accessorKey: "inputTokens",
           id: "inputTokens",
-          header: "Input Tokens",
+          header: t("observability.columns.inputTokens"),
           size: 110,
           loadingCell: <TableTextLoadingCell />,
           cell: ({ row }) => {
@@ -1204,7 +1122,7 @@ export default function TracesTable({
         {
           accessorKey: "outputTokens",
           id: "outputTokens",
-          header: "Output Tokens",
+          header: t("observability.columns.outputTokens"),
           size: 110,
           loadingCell: <TableTextLoadingCell />,
           cell: ({ row }) => {
@@ -1219,7 +1137,7 @@ export default function TracesTable({
         {
           accessorKey: "totalTokens",
           id: "totalTokens",
-          header: "Total Tokens",
+          header: t("observability.columns.totalTokens"),
           size: 110,
           loadingCell: <TableTextLoadingCell />,
           cell: ({ row }) => {
@@ -1238,7 +1156,7 @@ export default function TracesTable({
       : ([
           {
             accessorKey: "action",
-            header: "Action",
+            header: t("observability.columns.action"),
             size: 70,
             isFixedPosition: true,
             cell: ({ row }) => {
@@ -1400,7 +1318,11 @@ export default function TracesTable({
               controllers: viewControllers,
             }}
             searchConfig={{
-              metadataSearchFields: ["ID", "Trace Name", "User ID"],
+              metadataSearchFields: [
+                t("observability.columns.id"),
+                t("observability.traces.search.traceName"),
+                t("observability.columns.userId"),
+              ],
               updateQuery: setSearchQuery,
               currentQuery: searchQuery ?? undefined,
               tableAllowsFullTextSearch: true,

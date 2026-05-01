@@ -4,15 +4,12 @@ import { z } from "zod";
 export const MIXPANEL_REGIONS = [
   {
     subdomain: "api",
-    description: "US (api.mixpanel.com)",
   },
   {
     subdomain: "api-eu",
-    description: "EU (api-eu.mixpanel.com)",
   },
   {
     subdomain: "api-in",
-    description: "India (api-in.mixpanel.com)",
   },
 ] as const;
 

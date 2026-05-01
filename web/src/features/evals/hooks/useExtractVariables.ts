@@ -4,6 +4,7 @@ import { api } from "@/src/utils/api";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { EvalTargetObject, extractValueFromObject } from "@langfuse/shared";
 import { useEffect, useState, useRef } from "react";
+import { translateClientMessage } from "@/src/features/i18n";
 
 /**
  * Helper function to find an observation by name in the trace data
@@ -62,8 +63,8 @@ export function useExtractVariables({
     if (!extractionError) return;
     const title =
       extractionError.kind === "jsonPath"
-        ? "Invalid JSONPath in variable mapping"
-        : "Failed to extract variable";
+        ? translateClientMessage("evals.variables.invalidJsonPath")
+        : translateClientMessage("evals.variables.failedExtract");
     showErrorToast(title, extractionError.message, "WARNING");
   }, [extractionError]);
 
@@ -192,7 +193,10 @@ export function useExtractVariables({
         console.error("Error extracting variables:", error);
         setExtractionError({
           kind: "unexpected",
-          message: error instanceof Error ? error.message : "Unknown error",
+          message:
+            error instanceof Error
+              ? error.message
+              : translateClientMessage("evals.variables.unknownError"),
         });
         setExtractedVariables(
           variables.map((variable) => ({

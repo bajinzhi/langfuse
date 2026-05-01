@@ -14,6 +14,7 @@ import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAcces
 import { getMaintainer } from "@/src/features/evals/utils/typeHelpers";
 import { MaintainerTooltip } from "@/src/features/evals/components/maintainer-tooltip";
 import { DefaultEvalModelSetup } from "@/src/features/evals/components/default-eval-model-setup";
+import { useI18n } from "@/src/features/i18n";
 
 // Multi-step setup process
 // 0. Set up default model (optional, only if no default model exists): /project/:projectId/evals/new
@@ -23,6 +24,7 @@ export default function NewEvaluatorPage() {
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const evaluatorId = router.query.evaluator as string | undefined;
+  const { t } = useI18n();
 
   const hasDefaultModelReadAccess = useHasProjectAccess({
     projectId,
@@ -60,17 +62,17 @@ export default function NewEvaluatorPage() {
   );
 
   if (!hasAccess) {
-    return <div>You do not have access to this page.</div>;
+    return <div>{t("evals.new.accessDenied")}</div>;
   }
 
   return (
     <Page
       withPadding
       headerProps={{
-        title: "Set up evaluator",
+        title: t("evals.page.setUpEvaluator"),
         breadcrumb: [
           {
-            name: "Running Evaluators",
+            name: t("evals.tabs.running"),
             href: `/project/${projectId}/evals`,
           },
         ],
@@ -88,7 +90,7 @@ export default function NewEvaluatorPage() {
                       : "text-foreground font-semibold",
                   )}
                 >
-                  0. Set up default model
+                  {t("evals.new.stepDefaultModel")}
                   {stepInt > 0 && (
                     <Check className="ml-1 inline-block h-3 w-3" />
                   )}
@@ -108,7 +110,7 @@ export default function NewEvaluatorPage() {
                   : "text-foreground font-semibold",
               )}
             >
-              1. Select Evaluator
+              {t("evals.new.stepSelectEvaluator")}
               {stepInt > 1 && <Check className="ml-1 inline-block h-3 w-3" />}
             </BreadcrumbPage>
           </BreadcrumbItem>
@@ -122,7 +124,7 @@ export default function NewEvaluatorPage() {
               )}
             >
               <div className="flex flex-row">
-                2. Run Evaluator
+                {t("evals.new.stepRunEvaluator")}
                 {currentTemplate && (
                   <div className="flex flex-row gap-2">
                     <span>

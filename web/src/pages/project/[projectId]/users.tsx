@@ -33,6 +33,7 @@ import {
   convertSelectedEnvironmentsToFilter,
 } from "@/src/hooks/useEnvironmentFilter";
 import { Badge } from "@/src/components/ui/badge";
+import { useI18n } from "@/src/features/i18n";
 
 type RowData = {
   userId: string;
@@ -45,6 +46,7 @@ type RowData = {
 };
 
 export default function UsersPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const { isBetaEnabled } = useV4Beta();
@@ -84,24 +86,9 @@ export default function UsersPage() {
   return (
     <Page
       headerProps={{
-        title: "Users",
+        title: t("observability.users.title"),
         help: {
-          description: (
-            <>
-              Attribute data in Langfuse to a user by adding a userId to your
-              traces. See{" "}
-              <a
-                href="https://langfuse.com/docs/observability/features/users"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="decoration-primary/30 hover:decoration-primary underline"
-                onClick={(e) => e.stopPropagation()}
-              >
-                docs
-              </a>{" "}
-              to learn more.
-            </>
-          ),
+          description: t("observability.users.help"),
           href: "https://langfuse.com/docs/observability/features/users",
         },
       }}
@@ -118,6 +105,7 @@ export default function UsersPage() {
 }
 
 const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
+  const { t, formatDate } = useI18n();
   const router = useRouter();
   const projectId = router.query.projectId as string;
 
@@ -287,10 +275,9 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
     {
       accessorKey: "userId",
       enableColumnFilter: true,
-      header: "User ID",
+      header: t("observability.columns.userId"),
       headerTooltip: {
-        description:
-          "The unique identifier for the user that was logged in Langfuse. See docs for more details on how to set this up.",
+        description: t("observability.users.tooltip.userId"),
         href: "https://langfuse.com/docs/observability/features/users",
       },
       size: 150,
@@ -308,7 +295,7 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
     },
     {
       accessorKey: "environment",
-      header: "Environment",
+      header: t("observability.columns.environment"),
       id: "environment",
       size: 150,
       enableHiding: true,
@@ -327,9 +314,9 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
     },
     {
       accessorKey: "firstEvent",
-      header: "First Event",
+      header: t("observability.columns.firstEvent"),
       headerTooltip: {
-        description: "The earliest trace recorded for this user.",
+        description: t("observability.users.tooltip.firstEvent"),
       },
       size: 150,
       loadingCell: <TableTextLoadingCell />,
@@ -343,9 +330,9 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
     },
     {
       accessorKey: "lastEvent",
-      header: "Last Event",
+      header: t("observability.columns.lastEvent"),
       headerTooltip: {
-        description: "The latest trace recorded for this user.",
+        description: t("observability.users.tooltip.lastEvent"),
       },
       size: 150,
       loadingCell: <TableTextLoadingCell />,
@@ -359,10 +346,9 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
     },
     {
       accessorKey: "totalEvents",
-      header: "Total Events",
+      header: t("observability.columns.totalEvents"),
       headerTooltip: {
-        description:
-          "Total number of events for the user, includes traces and observations. See data model for more details.",
+        description: t("observability.users.tooltip.totalEvents"),
         href: "https://langfuse.com/docs/observability/data-model",
       },
       size: 120,
@@ -377,10 +363,9 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
     },
     {
       accessorKey: "totalTokens",
-      header: "Total Tokens",
+      header: t("observability.columns.totalTokens"),
       headerTooltip: {
-        description:
-          "Total number of tokens used for the user across all generations.",
+        description: t("observability.users.tooltip.totalTokens"),
         href: "https://langfuse.com/docs/model-usage-and-cost",
       },
       size: 120,
@@ -395,9 +380,9 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
     },
     {
       accessorKey: "totalCost",
-      header: "Total Cost",
+      header: t("observability.columns.totalCost"),
       headerTooltip: {
-        description: "Total cost for the user across all generations.",
+        description: t("observability.users.tooltip.totalCost"),
         href: "https://langfuse.com/docs/model-usage-and-cost",
       },
       size: 120,
@@ -422,7 +407,7 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
         timeRange={timeRange}
         setTimeRange={setTimeRange}
         searchConfig={{
-          metadataSearchFields: ["User ID"],
+          metadataSearchFields: [t("observability.columns.userId")],
           updateQuery: setSearchQuery,
           currentQuery: searchQuery ?? undefined,
           tableAllowsFullTextSearch: false,
@@ -450,23 +435,33 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
               : {
                   isLoading: false,
                   isError: false,
-                  data: userRowData.rows?.map((t) => {
+                  data: userRowData.rows?.map((user) => {
                     return {
-                      userId: t.id,
-                      environment: t.environment ?? undefined,
-                      firstEvent:
-                        t.firstTrace?.toLocaleString() ?? "No event yet",
-                      lastEvent:
-                        t.lastTrace?.toLocaleString() ?? "No event yet",
+                      userId: user.id,
+                      environment: user.environment ?? undefined,
+                      firstEvent: user.firstTrace
+                        ? formatDate(user.firstTrace, {
+                            dateStyle: "medium",
+                            timeStyle: "medium",
+                          })
+                        : t("observability.users.noEventYet"),
+                      lastEvent: user.lastTrace
+                        ? formatDate(user.lastTrace, {
+                            dateStyle: "medium",
+                            timeStyle: "medium",
+                          })
+                        : t("observability.users.noEventYet"),
                       totalEvents: compactNumberFormatter(
                         isBetaEnabled
-                          ? Number(t.totalObservations ?? 0)
-                          : Number(t.totalTraces ?? 0) +
-                              Number(t.totalObservations ?? 0),
+                          ? Number(user.totalObservations ?? 0)
+                          : Number(user.totalTraces ?? 0) +
+                              Number(user.totalObservations ?? 0),
                       ),
-                      totalTokens: compactNumberFormatter(t.totalTokens ?? 0),
+                      totalTokens: compactNumberFormatter(
+                        user.totalTokens ?? 0,
+                      ),
                       totalCost: usdFormatter(
-                        t.sumCalculatedTotalCost ?? 0,
+                        user.sumCalculatedTotalCost ?? 0,
                         2,
                         2,
                       ),

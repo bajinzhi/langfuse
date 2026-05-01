@@ -11,6 +11,7 @@ import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAcces
 import useProjectIdFromURL from "@/src/hooks/useProjectIdFromURL";
 import { useUiCustomization } from "@/src/ee/features/ui-customization/useUiCustomization";
 import { CreateLLMApiKeyForm } from "@/src/features/public-api/components/CreateLLMApiKeyForm";
+import { useI18n } from "@/src/features/i18n";
 
 export function CreateLLMApiKeyDialog({
   open,
@@ -20,6 +21,7 @@ export function CreateLLMApiKeyDialog({
   setOpen: (open: boolean) => void;
 }) {
   const projectId = useProjectIdFromURL();
+  const { t } = useI18n();
   const hasAccess = useHasProjectAccess({
     projectId,
     scope: "llmApiKeys:create",
@@ -38,12 +40,12 @@ export function CreateLLMApiKeyDialog({
       <DialogTrigger asChild>
         <Button variant="secondary">
           <PlusIcon className="mr-1.5 -ml-0.5 h-5 w-5" aria-hidden="true" />
-          Add LLM Connection
+          {t("publicApi.addLlmConnection")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90%] min-w-[40vw] overflow-auto">
         <DialogHeader>
-          <DialogTitle>New LLM Connection</DialogTitle>
+          <DialogTitle>{t("publicApi.newLlmConnection")}</DialogTitle>
         </DialogHeader>
         {open && (
           <CreateLLMApiKeyForm

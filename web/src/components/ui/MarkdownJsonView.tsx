@@ -10,6 +10,7 @@ import { Check, Copy } from "lucide-react";
 import { useMemo, useState } from "react";
 import { type z } from "zod";
 import { MARKDOWN_RENDER_CHARACTER_LIMIT } from "@/src/utils/constants";
+import { useI18n } from "@/src/features/i18n";
 
 type MarkdownJsonViewHeaderProps = {
   title: string | React.ReactNode;
@@ -29,6 +30,7 @@ export function MarkdownJsonViewHeader({
   controlButtons,
 }: MarkdownJsonViewHeaderProps) {
   const [isCopied, setIsCopied] = useState(false);
+  const { t } = useI18n();
 
   return (
     <div className="io-message-header group-hover:bg-muted/80 flex flex-row items-center justify-between px-1 py-1 text-sm font-medium capitalize transition-colors">
@@ -39,7 +41,7 @@ export function MarkdownJsonViewHeader({
       <div className="mr-1 flex min-w-0 shrink flex-row items-center gap-1">
         {controlButtons}
         <Button
-          title="Copy to clipboard"
+          title={t("common.copyToClipboard")}
           variant="ghost"
           size="icon-xs"
           type="button"

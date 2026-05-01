@@ -8,6 +8,7 @@ import {
 } from "@/src/components/ui/form";
 import { Switch } from "@/src/components/ui/switch";
 import { JSONSchemaEditor } from "@/src/components/JSONSchemaEditor";
+import { useI18n } from "@/src/features/i18n";
 
 type DatasetSchemaInputProps = {
   label: string;
@@ -26,6 +27,7 @@ export const DatasetSchemaInput: React.FC<DatasetSchemaInputProps> = ({
   onChange,
   disabled = false,
 }) => {
+  const { t } = useI18n();
   // Track if schema enforcement is enabled based on whether value is empty
   const [isEnabled, setIsEnabled] = useState(value !== "");
 
@@ -58,7 +60,7 @@ export const DatasetSchemaInput: React.FC<DatasetSchemaInputProps> = ({
         <FormLabel>{label}</FormLabel>
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground text-sm">
-            {isEnabled ? "Enabled" : "Disabled"}
+            {isEnabled ? t("common.enabled") : t("common.disabled")}
           </span>
           <Switch
             checked={isEnabled}

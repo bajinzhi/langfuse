@@ -3,8 +3,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
 import { SettingsTableCard } from "@/src/components/layouts/settings-table-card";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 import { BatchActionsTable } from "./BatchActionsTable";
+import { useI18n } from "@/src/features/i18n";
 
 export function BatchActionsSettingsPage(props: { projectId: string }) {
+  const { t } = useI18n();
   const hasAccess = useHasProjectAccess({
     projectId: props.projectId,
     scope: "datasets:CUD",
@@ -12,12 +14,9 @@ export function BatchActionsSettingsPage(props: { projectId: string }) {
 
   return (
     <>
-      <Header title="Batch Actions" />
+      <Header title={t("batchActions.title")} />
       <p className="mb-4 text-sm">
-        Track the status of bulk operations performed on tables, such as adding
-        observations to datasets, deleting traces, and adding items to
-        annotation queues. Actions are processed asynchronously in the
-        background.
+        {t("batchActions.settingsDescription")}
       </p>
       {hasAccess ? (
         <SettingsTableCard>
@@ -25,9 +24,9 @@ export function BatchActionsSettingsPage(props: { projectId: string }) {
         </SettingsTableCard>
       ) : (
         <Alert>
-          <AlertTitle>Access Denied</AlertTitle>
+          <AlertTitle>{t("batchActions.accessDenied")}</AlertTitle>
           <AlertDescription>
-            You do not have permission to view batch actions.
+            {t("batchActions.accessDeniedDescription")}
           </AlertDescription>
         </Alert>
       )}

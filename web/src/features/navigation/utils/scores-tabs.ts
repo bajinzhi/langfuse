@@ -1,3 +1,7 @@
+import type { MessageKey, MessageValues } from "@/src/features/i18n";
+
+type Translate = (key: MessageKey, values?: MessageValues) => string;
+
 export const SCORES_TABS = {
   SCORES: "scores",
   ANALYTICS: "analytics",
@@ -5,15 +9,15 @@ export const SCORES_TABS = {
 
 export type ScoresTab = (typeof SCORES_TABS)[keyof typeof SCORES_TABS];
 
-export const getScoresTabs = (projectId: string) => [
+export const getScoresTabs = (projectId: string, t: Translate) => [
   {
     value: SCORES_TABS.SCORES,
-    label: "Scores",
+    label: t("nav.scores"),
     href: `/project/${projectId}/scores`,
   },
   {
     value: SCORES_TABS.ANALYTICS,
-    label: "Analytics",
+    label: t("common.analytics"),
     href: `/project/${projectId}/scores/analytics`,
   },
 ];

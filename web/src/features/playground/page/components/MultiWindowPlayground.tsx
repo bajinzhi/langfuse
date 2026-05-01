@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from "@/src/components/ui/tooltip";
 import { useIsMobile } from "@/src/hooks/use-mobile";
+import { useI18n } from "@/src/features/i18n";
 
 /**
  * MultiWindowPlayground Component
@@ -153,6 +154,7 @@ function PlaygroundWindowContent({
   canRemove: boolean;
   isMobile?: boolean;
 }) {
+  const { t } = useI18n();
   const playgroundContext = usePlaygroundContext();
   const { registerPageTarget, unregisterPageTarget } =
     useMessageSearchActions();
@@ -203,11 +205,13 @@ function PlaygroundWindowContent({
                         className="h-7 gap-1.5 px-2.5 text-xs @xl:hidden"
                       >
                         <Plus size={14} />
-                        <span className="sr-only">New split window</span>
+                        <span className="sr-only">
+                          {t("playground.newSplitWindow")}
+                        </span>
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent className="text-xs">
-                      New split window
+                      {t("playground.newSplitWindow")}
                     </TooltipContent>
                   </Tooltip>
                   <Button
@@ -216,7 +220,7 @@ function PlaygroundWindowContent({
                     className="hidden h-7 gap-1.5 px-2.5 text-xs @xl:flex"
                   >
                     <Plus size={14} />
-                    <span>New split window</span>
+                    <span>{t("playground.newSplitWindow")}</span>
                   </Button>
                 </>
               )}
@@ -229,11 +233,13 @@ function PlaygroundWindowContent({
                       className="hover:bg-destructive/10 hover:text-destructive h-6 w-6 p-0"
                     >
                       <X size={14} />
-                      <span className="sr-only">Remove window</span>
+                      <span className="sr-only">
+                        {t("playground.removeWindow")}
+                      </span>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent className="text-xs">
-                    Remove window
+                    {t("playground.removeWindow")}
                   </TooltipContent>
                 </Tooltip>
               )}

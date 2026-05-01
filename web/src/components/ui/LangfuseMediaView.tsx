@@ -21,6 +21,7 @@ import {
   Video,
   Volume2,
 } from "lucide-react";
+import { useI18n } from "@/src/features/i18n";
 
 export const LangfuseMediaView = ({
   mediaReferenceString,
@@ -34,6 +35,7 @@ export const LangfuseMediaView = ({
   let mediaData: { id: string; type: MediaContentType } | null = null;
 
   const projectId = useProjectIdFromURL();
+  const { t } = useI18n();
 
   if (mediaReferenceString && typeof mediaReferenceString === "string") {
     const { success, data: parsedTag } =
@@ -58,10 +60,12 @@ export const LangfuseMediaView = ({
   if (!mediaData)
     return (
       <div className="flex items-center gap-2">
-        <span title="Invalid Langfuse Media Tag">
+        <span title={t("common.invalidLangfuseMediaTag")}>
           <ImageOff className="h-4 w-4" />
         </span>
-        <span className="truncate text-sm">Invalid Langfuse Media Tag</span>
+        <span className="truncate text-sm">
+          {t("common.invalidLangfuseMediaTag")}
+        </span>
       </div>
     );
 
@@ -114,6 +118,7 @@ function FileViewer({
   contentType: MediaContentType;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useI18n();
 
   if (!src) return null;
 
@@ -186,8 +191,8 @@ function FileViewer({
             variant="outline"
             size="icon-sm"
             onClick={openInNewTab}
-            aria-label={`Open ${fileName} in new tab`}
-            title={`Open ${fileName} in new tab`}
+            aria-label={t("common.openFileInNewTab", { name: fileName })}
+            title={t("common.openFileInNewTab", { name: fileName })}
             className="shrink-0"
           >
             <ExternalLink className="h-4 w-4" />
@@ -198,8 +203,8 @@ function FileViewer({
           onClick={() => (isPreviewable ? setIsExpanded(true) : openInNewTab())}
           aria-label={
             isPreviewable
-              ? `Show ${fileName} inline`
-              : `Open ${fileName} in new tab`
+              ? t("common.showFileInline", { name: fileName })
+              : t("common.openFileInNewTab", { name: fileName })
           }
           aria-expanded={isPreviewable ? isExpanded : undefined}
           title={fileName}
@@ -213,23 +218,25 @@ function FileViewer({
 }
 
 function AudioPlayer({ src }: { src?: string }) {
+  const { t } = useI18n();
   if (!src) return null;
 
   return (
     <audio controls className="w-full" preload="metadata">
       <source src={src} />
-      Your browser does not support the audio element.
+      {t("common.audioUnsupported")}
     </audio>
   );
 }
 
 function VideoPlayer({ src }: { src?: string }) {
+  const { t } = useI18n();
   if (!src) return null;
 
   return (
     <video controls className="w-full" preload="metadata" playsInline>
       <source src={src} />
-      Your browser does not support the video element.
+      {t("common.browserVideoUnsupported")}
     </video>
   );
 }

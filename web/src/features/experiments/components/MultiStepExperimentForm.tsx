@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/src/components/ui/button";
 import { Form } from "@/src/components/ui/form";
 import {
@@ -32,7 +32,7 @@ import { getFinalModelParams } from "@/src/utils/getFinalModelParams";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import {
-  CreateExperimentData,
+  createExperimentDataSchema,
   type CreateExperiment,
 } from "@/src/features/experiments/types";
 import {
@@ -40,6 +40,7 @@ import {
   generateDefaultExperimentDescription,
   generateDatasetRunName,
 } from "@/src/features/experiments/util";
+import { useI18n } from "@/src/features/i18n";
 
 // Import step components
 import { PromptModelStep } from "./steps/PromptModelStep";
@@ -80,6 +81,8 @@ export const MultiStepExperimentForm = ({
   }) => Promise<void>;
 }) => {
   const capture = usePostHogClientCapture();
+  const { t } = useI18n();
+  const formSchema = useMemo(() => createExperimentDataSchema(t), [t]);
   const [activeStep, setActiveStep] = useState("prompt");
   const [selectedPromptName, setSelectedPromptName] = useState<string>(
     promptDefault?.name ?? "",
@@ -99,11 +102,11 @@ export const MultiStepExperimentForm = ({
   );
 
   const steps = [
-    { id: "prompt", label: "Prompt & Model" },
-    { id: "dataset", label: "Dataset" },
-    { id: "evaluators", label: "Evaluators" },
-    { id: "details", label: "Experiment run details" },
-    { id: "review", label: "Review" },
+    { id: "prompt", label: t("experiments.steps.promptModel") },
+    { id: "dataset", label: t("experiments.steps.dataset") },
+    { id: "evaluators", label: t("experiments.steps.evaluators") },
+    { id: "details", label: t("experiments.steps.details") },
+    { id: "review", label: t("experiments.steps.review") },
   ];
 
   const hasEvalReadAccess = useHasProjectAccess({
@@ -117,7 +120,7 @@ export const MultiStepExperimentForm = ({
   });
 
   const form = useForm({
-    resolver: zodResolver(CreateExperimentData),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       promptId: "",
       datasetId: "",
@@ -129,6 +132,13 @@ export const MultiStepExperimentForm = ({
       ...defaultValues,
     },
   });
+  const formErrorCount = Object.keys(form.formState.errors).length;
+
+  useEffect(() => {
+    if (formErrorCount > 0) {
+      void form.trigger();
+    }
+  }, [form, formErrorCount, formSchema]);
 
   const datasetId = form.watch("datasetId");
   const datasetVersion = form.watch("datasetVersion") as Date | undefined;
@@ -217,8 +227,8 @@ export const MultiStepExperimentForm = ({
     onSuccess: handleExperimentSuccess ?? (() => {}),
     onError: (error) => {
       showErrorToast(
-        error.message || "Failed to trigger dataset run",
-        "Please try again.",
+        error.message || t("experiments.error.triggerDatasetRun"),
+        t("experiments.error.tryAgain"),
       );
     },
     onSettled: handleExperimentSettled ?? (() => {}),
@@ -426,18 +436,17 @@ export const MultiStepExperimentForm = ({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Run Experiment</DialogTitle>
+        <DialogTitle>{t("experiments.run.title")}</DialogTitle>
         <DialogDescription>
-          Run an experiment to evaluate prompts and model configurations against
-          a dataset. See{" "}
+          {t("experiments.run.descriptionBeforeDocs")}{" "}
           <Link
             href="https://langfuse.com/docs/evaluation/dataset-runs/native-run"
             target="_blank"
             className="underline"
           >
-            documentation
+            {t("experiments.run.documentation")}
           </Link>{" "}
-          to learn more.
+          {t("experiments.run.descriptionAfterDocs")}
         </DialogDescription>
       </DialogHeader>
       <Form {...form}>
@@ -535,7 +544,7 @@ export const MultiStepExperimentForm = ({
                 disabled={activeStep === "prompt"}
               >
                 <ChevronLeft className="mr-2 h-4 w-4" />
-                Previous
+                {t("common.previous")}
               </Button>
 
               <div className="flex gap-2">
@@ -551,7 +560,7 @@ export const MultiStepExperimentForm = ({
                       }
                     }}
                   >
-                    Next
+                    {t("common.next")}
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : (
@@ -564,7 +573,7 @@ export const MultiStepExperimentForm = ({
                     }
                     loading={form.formState.isSubmitting}
                   >
-                    Run Experiment
+                    {t("experiments.run.title")}
                   </Button>
                 )}
               </div>

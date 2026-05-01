@@ -59,6 +59,9 @@ import {
   getSearchMode,
   searchModeToType,
 } from "@/src/components/table/utils/searchUtils";
+import { useI18n } from "@/src/features/i18n";
+
+type Translate = ReturnType<typeof useI18n>["t"];
 
 export interface MultiSelect {
   selectAll: boolean;
@@ -142,6 +145,7 @@ interface DataTableToolbarProps<TData, TValue> {
 
 // Helper function to get the description for DocPopup
 function getSearchDescription(
+  t: Translate,
   searchType: TracingSearchType[] | undefined,
   metadataFields: string[] | undefined,
   hidePerformanceWarning: boolean | undefined,
@@ -149,32 +153,43 @@ function getSearchDescription(
 ): React.ReactNode {
   const fields = metadataFields?.join(", ") ?? "";
   const performanceWarning = !hidePerformanceWarning
-    ? " For improved performance, please filter the table down."
+    ? t("table.search.performanceWarning")
     : "";
 
   if (tableAllowsFullTextSearch && searchType?.includes("content")) {
     return (
       <p className="text-primary text-xs font-normal">
-        Searches in Input/Output and {fields}.{performanceWarning}
+        {t("table.search.description.content", {
+          fields,
+          warning: performanceWarning,
+        })}
       </p>
     );
   }
   if (tableAllowsFullTextSearch && searchType?.includes("input")) {
     return (
       <p className="text-primary text-xs font-normal">
-        Searches in Input and {fields}.{performanceWarning}
+        {t("table.search.description.input", {
+          fields,
+          warning: performanceWarning,
+        })}
       </p>
     );
   }
   if (tableAllowsFullTextSearch && searchType?.includes("output")) {
     return (
       <p className="text-primary text-xs font-normal">
-        Searches in Output and {fields}.{performanceWarning}
+        {t("table.search.description.output", {
+          fields,
+          warning: performanceWarning,
+        })}
       </p>
     );
   }
   return (
-    <p className="text-primary text-xs font-normal">Searches in {fields}.</p>
+    <p className="text-primary text-xs font-normal">
+      {t("table.search.description.metadata", { fields })}
+    </p>
   );
 }
 
@@ -203,6 +218,7 @@ export function DataTableToolbar<TData, TValue>({
   filterWithAI = false,
   viewModeToggle,
 }: DataTableToolbarProps<TData, TValue>) {
+  const { t } = useI18n();
   const [searchString, setSearchString] = useState(
     searchConfig?.currentQuery ?? "",
   );
@@ -228,7 +244,11 @@ export function DataTableToolbar<TData, TValue>({
             ) : (
               <PanelLeftOpen className="h-4 w-4" />
             )}
-            <span>{controlsPanelOpen ? "Hide" : "Show"} filters</span>
+            <span>
+              {controlsPanelOpen
+                ? t("table.filters.hide")
+                : t("table.filters.show")}
+            </span>
             {filterState && filterState.length > 0 && (
               <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
                 {filterState.length}
@@ -273,8 +293,11 @@ export function DataTableToolbar<TData, TValue>({
                 autoFocus
                 placeholder={
                   searchConfig.tableAllowsFullTextSearch
-                    ? "Search..."
-                    : `Search (${searchConfig.metadataSearchFields?.join(", ")})`
+                    ? t("table.search.placeholder")
+                    : t("table.search.searchFields", {
+                        fields:
+                          searchConfig.metadataSearchFields?.join(", ") ?? "",
+                      })
                 }
                 value={searchString}
                 onChange={(event) => {
@@ -306,10 +329,20 @@ export function DataTableToolbar<TData, TValue>({
                       {searchConfig.tableAllowsFullTextSearch &&
                         getSearchButtonLabel(
                           searchConfig.searchType,
-                          searchConfig.customDropdownLabels?.metadata,
+                          searchConfig.customDropdownLabels?.metadata ??
+                            t("table.search.idsNames"),
+                          {
+                            fullText:
+                              searchConfig.customDropdownLabels?.fullText ??
+                              t("table.search.fullText"),
+                            content: t("table.search.inputOutput"),
+                            input: t("table.search.input"),
+                            output: t("table.search.output"),
+                          },
                         )}
                       <DocPopup
                         description={getSearchDescription(
+                          t,
                           searchConfig.searchType,
                           searchConfig.metadataSearchFields,
                           searchConfig.hidePerformanceWarning,
@@ -337,7 +370,7 @@ export function DataTableToolbar<TData, TValue>({
                   >
                     <DropdownMenuRadioItem value="metadata">
                       {searchConfig.customDropdownLabels?.metadata ??
-                        "IDs / Names"}
+                        t("table.search.idsNames")}
                     </DropdownMenuRadioItem>
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger
@@ -351,7 +384,7 @@ export function DataTableToolbar<TData, TValue>({
                             <span className="h-2 w-2 shrink-0 rounded-full bg-current" />
                           )}
                           {searchConfig.customDropdownLabels?.fullText ??
-                            "Full Text"}
+                            t("table.search.fullText")}
                         </span>
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent>
@@ -370,19 +403,19 @@ export function DataTableToolbar<TData, TValue>({
                           {(searchConfig.availableSearchTypes === undefined ||
                             searchConfig.availableSearchTypes.content) && (
                             <DropdownMenuRadioItem value="metadata_fulltext">
-                              Input/Output
+                              {t("table.search.inputOutput")}
                             </DropdownMenuRadioItem>
                           )}
                           {(searchConfig.availableSearchTypes === undefined ||
                             searchConfig.availableSearchTypes.input) && (
                             <DropdownMenuRadioItem value="metadata_fulltext_input">
-                              Input
+                              {t("table.search.input")}
                             </DropdownMenuRadioItem>
                           )}
                           {(searchConfig.availableSearchTypes === undefined ||
                             searchConfig.availableSearchTypes.output) && (
                             <DropdownMenuRadioItem value="metadata_fulltext_output">
-                              Output
+                              {t("table.search.output")}
                             </DropdownMenuRadioItem>
                           )}
                         </DropdownMenuRadioGroup>
@@ -413,8 +446,8 @@ export function DataTableToolbar<TData, TValue>({
         )}
         {environmentFilter && (
           <MultiSelectFilter
-            title="Environment"
-            label="Env"
+            title={t("table.filter.environment")}
+            label={t("table.filter.environmentShort")}
             values={environmentFilter.values}
             onValueChange={environmentFilter.onValueChange}
             options={environmentFilter.options}

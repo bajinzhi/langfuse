@@ -10,12 +10,13 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 import useLocalStorage from "@/src/components/useLocalStorage";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
+import { useI18n } from "@/src/features/i18n";
 import { Rows3, Rows2, Rows4 } from "lucide-react";
 
 const heightOptions = [
-  { id: "s", label: "Small", icon: <Rows4 /> },
-  { id: "m", label: "Medium", icon: <Rows3 /> },
-  { id: "l", label: "Large", icon: <Rows2 /> },
+  { id: "s", labelKey: "table.rowHeight.small", icon: <Rows4 /> },
+  { id: "m", labelKey: "table.rowHeight.medium", icon: <Rows3 /> },
+  { id: "l", labelKey: "table.rowHeight.large", icon: <Rows2 /> },
 ] as const;
 
 const defaultHeights: Record<RowHeight, string> = {
@@ -54,19 +55,24 @@ export const DataTableRowHeightSwitch = ({
   rowHeight: RowHeight;
   setRowHeight: (e: RowHeight) => void;
 }) => {
+  const { t } = useI18n();
   const capture = usePostHogClientCapture();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" title="Row height">
+        <Button
+          variant="outline"
+          size="icon"
+          title={t("table.rowHeight.title")}
+        >
           <Rows3 className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuPortal>
         <DropdownMenuContent>
-          <DropdownMenuLabel>Row height</DropdownMenuLabel>
+          <DropdownMenuLabel>{t("table.rowHeight.title")}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {heightOptions.map(({ id, label }) => (
+          {heightOptions.map(({ id, labelKey }) => (
             <DropdownMenuCheckboxItem
               key={id}
               checked={rowHeight === id}
@@ -79,7 +85,7 @@ export const DataTableRowHeightSwitch = ({
                 setRowHeight(id);
               }}
             >
-              {label}
+              {t(labelKey)}
             </DropdownMenuCheckboxItem>
           ))}
         </DropdownMenuContent>

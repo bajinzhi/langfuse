@@ -8,6 +8,7 @@ import { ChatMessageList } from "./components/ChatMessageList";
 import { SectionToolDefinitions } from "./components/SectionToolDefinitions";
 import { type ExpansionStateProps } from "./IOPreview";
 import { CorrectedOutputField } from "./components/CorrectedOutputField";
+import { useI18n } from "@/src/features/i18n";
 
 interface JsonInputOutputViewProps {
   parsedInput: unknown;
@@ -42,6 +43,7 @@ function JsonInputOutputView({
   onInputExpansionChange,
   onOutputExpansionChange,
 }: JsonInputOutputViewProps) {
+  const { t } = useI18n();
   const showInput = !hideInput && !(hideIfNull && !parsedInput);
   const showOutput = !hideOutput && !(hideIfNull && !parsedOutput);
 
@@ -49,7 +51,7 @@ function JsonInputOutputView({
     <div className="[&_.io-message-content]:px-2 [&_.io-message-header]:px-2">
       {showInput && (
         <PrettyJsonView
-          title="Input"
+          title={t("trace.input")}
           json={parsedInput ?? null}
           isLoading={isLoading}
           isParsing={isParsing}
@@ -61,7 +63,7 @@ function JsonInputOutputView({
       )}
       {showOutput && (
         <PrettyJsonView
-          title="Output"
+          title={t("trace.output")}
           json={parsedOutput}
           isLoading={isLoading}
           isParsing={isParsing}
@@ -140,6 +142,7 @@ export function IOPreviewPretty({
   environment = "default",
   showCorrections = true,
 }: IOPreviewPrettyProps) {
+  const { t } = useI18n();
   // Use pre-parsed data if available (from useParsedObservation hook),
   // otherwise parse with size/depth limits to prevent UI freeze
   // IMPORTANT: Don't parse while isParsing=true to avoid double-parsing with different object references
@@ -291,7 +294,7 @@ export function IOPreviewPretty({
       {shouldShowMetadata && (
         <div className="[&_.io-message-content]:px-2 [&_.io-message-header]:px-2">
           <PrettyJsonView
-            title="Metadata"
+            title={t("scores.metadata")}
             json={parsedMetadata}
             isLoading={isLoading}
             isParsing={isParsing}

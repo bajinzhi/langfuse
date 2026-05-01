@@ -7,6 +7,7 @@ import { Badge } from "@/src/components/ui/badge";
 import { CommandItem } from "@/src/components/ui/command";
 import { SetPromptVersionLabels } from "@/src/features/prompts/components/SetPromptVersionLabels";
 import { CommentCountIcon } from "@/src/features/comments/CommentCountIcon";
+import { useI18n } from "@/src/features/i18n";
 
 const PromptHistoryTraceNode = (props: {
   index: number;
@@ -17,6 +18,7 @@ const PromptHistoryTraceNode = (props: {
   router: NextRouter;
   commentCounts?: Map<string, number>;
 }) => {
+  const { t, formatDate } = useI18n();
   const [isHovered, setIsHovered] = useState(false);
   const [isPromptDiffOpen, setIsPromptDiffOpen] = useState(false);
   const [isLabelPopoverOpen, setIsLabelPopoverOpen] = useState(false);
@@ -143,7 +145,7 @@ const PromptHistoryTraceNode = (props: {
                 </div>
               )}
               <div className="text-muted-foreground flex flex-wrap gap-1 text-xs">
-                {prompt.createdAt.toLocaleString()} by{" "}
+                {formatDate(prompt.createdAt)} {t("prompts.history.by")}{" "}
                 {prompt.creator || prompt.createdBy}
               </div>
             </div>

@@ -15,6 +15,7 @@ import { planLabels } from "@langfuse/shared";
 import { api } from "@/src/utils/api";
 import { toast } from "sonner";
 import { nanoid } from "nanoid";
+import { useI18n } from "@/src/features/i18n";
 
 export const StripeSwitchPlanButton = ({
   className,
@@ -37,12 +38,13 @@ export const StripeSwitchPlanButton = ({
   processing: boolean;
   className?: string;
 }) => {
+  const { t } = useI18n();
   const [_opId, setOpId] = useState<string | null>(null);
 
   const mutChangePlan =
     api.cloudBilling.changeStripeSubscriptionProduct.useMutation({
       onSuccess: () => {
-        toast.success("Plan changed successfully");
+        toast.success(t("billing.planChangedSuccessfully"));
         onProcessing(null);
         setOpId(null);
         setTimeout(() => window.location.reload(), 500);
@@ -50,7 +52,7 @@ export const StripeSwitchPlanButton = ({
       onError: () => {
         onProcessing(null);
         setOpId(null);
-        toast.error("Failed to change plan");
+        toast.error(t("billing.planChangeFailed"));
       },
     });
 
@@ -59,69 +61,56 @@ export const StripeSwitchPlanButton = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full">Change plan</Button>
+        <Button className="w-full">{t("billing.changePlan")}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-lg">
-            Confirm Your Change: {planLabels[currentPlan ?? "cloud:hobby"]} →{" "}
-            {newPlanTitle}
+            {t("billing.confirmPlanChangeTitle", {
+              currentPlan: planLabels[currentPlan ?? "cloud:hobby"],
+              newPlan: newPlanTitle ?? "",
+            })}
           </DialogTitle>
         </DialogHeader>
         <DialogBody className="text-sm">
           {isLegacySubscription ? (
             <>
               <p>
-                We will end your current subscription now and start a new one
-                immediately.
+                {t("billing.legacyPlanChangeP1")}
               </p>
               <p>
-                You will receive an invoice today that includes (1) the base fee
-                for the new plan for a fresh billing period starting today and
-                (2) your base-fee and usage to date on the previous
-                subscription.
+                {t("billing.legacyPlanChangeP2")}
               </p>
               <p>
-                By confirming, you accept the immediate invoice and plan
-                activation starting now.
+                {t("billing.legacyPlanChangeP3")}
               </p>
             </>
           ) : isUpgrade ? (
             <>
               <p>
-                You will be charged a prorated base fee today for the remainder
-                of this billing period. Features update immediately; usage-based
-                charges continue for the rest of the billing period.
+                {t("billing.upgradePlanChangeP1")}
               </p>
               <p>
-                Example: if your plan is $199/month and you upgrade halfway
-                through the month to a $499/month plan, the prorated charge is
-                roughly $99.5 + $249.5 (plus taxes). Exact amounts depend on
-                timing and tax.
+                {t("billing.upgradePlanChangeP2")}
               </p>
               <p>
-                By confirming, you accept the prorated charge and immediate plan
-                change.
+                {t("billing.upgradePlanChangeP3")}
               </p>
             </>
           ) : (
             <>
               <p>
-                No charge is made today. You stay on your current plan until the
-                end of this billing period, then we switch you to the new plan.
-                You can switch back anytime.
+                {t("billing.downgradePlanChangeP1")}
               </p>
               <p>
-                Usage continues to be billed under your current plan until the
-                switch. By confirming, you schedule the change at period end and
-                understand features will adjust at that time.
+                {t("billing.downgradePlanChangeP2")}
               </p>
             </>
           )}
         </DialogBody>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="secondary">Cancel</Button>
+            <Button variant="secondary">{t("common.cancel")}</Button>
           </DialogClose>
           <ActionButton
             onClick={() => {
@@ -137,7 +126,7 @@ export const StripeSwitchPlanButton = ({
             loading={processing}
             className={className}
           >
-            Confirm
+            {t("common.confirm")}
           </ActionButton>
         </DialogFooter>
       </DialogContent>

@@ -25,6 +25,7 @@ import type { DatabaseRow } from "@/src/server/api/services/sqlInterface";
 import { Chart } from "@/src/features/widgets/chart-library/Chart";
 import { timeSeriesToDataPoints } from "@/src/features/dashboard/lib/chart-data-adapters";
 import { useScheduledDashboardExecuteQuery } from "@/src/hooks/useDashboardQueryScheduler";
+import { useI18n } from "@/src/features/i18n";
 
 export const GenerationLatencyChart = ({
   className,
@@ -47,6 +48,7 @@ export const GenerationLatencyChart = ({
   metricsVersion?: ViewVersion;
   schedulerId?: string;
 }) => {
+  const { t } = useI18n();
   const {
     allModels,
     selectedModels,
@@ -140,23 +142,23 @@ export const GenerationLatencyChart = ({
 
   const data = [
     {
-      tabTitle: "50th Percentile",
+      tabTitle: t("dashboard.percentile.50"),
       data: getData("p50_latency"),
     },
     {
-      tabTitle: "75th Percentile",
+      tabTitle: t("dashboard.percentile.75"),
       data: getData("p75_latency"),
     },
     {
-      tabTitle: "90th Percentile",
+      tabTitle: t("dashboard.percentile.90"),
       data: getData("p90_latency"),
     },
     {
-      tabTitle: "95th Percentile",
+      tabTitle: t("dashboard.percentile.95"),
       data: getData("p95_latency"),
     },
     {
-      tabTitle: "99th Percentile",
+      tabTitle: t("dashboard.percentile.99"),
       data: getData("p99_latency"),
     },
   ];
@@ -164,8 +166,8 @@ export const GenerationLatencyChart = ({
   return (
     <DashboardCard
       className={className}
-      title="Model latencies"
-      description="Latencies (seconds) per LLM generation"
+      title={t("dashboard.modelLatencies.title")}
+      description={t("dashboard.modelLatencies.description")}
       isLoading={
         isLoading || (latencies.isPending && selectedModels.length > 0)
       }

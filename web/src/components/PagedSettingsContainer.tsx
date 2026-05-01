@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { useRouter } from "next/router";
+import { useI18n } from "@/src/features/i18n";
 
 type SettingsProps = {
   pages: Array<
@@ -27,6 +28,7 @@ export const PagedSettingsContainer = ({
   activeSlug,
 }: SettingsProps) => {
   const router = useRouter();
+  const { t } = useI18n();
   const availablePages = pages.filter((page) =>
     "show" in page
       ? typeof page.show === "function"
@@ -60,7 +62,7 @@ export const PagedSettingsContainer = ({
             value={currentPage.slug}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select a page" />
+              <SelectValue placeholder={t("common.selectPage")} />
             </SelectTrigger>
             <SelectContent>
               {availablePages.map((page) => (

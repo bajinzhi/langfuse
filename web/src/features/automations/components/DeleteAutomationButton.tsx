@@ -9,6 +9,7 @@ import {
   PopoverTrigger,
 } from "@/src/components/ui/popover";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
+import { useI18n } from "@/src/features/i18n";
 
 interface DeleteAutomationButtonProps {
   projectId: string;
@@ -23,6 +24,7 @@ export const DeleteAutomationButton: React.FC<DeleteAutomationButtonProps> = ({
   onSuccess,
   variant = "icon",
 }) => {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const utils = api.useUtils();
   const hasAccess = useHasProjectAccess({
@@ -34,8 +36,8 @@ export const DeleteAutomationButton: React.FC<DeleteAutomationButtonProps> = ({
     {
       onSuccess: () => {
         showSuccessToast({
-          title: "Automation deleted",
-          description: "The automation has been deleted successfully.",
+          title: t("automations.automationDeleted"),
+          description: t("automations.automationDeletedDescription"),
         });
 
         if (onSuccess) {
@@ -58,7 +60,7 @@ export const DeleteAutomationButton: React.FC<DeleteAutomationButtonProps> = ({
             disabled={!hasAccess}
           >
             <Trash className="h-4 w-4" />
-            <span className="sr-only">Delete</span>
+            <span className="sr-only">{t("common.delete")}</span>
           </Button>
         ) : (
           <Button
@@ -67,15 +69,16 @@ export const DeleteAutomationButton: React.FC<DeleteAutomationButtonProps> = ({
             className="border-light-red flex items-center"
             disabled={!hasAccess}
           >
-            <span className="text-dark-red">Delete</span>
+            <span className="text-dark-red">{t("common.delete")}</span>
           </Button>
         )}
       </PopoverTrigger>
       <PopoverContent>
-        <h2 className="text-md mb-3 font-semibold">Please confirm</h2>
+        <h2 className="text-md mb-3 font-semibold">
+          {t("common.pleaseConfirm")}
+        </h2>
         <p className="mb-3 text-sm">
-          This action permanently deletes this automation and execution history.
-          This cannot be undone.
+          {t("automations.delete.confirmDescription")}
         </p>
         <div className="flex justify-end space-x-4">
           <Button
@@ -90,7 +93,7 @@ export const DeleteAutomationButton: React.FC<DeleteAutomationButtonProps> = ({
               setIsOpen(false);
             }}
           >
-            Delete Automation
+            {t("automations.deleteAutomation")}
           </Button>
         </div>
       </PopoverContent>

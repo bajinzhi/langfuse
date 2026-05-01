@@ -30,6 +30,7 @@ import {
 } from "../lib/filter-query-encoding";
 import { normalizeLegacySessionPositionInTraceKey } from "@/src/components/session/session-position-in-trace";
 import { usePeekTableState } from "@/src/components/table/peek/contexts/PeekTableStateContext";
+import { enMessages } from "@/src/features/i18n/messages/en";
 
 const DEBUG_QUERY_STATE = false;
 
@@ -192,20 +193,23 @@ const tableCols = {
   experiments: experimentsTableCols,
   "experiment-items": experimentItemsTableCols,
   widgets: [
-    { id: "environment", name: "Environment" },
-    { id: "traceName", name: "Trace Name" },
-    { id: "tags", name: "Tags" },
-    { id: "release", name: "Release" },
-    { id: "user", name: "User" },
-    { id: "session", name: "Session" },
-    { id: "version", name: "Version" },
+    {
+      id: "environment",
+      name: enMessages["observability.columns.environment"],
+    },
+    { id: "traceName", name: enMessages["observability.columns.traceName"] },
+    { id: "tags", name: enMessages["observability.columns.tags"] },
+    { id: "release", name: enMessages["observability.columns.release"] },
+    { id: "user", name: enMessages["observability.columns.user"] },
+    { id: "session", name: enMessages["observability.columns.session"] },
+    { id: "version", name: enMessages["observability.columns.version"] },
   ],
   dashboard: [
-    { id: "traceName", name: "Trace Name" },
-    { id: "tags", name: "Tags" },
-    { id: "release", name: "Release" },
-    { id: "user", name: "User" },
-    { id: "version", name: "Version" },
+    { id: "traceName", name: enMessages["observability.columns.traceName"] },
+    { id: "tags", name: enMessages["observability.columns.tags"] },
+    { id: "release", name: enMessages["observability.columns.release"] },
+    { id: "user", name: enMessages["observability.columns.user"] },
+    { id: "version", name: enMessages["observability.columns.version"] },
   ],
 };
 

@@ -6,6 +6,7 @@ import {
 import { useScoreCache } from "@/src/features/scores/contexts/ScoreCacheContext";
 import { type ScoreTarget } from "@langfuse/shared";
 import { showErrorToast } from "@/src/features/notifications/showErrorToast";
+import { useI18n } from "@/src/features/i18n";
 
 export function useScoreMutations({
   scoreTarget,
@@ -18,6 +19,7 @@ export function useScoreMutations({
     environment?: string;
   };
 }) {
+  const { t } = useI18n();
   const {
     set: cacheSet,
     get: cacheGet,
@@ -65,7 +67,7 @@ export function useScoreMutations({
       if (!variables.id) return;
       // Rollback failed create from cache
       cacheRollbackSet(variables.id);
-      showErrorToast("Failed to create score", err.message, "WARNING");
+      showErrorToast(t("scores.failedCreate"), err.message, "WARNING");
     },
   });
 
@@ -114,7 +116,7 @@ export function useScoreMutations({
         // No cache entry → was DB-persisted → rollback optimistic update
         cacheRollbackSet(variables.id);
       }
-      showErrorToast("Failed to update score", err.message, "WARNING");
+      showErrorToast(t("scores.failedUpdate"), err.message, "WARNING");
     },
   });
 
@@ -131,7 +133,7 @@ export function useScoreMutations({
     onError: (err, variables, context) => {
       // Rollback
       cacheRollbackDelete(variables.id, context?.previousCacheValue);
-      showErrorToast("Failed to delete score", err.message, "WARNING");
+      showErrorToast(t("scores.failedDelete"), err.message, "WARNING");
     },
   });
 

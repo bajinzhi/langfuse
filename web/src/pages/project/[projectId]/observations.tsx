@@ -11,8 +11,10 @@ import {
 import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import ObservationsEventsTable from "@/src/features/events/components/EventsTable";
 import { useQueryProject } from "@/src/features/projects/hooks";
+import { useI18n } from "@/src/features/i18n";
 
 export default function Generations() {
+  const { t } = useI18n();
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const { isBetaEnabled, isInitializing } = useV4Beta();
@@ -41,17 +43,16 @@ export default function Generations() {
   return (
     <Page
       headerProps={{
-        title: "Tracing",
+        title: t("observability.observations.title"),
         help: {
-          description:
-            "An observation captures a single function call in an application. See docs to learn more.",
+          description: t("observability.observations.help"),
           href: "https://langfuse.com/docs/observability/data-model",
         },
         tabsProps:
           isBetaEnabled || isInitializing
             ? undefined
             : {
-                tabs: getTracingTabs(projectId),
+                tabs: getTracingTabs(projectId, t),
                 activeTab: TRACING_TABS.OBSERVATIONS,
               },
       }}

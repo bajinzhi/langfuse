@@ -23,12 +23,14 @@ import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useI18n } from "@/src/features/i18n";
 
 const aiFeaturesSchema = z.object({
   aiFeaturesEnabled: z.boolean(),
 });
 
 export default function AIFeatureSwitch() {
+  const { t } = useI18n();
   const { update: updateSession } = useSession();
   const { isLangfuseCloud } = useLangfuseCloudRegion();
   const capture = usePostHogClientCapture();
@@ -84,26 +86,22 @@ export default function AIFeatureSwitch() {
 
   return (
     <div>
-      <Header title="AI Features" />
+      <Header title={t("organizations.aiFeatures.title")} />
       <Card className="mb-4 p-3">
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-1">
             <h4 className="font-semibold">
-              Enable AI powered features for your organization
+              {t("organizations.aiFeatures.enableTitle")}
             </h4>
             <p className="text-sm">
-              This setting applies to all users and projects. Any data{" "}
-              <i>can</i> be sent to AWS Bedrock within the Langfuse data region.
-              Traces are sent to Langfuse Cloud in your data region. Your data
-              will not be used for training models. Applicable HIPAA, SOC2,
-              GDPR, and ISO 27001 compliance remains intact.{" "}
+              {t("organizations.aiFeatures.description")}{" "}
               <a
                 href="https://langfuse.com/security/ai-features"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary inline-flex items-center gap-1 hover:underline"
               >
-                More details in the docs here.
+                {t("organizations.aiFeatures.moreDetails")}
                 <ExternalLink className="h-3 w-3" />
               </a>
             </p>
@@ -115,7 +113,7 @@ export default function AIFeatureSwitch() {
               disabled={!hasAccess}
             />
             {!hasAccess && (
-              <span title="No access">
+              <span title={t("organizations.noAccess")}>
                 <LockIcon className="text-muted absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform" />
               </span>
             )}
@@ -133,17 +131,17 @@ export default function AIFeatureSwitch() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm AI Features Change</DialogTitle>
+            <DialogTitle>
+              {t("organizations.aiFeatures.confirmChange")}
+            </DialogTitle>
           </DialogHeader>
           <DialogBody>
             <span className="text-sm">
-              You are about to{" "}
-              <strong>
-                {isAIFeatureSwitchEnabled ? "enable " : "disable"}
-              </strong>{" "}
-              AI features for your organization. When enabled, any data{"  "}
-              <i>can</i> be sent to AWS Bedrock in your data region for
-              processing.
+              {t("organizations.aiFeatures.confirmDescription", {
+                action: isAIFeatureSwitchEnabled
+                  ? t("organizations.aiFeatures.enable")
+                  : t("organizations.aiFeatures.disable"),
+              })}
               <br />
               <br />{" "}
               <a
@@ -152,12 +150,12 @@ export default function AIFeatureSwitch() {
                 rel="noopener noreferrer"
                 className="text-primary inline-flex items-center gap-1 hover:underline"
               >
-                Learn more in the docs.
+                {t("organizations.aiFeatures.learnMore")}
                 <ExternalLink className="h-3 w-3" />
               </a>
             </span>
             <p className="text-muted-foreground mt-3 text-sm">
-              Are you sure you want to proceed?
+              {t("organizations.aiFeatures.proceedConfirm")}
             </p>
           </DialogBody>
           <DialogFooter>
@@ -168,14 +166,14 @@ export default function AIFeatureSwitch() {
                 disabled={updateAIFeatures.isPending}
                 onClick={handleCancel}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 type="submit"
                 onClick={handleConfirm}
                 loading={updateAIFeatures.isPending}
               >
-                Confirm
+                {t("common.confirm")}
               </Button>
             </div>
           </DialogFooter>

@@ -1,4 +1,5 @@
 import type { FilterConfig } from "@/src/features/filters/lib/filter-config";
+import { translateClientMessage } from "@/src/features/i18n";
 import type { ColumnDefinition, ObservationLevelType } from "@langfuse/shared";
 
 /**
@@ -7,37 +8,37 @@ import type { ColumnDefinition, ObservationLevelType } from "@langfuse/shared";
  */
 export const experimentItemsTableCols: ColumnDefinition[] = [
   {
-    name: "Experiment Item ID",
+    name: translateClientMessage("experiments.columns.experimentItemId"),
     id: "id",
     type: "string",
     internal: "experiment_item_id",
   },
   {
-    name: "Experiment ID",
+    name: translateClientMessage("experiments.columns.experimentId"),
     id: "experimentId",
     type: "string",
     internal: "experiment_id",
   },
   {
-    name: "Trace ID",
+    name: translateClientMessage("experiments.columns.traceId"),
     id: "traceId",
     type: "string",
     internal: "trace_id",
   },
   {
-    name: "Dataset Item ID",
+    name: translateClientMessage("experiments.columns.datasetItemId"),
     id: "datasetItemId",
     type: "string",
     internal: "dataset_item_id",
   },
   {
-    name: "Start Time",
+    name: translateClientMessage("experiments.columns.startTime"),
     id: "startTime",
     type: "datetime",
     internal: "start_time",
   },
   {
-    name: "Level",
+    name: translateClientMessage("experiments.columns.level"),
     id: "level",
     type: "stringOptions",
     internal: "level",
@@ -49,27 +50,27 @@ export const experimentItemsTableCols: ColumnDefinition[] = [
     ] as { value: ObservationLevelType }[],
   },
   {
-    name: "Cost ($)",
+    name: translateClientMessage("experiments.columns.costUsd"),
     id: "totalCost",
     type: "number",
     internal: "total_cost",
     nullable: true,
   },
   {
-    name: "Latency (ms)",
+    name: translateClientMessage("experiments.columns.latencyMs"),
     id: "latencyMs",
     type: "number",
     internal: "latency_ms",
     nullable: true,
   },
   {
-    name: "Scores (numeric)",
+    name: translateClientMessage("experiments.columns.scoresNumeric"),
     id: "obs_scores_avg",
     type: "numberObject",
     internal: "obs_scores_avg",
   },
   {
-    name: "Scores (categorical)",
+    name: translateClientMessage("experiments.columns.scoresCategorical"),
     id: "obs_score_categories",
     type: "categoryOptions",
     internal: "obs_score_categories",
@@ -77,13 +78,13 @@ export const experimentItemsTableCols: ColumnDefinition[] = [
     nullable: true,
   },
   {
-    name: "Trace Scores (numeric)",
+    name: translateClientMessage("experiments.columns.traceScoresNumeric"),
     id: "trace_scores_avg",
     type: "numberObject",
     internal: "trace_scores_avg",
   },
   {
-    name: "Trace Scores (categorical)",
+    name: translateClientMessage("experiments.columns.traceScoresCategorical"),
     id: "trace_score_categories",
     type: "categoryOptions",
     internal: "trace_score_categories",
@@ -91,14 +92,14 @@ export const experimentItemsTableCols: ColumnDefinition[] = [
     nullable: true,
   },
   {
-    name: "Item Metadata",
+    name: translateClientMessage("experiments.columns.itemMetadata"),
     id: "itemMetadata",
     type: "stringObject",
     internal: "itemMetadata",
     nullable: true,
   },
   {
-    name: "Metadata",
+    name: translateClientMessage("experiments.columns.metadata"),
     id: "eventMetadata",
     type: "stringObject",
     internal: "eventMetadata",

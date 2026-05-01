@@ -1,4 +1,5 @@
 import { getScoreDataTypeIcon } from "@/src/features/scores/lib/scoreColumns";
+import { translateClientMessage } from "@/src/features/i18n";
 import {
   isPresent,
   type ScoreConfigDataType,
@@ -28,7 +29,10 @@ export const validateNumericScore = ({
     (isPresent(maxValue) && Number(value) > maxValue) ||
     (isPresent(minValue) && Number(value) < minValue)
   ) {
-    return `Not in range: [${minValue ?? "-∞"},${maxValue ?? "∞"}]`;
+    return translateClientMessage("scores.notInRange", {
+      min: minValue ?? "-∞",
+      max: maxValue ?? "∞",
+    });
   }
   return null;
 };

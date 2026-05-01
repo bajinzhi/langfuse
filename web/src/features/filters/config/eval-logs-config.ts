@@ -1,10 +1,24 @@
 import { evalExecutionsFilterCols } from "@/src/server/api/definitions/evalExecutionsTable";
 import type { FilterConfig } from "@/src/features/filters/lib/filter-config";
+import {
+  defaultTranslate,
+  getFilterColumnLabel,
+  translateFilterColumnDefinitions,
+  type Translate,
+} from "@/src/features/filters/config/filter-labels";
 
-export const evalLogFilterConfig: FilterConfig = {
+const evalLogColumnLabel = (id: string, t: Translate) =>
+  getFilterColumnLabel(evalExecutionsFilterCols, id, t);
+
+const createEvalLogFilterConfig = (
+  t: Translate = defaultTranslate,
+): FilterConfig => ({
   tableName: "evalLogs",
 
-  columnDefinitions: evalExecutionsFilterCols,
+  columnDefinitions: translateFilterColumnDefinitions(
+    evalExecutionsFilterCols,
+    t,
+  ),
 
   defaultExpanded: ["status"],
 
@@ -14,17 +28,23 @@ export const evalLogFilterConfig: FilterConfig = {
     {
       type: "categorical" as const,
       column: "status",
-      label: "Status",
+      label: evalLogColumnLabel("status", t),
     },
     {
       type: "string" as const,
       column: "traceId",
-      label: "Trace ID",
+      label: evalLogColumnLabel("traceId", t),
     },
     {
       type: "string" as const,
       column: "executionTraceId",
-      label: "Execution Trace ID",
+      label: evalLogColumnLabel("executionTraceId", t),
     },
   ],
-};
+});
+
+export const evalLogFilterConfig: FilterConfig = createEvalLogFilterConfig();
+
+export const getEvalLogFilterConfig = (
+  t: Translate = defaultTranslate,
+): FilterConfig => createEvalLogFilterConfig(t);

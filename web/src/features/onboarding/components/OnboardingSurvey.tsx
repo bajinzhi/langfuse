@@ -8,8 +8,10 @@ import { useSurveyForm } from "../hooks/useSurveyForm";
 import { SurveyProgress } from "./SurveyProgress";
 import { SurveyStep } from "./SurveyStep";
 import type { SurveyFormData } from "../lib/surveyTypes";
+import { useI18n } from "@/src/features/i18n";
 
 export function OnboardingSurvey() {
+  const { t } = useI18n();
   const router = useRouter();
   const {
     form,
@@ -152,7 +154,7 @@ export function OnboardingSurvey() {
                   variant="ghost"
                   className="w-20"
                 >
-                  Skip
+                  {t("common.skip")}
                 </Button>
               ) : (
                 <Button
@@ -161,7 +163,7 @@ export function OnboardingSurvey() {
                   variant="default"
                   className="w-20"
                 >
-                  {isLastStep ? "Finish" : "Next"}
+                  {isLastStep ? t("common.finish") : t("common.next")}
                 </Button>
               )}
 
@@ -179,7 +181,7 @@ export function OnboardingSurvey() {
                   onClick={goBack}
                   className="w-20"
                 >
-                  Back
+                  {t("common.back")}
                 </Button>
               ) : (
                 <div className="w-20" />

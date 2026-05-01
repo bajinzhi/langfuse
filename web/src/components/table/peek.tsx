@@ -14,6 +14,7 @@ import { cn } from "@/src/utils/tailwind";
 import { memo } from "react";
 import { useRouter } from "next/router";
 import { PeekTableStateProvider } from "@/src/components/table/peek/contexts/PeekTableStateContext";
+import { useI18n } from "@/src/features/i18n";
 
 type PeekViewItemType = Extract<
   LangfuseItemType,
@@ -89,6 +90,7 @@ function TablePeekViewComponent(props: TablePeekViewProps) {
   const peekView = props;
   const { title, children } = props;
   const router = useRouter();
+  const { t } = useI18n();
   const eventHandler = createPeekEventHandler(peekView.peekEventOptions);
   const itemId = router.query.peek as string | undefined;
 
@@ -142,7 +144,7 @@ function TablePeekViewComponent(props: TablePeekViewProps) {
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  title="Open in current tab"
+                  title={t("common.openInCurrentTab")}
                   className="ml-2"
                   onClick={() => peekView.expandPeek?.(false)}
                 >
@@ -151,7 +153,7 @@ function TablePeekViewComponent(props: TablePeekViewProps) {
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  title="Open in new tab"
+                  title={t("common.openInNewTab")}
                   onClick={() => peekView.expandPeek?.(true)}
                 >
                   <ExternalLink className="h-4 w-4" />

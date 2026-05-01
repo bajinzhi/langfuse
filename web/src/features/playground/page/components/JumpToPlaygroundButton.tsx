@@ -46,6 +46,7 @@ import {
   type MetadataDomainClient,
   type WithStringifiedMetadata,
 } from "@/src/utils/clientSideDomainTypes";
+import { useI18n } from "@/src/features/i18n";
 
 type JumpToPlaygroundButtonProps = (
   | {
@@ -73,6 +74,7 @@ type JumpToPlaygroundButtonProps = (
 export const JumpToPlaygroundButton: React.FC<JumpToPlaygroundButtonProps> = (
   props,
 ) => {
+  const { t } = useI18n();
   const router = useRouter();
   const capture = usePostHogClientCapture();
   const projectId = useProjectIdFromURL();
@@ -128,10 +130,15 @@ export const JumpToPlaygroundButton: React.FC<JumpToPlaygroundButtonProps> = (
       setCapturedState(parsePrompt(promptData));
     } else if (generationData) {
       setCapturedState(
-        parseGeneration(generationData, modelToProviderMap, includeOutput),
+        parseGeneration(
+          generationData,
+          modelToProviderMap,
+          includeOutput,
+          t("playground.schemaParsedFromGeneration"),
+        ),
       );
     }
-  }, [promptData, generationData, modelToProviderMap, includeOutput]);
+  }, [promptData, generationData, modelToProviderMap, includeOutput, t]);
 
   useEffect(() => {
     if (capturedState) {
@@ -186,8 +193,8 @@ export const JumpToPlaygroundButton: React.FC<JumpToPlaygroundButtonProps> = (
   };
 
   const tooltipMessage = isAvailable
-    ? "Test in LLM playground"
-    : "Test in LLM playground is not available since messages are not in valid ChatML format or tool calls have been used. If you think this is not correct, please open a GitHub issue.";
+    ? t("playground.jumpTooltip")
+    : t("playground.jumpUnavailable");
 
   return (
     <DropdownMenu>
@@ -206,7 +213,7 @@ export const JumpToPlaygroundButton: React.FC<JumpToPlaygroundButtonProps> = (
             className={props.size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"}
           />
           <span className={cn("hidden md:inline", props.className)}>
-            Playground
+            {t("playground.title")}
           </span>
           <ChevronDown className="h-3 w-3" />
         </Button>
@@ -214,17 +221,17 @@ export const JumpToPlaygroundButton: React.FC<JumpToPlaygroundButtonProps> = (
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => handlePlaygroundAction(true)}>
           <Terminal className="mr-2 h-4 w-4" />
-          Fresh playground
+          {t("playground.freshPlayground")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handlePlaygroundAction(false)}>
           <Terminal className="mr-2 h-4 w-4" />
-          Add to existing
+          {t("playground.addToExisting")}
         </DropdownMenuItem>
         {props.source === "generation" && (
           <>
             <DropdownMenuSeparator />
             <div className="flex items-center justify-between px-2 py-1.5">
-              <span className="text-sm">Include output</span>
+              <span className="text-sm">{t("playground.includeOutput")}</span>
               <Switch
                 checked={includeOutput}
                 onCheckedChange={setIncludeOutput}
@@ -281,6 +288,7 @@ const parseGeneration = (
   },
   modelToProviderMap: Record<string, string>,
   includeOutput: boolean = false,
+  parsedSchemaDescription: string,
 ): PlaygroundCache => {
   if (!isGenerationLike(generation.type)) return null;
 
@@ -291,7 +299,10 @@ const parseGeneration = (
     generation.metadata,
   );
 
-  const structuredOutputSchema = parseStructuredOutputSchema(generation);
+  const structuredOutputSchema = parseStructuredOutputSchema(
+    generation,
+    parsedSchemaDescription,
+  );
   const providerOptions = parseLitellmMetadataFromGeneration(generation);
 
   if (modelParams && providerOptions) {
@@ -514,6 +525,7 @@ function parseStructuredOutputSchema(
     input: string | null;
     output: string | null;
   },
+  parsedSchemaDescription: string,
 ): PlaygroundSchema | null {
   try {
     let metadata = generation.metadata;
@@ -537,7 +549,7 @@ function parseStructuredOutputSchema(
         return {
           id: Math.random().toString(36).substring(2),
           name: parseStructuredOutputSchema.data.json_schema.name,
-          description: "Schema parsed from generation",
+          description: parsedSchemaDescription,
           schema: parseStructuredOutputSchema.data.json_schema.schema,
         };
     }
@@ -560,7 +572,7 @@ function parseStructuredOutputSchema(
         return {
           id: Math.random().toString(36).substring(2),
           name: parseStructuredOutputSchema.data.json_schema.name,
-          description: "Schema parsed from generation",
+          description: parsedSchemaDescription,
           schema: parseStructuredOutputSchema.data.json_schema.schema,
         };
     }

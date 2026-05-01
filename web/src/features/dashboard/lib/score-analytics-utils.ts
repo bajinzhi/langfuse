@@ -6,23 +6,39 @@ import {
   type HistogramBin,
 } from "@/src/features/scores/types";
 import { type RouterOutputs } from "@/src/utils/api";
+import type { MessageKey, MessageValues } from "@/src/features/i18n";
+
+type Translate = (key: MessageKey, values?: MessageValues) => string;
 
 export const RESOURCE_METRICS = [
   {
     key: "latency",
-    value: "Latency",
+    valueMessageKey: "dashboard.resourceMetrics.latency",
     objectKey: "avgLatency",
-    label: "Latency (s)",
+    labelMessageKey: "dashboard.resourceMetrics.latencySeconds",
     maxFractionDigits: 2,
   },
   {
     key: "cost",
-    value: "Cost",
+    valueMessageKey: "dashboard.resourceMetrics.cost",
     objectKey: "avgTotalCost",
-    label: "Average Total Cost ($)",
+    labelMessageKey: "dashboard.resourceMetrics.averageTotalCostUsd",
     maxFractionDigits: 5,
   },
-];
+] satisfies Array<{
+  key: string;
+  valueMessageKey: MessageKey;
+  objectKey: string;
+  labelMessageKey: MessageKey;
+  maxFractionDigits: number;
+}>;
+
+export const getResourceMetrics = (t: Translate) =>
+  RESOURCE_METRICS.map((metric) => ({
+    ...metric,
+    value: t(metric.valueMessageKey),
+    label: t(metric.labelMessageKey),
+  }));
 
 // numeric score analytics helpers
 function round(value: number, precision = 2) {
@@ -262,11 +278,14 @@ export function transformCategoricalScoresToChartData(
   data: DatabaseRow[],
   scoreTimestampAccessor: string,
   agg?: DashboardDateRangeAggregationOption,
+  aggregationLabel = "Aggregation",
 ): { chartData: ChartBin[]; chartLabels: string[] } {
   if (!agg) {
     const { categoryCounts, labels } = aggregateCategoricalScoreData(data);
     return {
-      chartData: [{ ...categoryCounts, binLabel: "Aggregation" }] as ChartBin[],
+      chartData: [
+        { ...categoryCounts, binLabel: aggregationLabel },
+      ] as ChartBin[],
       chartLabels: uniqueAndSort(labels),
     };
   } else {

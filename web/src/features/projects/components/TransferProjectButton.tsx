@@ -39,8 +39,10 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
 import { TriangleAlert } from "lucide-react";
 import { showSuccessToast } from "@/src/features/notifications/showSuccessToast";
+import { useI18n } from "@/src/features/i18n";
 
 export function TransferProjectButton() {
+  const { t } = useI18n();
   const capture = usePostHogClientCapture();
   const session = useSession();
   const { project, organization } = useQueryProject();
@@ -63,7 +65,7 @@ export function TransferProjectButton() {
 
   const formSchema = z.object({
     name: z.string().includes(confirmMessage, {
-      message: `Please confirm with "${confirmMessage}"`,
+      message: t("projects.transfer.confirmWith", { value: confirmMessage }),
     }),
     projectId: z.string(),
   });
@@ -71,9 +73,8 @@ export function TransferProjectButton() {
   const transferProject = api.projects.transfer.useMutation({
     onSuccess: async () => {
       showSuccessToast({
-        title: "Project transferred",
-        description:
-          "The project is successfully transferred to the new organization. Redirecting...",
+        title: t("projects.transfer.successTitle"),
+        description: t("projects.transfer.successDescription"),
       });
       await new Promise((resolve) => setTimeout(resolve, 5000));
       void session.update();
@@ -102,29 +103,22 @@ export function TransferProjectButton() {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="destructive-secondary" disabled={!hasAccess}>
-          Transfer Project
+          {t("projects.transfer.title")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
-            Transfer Project
+            {t("projects.transfer.title")}
           </DialogTitle>
           <Alert className="mt-2">
             <TriangleAlert className="h-4 w-4" />
-            <AlertTitle>Warning</AlertTitle>
+            <AlertTitle>{t("projects.transfer.warningTitle")}</AlertTitle>
             <AlertDescription>
-              Transferring the project will move it to a different organization:
+              {t("projects.transfer.warningDescription")}
               <ul className="list-disc pl-4">
-                <li>
-                  Members who are not part of the new organization will lose
-                  access.
-                </li>
-                <li>
-                  The project remains fully operational as API keys, settings,
-                  and data will remain unchanged. All features (e.g. tracing,
-                  prompt management) will continue to work without interruption.
-                </li>
+                <li>{t("projects.transfer.warningMembers")}</li>
+                <li>{t("projects.transfer.warningOperational")}</li>
               </ul>
             </AlertDescription>
           </Alert>
@@ -137,7 +131,9 @@ export function TransferProjectButton() {
                 name="projectId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Select New Organization</FormLabel>
+                    <FormLabel>
+                      {t("projects.transfer.selectOrganization")}
+                    </FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
@@ -145,7 +141,11 @@ export function TransferProjectButton() {
                         disabled={transferProject.isPending}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select organization" />
+                          <SelectValue
+                            placeholder={t(
+                              "projects.transfer.selectOrganizationPlaceholder",
+                            )}
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {organizationsToTransferTo
@@ -159,8 +159,7 @@ export function TransferProjectButton() {
                       </Select>
                     </FormControl>
                     <FormDescription>
-                      Transfer this project to another organization where you
-                      have the ability to create projects.
+                      {t("settings.project.transfer.description")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -171,12 +170,14 @@ export function TransferProjectButton() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm</FormLabel>
+                    <FormLabel>{t("common.confirm")}</FormLabel>
                     <FormControl>
                       <Input placeholder={confirmMessage} {...field} />
                     </FormControl>
                     <FormDescription>
-                      {`To confirm, type "${confirmMessage}" in the input box `}
+                      {t("projects.transfer.confirmDescription", {
+                        value: confirmMessage,
+                      })}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -190,7 +191,7 @@ export function TransferProjectButton() {
                 loading={transferProject.isPending}
                 className="w-full"
               >
-                Transfer project
+                {t("projects.transfer.submit")}
               </Button>
             </DialogFooter>
           </form>

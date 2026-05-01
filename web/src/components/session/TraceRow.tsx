@@ -18,6 +18,7 @@ import { ItemBadge } from "@/src/components/ItemBadge";
 import { NewDatasetItemFromTraceId } from "@/src/components/session/NewDatasetItemFromTrace";
 import { AnnotationQueueObjectType } from "@langfuse/shared";
 import { CreateNewAnnotationQueueItem } from "@/src/features/annotation-queues/components/CreateNewAnnotationQueueItem";
+import { useI18n } from "@/src/features/i18n";
 
 // Skeleton placeholder for trace cards
 const TraceSkeleton = () => {
@@ -45,6 +46,8 @@ const TraceRow = React.memo(
     traceCommentCounts: Map<string, number> | undefined;
     showCorrections: boolean;
   }) => {
+    const { t } = useI18n();
+
     return (
       <Card className="border-border shadow-none">
         <div className="grid md:grid-cols-[1fr_1px_358px] lg:grid-cols-[1fr_1px_30rem]">
@@ -122,7 +125,7 @@ const TraceRow = React.memo(
               </div>
             </div>
             <div className="flex-1">
-              <p className="mb-1 font-medium">Scores</p>
+              <p className="mb-1 font-medium">{t("trace.scores")}</p>
               <div className="flex flex-wrap content-start items-start gap-1">
                 <GroupedScoreBadges scores={trace.scores} />
               </div>

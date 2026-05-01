@@ -4,6 +4,7 @@ import { cn } from "@/src/utils/tailwind";
 import { Check, Copy } from "lucide-react";
 import { type FC, memo, useState } from "react";
 import { Highlight, themes } from "prism-react-renderer";
+import { useI18n } from "@/src/features/i18n";
 
 interface Props {
   language: string;
@@ -45,6 +46,7 @@ export const programmingLanguages: languageMap = {
 
 const CodeBlock: FC<Props> = memo(({ language, value, theme, className }) => {
   const [isCopied, setIsCopied] = useState(false);
+  const { t } = useI18n();
   const handleCopy = () => {
     setIsCopied(true);
     void copyTextToClipboard(value ?? "");
@@ -72,7 +74,7 @@ const CodeBlock: FC<Props> = memo(({ language, value, theme, className }) => {
             ) : (
               <Copy className="h-3 w-3" />
             )}
-            <span className="sr-only">Copy code</span>
+            <span className="sr-only">{t("common.copyCode")}</span>
           </Button>
         </div>
       </div>

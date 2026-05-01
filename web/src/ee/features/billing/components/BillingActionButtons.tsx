@@ -8,8 +8,10 @@ import { StripeCustomerPortalButton } from "./StripeCustomerPortalButton";
 import { BillingSwitchPlanDialog } from "./BillingSwitchPlanDialog";
 import { useBillingInformation } from "./useBillingInformation";
 import { StripeCancellationButton } from "./StripeCancellationButton";
+import { useI18n } from "@/src/features/i18n";
 
 export const BillingActionButtons = () => {
+  const { t } = useI18n();
   const { organization, hasValidPaymentMethod, isLoading } =
     useBillingInformation();
   const { setOpen } = useSupportDrawer();
@@ -30,11 +32,11 @@ export const BillingActionButtons = () => {
     return (
       <div className="mt-4 flex flex-row items-center gap-2">
         <Button variant="secondary" onClick={() => setOpen(true)}>
-          Change plan (via support)
+          {t("billing.changePlanViaSupport")}
         </Button>
         <Button variant="secondary" asChild>
           <Link href={"https://langfuse.com/pricing"} target="_blank">
-            Compare plans
+            {t("billing.comparePlans")}
           </Link>
         </Button>
       </div>
@@ -51,7 +53,7 @@ export const BillingActionButtons = () => {
           <>
             <StripeCustomerPortalButton
               orgId={organization.id}
-              title="Update Billing Details"
+              title={t("billing.updateBillingDetails")}
               variant="secondary"
             />
             <StripeCancellationButton
@@ -62,7 +64,7 @@ export const BillingActionButtons = () => {
         )}
         <Button variant="secondary" asChild>
           <Link href={"https://langfuse.com/pricing"} target="_blank">
-            Compare plans
+            {t("billing.comparePlans")}
           </Link>
         </Button>
       </div>
@@ -70,8 +72,7 @@ export const BillingActionButtons = () => {
         !hasValidPaymentMethod &&
         !isLoading && (
           <p className="text-sm text-red-600">
-            You do not have a valid payment method. Please Update Billing
-            Details.
+            {t("billing.invalidPaymentMethod")}
           </p>
         )}
     </div>

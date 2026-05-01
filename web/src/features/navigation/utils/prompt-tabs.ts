@@ -1,3 +1,7 @@
+import type { MessageKey, MessageValues } from "@/src/features/i18n";
+
+type Translate = (key: MessageKey, values?: MessageValues) => string;
+
 export const PROMPT_TABS = {
   VERSIONS: "versions",
   METRICS: "metrics",
@@ -5,15 +9,19 @@ export const PROMPT_TABS = {
 
 export type PromptTab = (typeof PROMPT_TABS)[keyof typeof PROMPT_TABS];
 
-export const getPromptTabs = (projectId: string, promptName: string) => [
+export const getPromptTabs = (
+  projectId: string,
+  promptName: string,
+  t: Translate,
+) => [
   {
     value: PROMPT_TABS.VERSIONS,
-    label: "Versions",
+    label: t("prompts.versions"),
     href: `/project/${projectId}/prompts/${encodeURIComponent(promptName)}`,
   },
   {
     value: PROMPT_TABS.METRICS,
-    label: "Metrics",
+    label: t("prompts.metrics.title"),
     href: `/project/${projectId}/prompts/${encodeURIComponent(promptName)}/metrics`,
   },
 ];

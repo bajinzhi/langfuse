@@ -9,6 +9,7 @@ import { Skeleton } from "@/src/components/ui/skeleton";
 import { captureException } from "@sentry/nextjs";
 import { useSession } from "next-auth/react";
 import { buildResizableImageSrc } from "./resizable-image.utils";
+import { useI18n } from "@/src/features/i18n";
 
 /**
  * Implemented customLoader as we cannot whitelist user provided image domains
@@ -57,6 +58,7 @@ export const ResizableImage = ({
   const [hasFetchError, setHasFetchError] = useState(false);
   const [isImageVisible, setIsImageVisible] = useState(isDefaultVisible);
   const session = useSession();
+  const { t } = useI18n();
   const isValidImage = api.utilities.validateImgUrl.useQuery(src, {
     enabled:
       session.status === "authenticated" &&
@@ -69,7 +71,7 @@ export const ResizableImage = ({
     return (
       <ImageErrorDisplay
         src={src}
-        displayError="Images not rendered on public traces and observations"
+        displayError={t("common.imagesNotRenderedPublic")}
       />
     );
   }
@@ -77,12 +79,16 @@ export const ResizableImage = ({
   if (isValidImage.isLoading && isImageVisible) {
     return (
       <Skeleton className="h-8 w-1/2 items-center p-2 text-xs">
-        <span className="opacity-80">Loading image...</span>
+        <span className="opacity-80">{t("common.loadingImage")}</span>
       </Skeleton>
     );
   }
 
-  const displayError = `Cannot load image. ${src.includes("http") ? "Http images are not rendered in Langfuse for security reasons" : "Invalid image URL"}`;
+  const displayError = t("common.cannotLoadImage", {
+    reason: src.includes("http")
+      ? t("common.httpImagesNotRendered")
+      : t("common.invalidImageUrl"),
+  });
 
   return (
     <div>
@@ -100,7 +106,7 @@ export const ResizableImage = ({
               <Image
                 loader={customLoader}
                 src={src}
-                alt={alt ?? `Markdown Image-${Math.random()}`}
+                alt={alt ?? t("common.markdownImage")}
                 loading="lazy"
                 width={0}
                 height={0}
@@ -116,6 +122,7 @@ export const ResizableImage = ({
                 className="group-hover:bg-accent/30! absolute top-0 right-0 mt-1 mr-1 h-8 w-8 opacity-0 group-hover:opacity-100"
                 variant="ghost"
                 size="icon"
+                title={t("common.toggleImageSize")}
                 onClick={() => setIsZoomedIn(!isZoomedIn)}
               >
                 {isZoomedIn ? (
@@ -128,13 +135,13 @@ export const ResizableImage = ({
           ) : (
             <div className="bg-muted/30 text-muted-foreground/60 flex w-full items-center gap-2 rounded border border-dashed p-2 text-xs">
               <Button
-                title="Render image"
+                title={t("common.renderImage")}
                 type="button"
                 size="sm"
                 variant="secondary"
                 onClick={() => setIsImageVisible(!isImageVisible)}
               >
-                Load Image
+                {t("common.loadImage")}
               </Button>
               <div className="flex min-w-0 flex-1 items-center overflow-hidden">
                 <Link

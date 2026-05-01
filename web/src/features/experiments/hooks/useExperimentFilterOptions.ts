@@ -1,6 +1,7 @@
 import { api } from "@/src/utils/api";
 import { useMemo } from "react";
 import { type FilterState, type TimeFilter } from "@langfuse/shared";
+import { translateClientMessage } from "@/src/features/i18n";
 
 // Process categorical scores into key-value format
 const processScoreCategories = (
@@ -28,9 +29,14 @@ export function useExperimentFilterOptions({
 
   // Extract start time filters for filter options query
   const startTimeFilters = useMemo(() => {
+    const startTimeColumn = translateClientMessage(
+      "experiments.columns.startTime",
+    );
     return oldFilterState.filter(
       (f) =>
-        (f.column === "Start Time" || f.column === "startTime") &&
+        (f.column === startTimeColumn ||
+          f.column === "Start Time" ||
+          f.column === "startTime") &&
         f.type === "datetime",
     ) as TimeFilter[];
   }, [oldFilterState]);

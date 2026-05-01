@@ -84,6 +84,7 @@ import isEqual from "lodash/isEqual";
 import { useDefaultViewMutations } from "../hooks/useDefaultViewMutations";
 import { DropdownMenuSeparator } from "@/src/components/ui/dropdown-menu";
 import { summarizeTableViewPreset } from "../lib/viewPreview";
+import { useI18n } from "@/src/features/i18n";
 
 /**
  * Prefix for system preset IDs. These are page-specific presets defined in code
@@ -120,7 +121,7 @@ interface SystemPreset {
 const SYSTEM_PRESETS: { DEFAULT: SystemPreset } = {
   DEFAULT: {
     id: "__langfuse_default__",
-    name: "My view (default)",
+    name: "",
     isSystem: true,
   },
 };
@@ -153,8 +154,8 @@ interface TableViewPresetsDrawerProps {
   systemFilterPresets?: SystemFilterPreset[];
 }
 
-function formatOrderBy(orderBy?: OrderByState) {
-  return orderBy?.column ? `${orderBy.column} ${orderBy.order}` : "none";
+function formatOrderBy(orderBy: OrderByState | undefined, noneLabel: string) {
+  return orderBy?.column ? `${orderBy.column} ${orderBy.order}` : noneLabel;
 }
 
 function buildSystemFilterPresetState(
@@ -174,6 +175,7 @@ export function TableViewPresetsDrawer({
   currentState,
   systemFilterPresets,
 }: TableViewPresetsDrawerProps) {
+  const { t } = useI18n();
   const [searchQuery, setSearchQueryLocal] = useState("");
   const { tableName, projectId, controllers } = viewConfig;
   const { handleSetViewId, applyViewState, selectedViewId } = controllers;
@@ -246,7 +248,7 @@ export function TableViewPresetsDrawer({
     currentName: form.watch("name"),
     allNames: allViewNames,
     form,
-    errorMessage: "View name already exists.",
+    errorMessage: t("table.views.nameAlreadyExists"),
   });
 
   const handleSelectView = (view: TableViewPresetState & { id: string }) => {
@@ -365,12 +367,16 @@ export function TableViewPresetsDrawer({
       });
     } else {
       showErrorToast(
-        "Failed to generate permalink",
-        "Please reach out to langfuse support and report this issue.",
+        t("table.views.permalinkFailedTitle"),
+        t("table.views.permalinkFailedDescription"),
         "WARNING",
       );
     }
   };
+
+  const triggerTitle = selectedViewName
+    ? t("table.views.titleWithName", { name: selectedViewName })
+    : t("table.views.title");
 
   return (
     <>
@@ -385,13 +391,8 @@ export function TableViewPresetsDrawer({
         }}
       >
         <DrawerTrigger asChild>
-          <Button
-            variant="outline"
-            title={selectedViewName ? `View: ${selectedViewName}` : "Views"}
-          >
-            <span>
-              {selectedViewName ? `View: ${selectedViewName}` : "Views"}
-            </span>
+          <Button variant="outline" title={triggerTitle}>
+            <span>{triggerTitle}</span>
             {selectedViewId ? (
               <ChevronDown className="ml-1 h-4 w-4" />
             ) : (
@@ -405,13 +406,13 @@ export function TableViewPresetsDrawer({
           <div className="mx-auto w-full">
             <DrawerHeader className="bg-background flex flex-row items-center justify-between rounded-sm px-3 py-1.5">
               <DrawerTitle className="flex flex-row items-center gap-1">
-                Views{" "}
+                {t("table.views.title")}{" "}
                 <a
                   href="https://github.com/orgs/langfuse/discussions/4657"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center"
-                  title="Saving table view presets is currently in beta. Click here to provide feedback!"
+                  title={t("table.views.betaTitle")}
                 ></a>
               </DrawerTitle>
               <DrawerClose asChild>
@@ -424,13 +425,13 @@ export function TableViewPresetsDrawer({
 
             <Command className="h-fit rounded-none border-none pb-1 shadow-none">
               <CommandInput
-                placeholder="Search views..."
+                placeholder={t("table.views.searchPlaceholder")}
                 value={searchQuery}
                 onValueChange={setSearchQueryLocal}
                 className="h-9 border-none focus:ring-0"
               />
               <CommandList className="max-h-[calc(100vh-150px)]">
-                <CommandEmpty>No views found</CommandEmpty>
+                <CommandEmpty>{t("table.views.noViews")}</CommandEmpty>
                 <CommandGroup className="pb-0">
                   {/* System Preset: Langfuse Default - hidden when page-specific presets exist */}
                   {!systemFilterPresets?.length && (
@@ -441,14 +442,14 @@ export function TableViewPresetsDrawer({
                         "hover:bg-muted/50 group mt-1 flex cursor-pointer items-center justify-between rounded-md p-2 transition-colors",
                         selectedViewId === null && "bg-muted",
                       )}
-                      title="Reflects your current table settings without applying any saved custom table views"
+                      title={t("table.views.defaultTitle")}
                     >
                       <div className="flex flex-col">
                         <span className="text-muted-foreground text-sm">
-                          {SYSTEM_PRESETS.DEFAULT.name}
+                          {t("table.views.defaultName")}
                         </span>
                         <span className="text-muted-foreground w-fit pl-0 text-xs">
-                          Your working view
+                          {t("table.views.workingView")}
                         </span>
                       </div>
                     </CommandItem>
@@ -495,7 +496,13 @@ export function TableViewPresetsDrawer({
                       defaultAssignments?.userDefaultViewId === view.id;
                     const isProjectDefault =
                       defaultAssignments?.projectDefaultViewId === view.id;
-                    const previewText = summarizeTableViewPreset(view);
+                    const previewText = summarizeTableViewPreset(view, {
+                      formatSearch: (query) =>
+                        t("table.views.previewSearch", { query }),
+                      formatSort: (column, order) =>
+                        t("table.views.previewSort", { column, order }),
+                      savedColumnLayout: t("table.views.savedColumnLayout"),
+                    });
 
                     return (
                       <CommandItem
@@ -513,12 +520,12 @@ export function TableViewPresetsDrawer({
                             </span>
                             {isUserDefault && (
                               <Badge variant="secondary" className="text-xs">
-                                Your default
+                                {t("table.views.yourDefault")}
                               </Badge>
                             )}
                             {isProjectDefault && (
                               <Badge variant="outline" className="text-xs">
-                                Project default
+                                {t("table.views.projectDefault")}
                               </Badge>
                             )}
                           </div>
@@ -548,7 +555,7 @@ export function TableViewPresetsDrawer({
                               }}
                               disabled={!hasWriteAccess}
                             >
-                              Update view with current filters
+                              {t("table.views.updateWithCurrentFilters")}
                             </Button>
                           )}
                         </div>
@@ -613,14 +620,14 @@ export function TableViewPresetsDrawer({
                                       ) : (
                                         <Lock className="mr-2 h-4 w-4" />
                                       )}
-                                      Rename
+                                      {t("table.views.rename")}
                                     </Button>
                                   </PopoverTrigger>
                                   <PopoverContent
                                     onClick={(e) => e.stopPropagation()}
                                   >
                                     <h2 className="text-md mb-3 font-semibold">
-                                      Edit
+                                      {t("table.views.edit")}
                                     </h2>
                                     <Form {...form}>
                                       <form
@@ -634,7 +641,9 @@ export function TableViewPresetsDrawer({
                                           name="name"
                                           render={({ field }) => (
                                             <FormItem>
-                                              <FormLabel>View name</FormLabel>
+                                              <FormLabel>
+                                                {t("table.views.viewName")}
+                                              </FormLabel>
                                               <FormControl>
                                                 <Input
                                                   defaultValue={view.name}
@@ -656,7 +665,7 @@ export function TableViewPresetsDrawer({
                                               !!form.formState.errors.name
                                             }
                                           >
-                                            Save
+                                            {t("common.save")}
                                           </Button>
                                         </div>
                                       </form>
@@ -679,9 +688,9 @@ export function TableViewPresetsDrawer({
                                 disabled={isSettingDefault}
                               >
                                 {isUserDefault ? (
-                                  <>Remove as my default</>
+                                  <>{t("table.views.removeMyDefault")}</>
                                 ) : (
-                                  <>Set as my default</>
+                                  <>{t("table.views.setMyDefault")}</>
                                 )}
                               </DropdownMenuItem>
                               {/* Set as project default - requires write access */}
@@ -698,9 +707,9 @@ export function TableViewPresetsDrawer({
                                 disabled={!hasWriteAccess || isSettingDefault}
                               >
                                 {isProjectDefault ? (
-                                  <>Remove as project default</>
+                                  <>{t("table.views.removeProjectDefault")}</>
                                 ) : (
-                                  <>Set as project default</>
+                                  <>{t("table.views.setProjectDefault")}</>
                                 )}
                                 {!hasWriteAccess && (
                                   <Lock className="ml-auto h-4 w-4" />
@@ -737,7 +746,10 @@ export function TableViewPresetsDrawer({
                             <Avatar className="h-6 w-6">
                               <AvatarImage
                                 src={view.createdByUser?.image ?? undefined}
-                                alt={view.createdByUser?.name ?? "User Avatar"}
+                                alt={
+                                  view.createdByUser?.name ??
+                                  t("table.views.userAvatar")
+                                }
                               />
                               <AvatarFallback className="bg-tertiary">
                                 {view.createdByUser?.name
@@ -770,7 +782,7 @@ export function TableViewPresetsDrawer({
                 className="w-full justify-start px-1"
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Create Custom View
+                {t("table.views.createCustom")}
               </Button>
             </div>
           </div>
@@ -789,7 +801,7 @@ export function TableViewPresetsDrawer({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Save Current Table View</DialogTitle>
+            <DialogTitle>{t("table.views.saveCurrentTitle")}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form
@@ -802,7 +814,7 @@ export function TableViewPresetsDrawer({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>View name</FormLabel>
+                      <FormLabel>{t("table.views.viewName")}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -812,18 +824,29 @@ export function TableViewPresetsDrawer({
                 />
 
                 <div className="text-muted-foreground mt-4 text-sm">
-                  <p>This will save the current:</p>
+                  <p>{t("table.views.willSaveCurrent")}</p>
                   <ul className="mt-2 list-disc pl-5">
                     <li>
-                      Column arrangement ({currentState.columnOrder.length}{" "}
-                      columns)
+                      {t("table.views.columnArrangement", {
+                        count: currentState.columnOrder.length,
+                      })}
                     </li>
-                    <li>Filters ({currentState.filters.length} active)</li>
                     <li>
-                      Sort order ({formatOrderBy(currentState.orderBy)}{" "}
-                      criteria)
+                      {t("table.views.filtersSummary", {
+                        count: currentState.filters.length,
+                      })}
                     </li>
-                    {currentState.searchQuery && <li>Search term</li>}
+                    <li>
+                      {t("table.views.sortOrder", {
+                        criteria: formatOrderBy(
+                          currentState.orderBy,
+                          t("table.views.none"),
+                        ),
+                      })}
+                    </li>
+                    {currentState.searchQuery && (
+                      <li>{t("table.views.searchTerm")}</li>
+                    )}
                   </ul>
                 </div>
               </DialogBody>
@@ -833,7 +856,7 @@ export function TableViewPresetsDrawer({
                   variant="outline"
                   onClick={() => setIsCreateDialogOpen(false)}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -844,7 +867,9 @@ export function TableViewPresetsDrawer({
                   }
                 >
                   {!hasWriteAccess && <Lock className="mr-2 h-4 w-4" />}
-                  {createMutation.isPending ? "Saving..." : "Save View"}
+                  {createMutation.isPending
+                    ? t("table.views.saving")
+                    : t("table.views.saveView")}
                 </Button>
               </DialogFooter>
             </form>

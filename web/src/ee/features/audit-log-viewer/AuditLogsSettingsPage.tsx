@@ -3,8 +3,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
 import { AuditLogsTable } from "@/src/ee/features/audit-log-viewer/AuditLogsTable";
 import { useHasEntitlement } from "@/src/features/entitlements/hooks";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
+import { useI18n } from "@/src/features/i18n";
 
 export function AuditLogsSettingsPage(props: { projectId: string }) {
+  const { t } = useI18n();
   const hasAccess = useHasProjectAccess({
     projectId: props.projectId,
     scope: "auditLogs:read",
@@ -13,14 +15,13 @@ export function AuditLogsSettingsPage(props: { projectId: string }) {
 
   const body = !hasEntitlement ? (
     <p className="text-muted-foreground text-sm">
-      Audit logs are an Enterprise feature. Upgrade your plan to track all
-      changes made to your project.
+      {t("auditLogs.projectEnterpriseDescription")}
     </p>
   ) : !hasAccess ? (
     <Alert>
-      <AlertTitle>Access Denied</AlertTitle>
+      <AlertTitle>{t("common.accessDenied")}</AlertTitle>
       <AlertDescription>
-        Contact your project administrator to request access.
+        {t("auditLogs.projectAccessDescription")}
       </AlertDescription>
     </Alert>
   ) : (
@@ -29,11 +30,9 @@ export function AuditLogsSettingsPage(props: { projectId: string }) {
 
   return (
     <>
-      <Header title="Audit Logs" />
+      <Header title={t("nav.auditLogs")} />
       <p className="text-muted-foreground mb-2 text-sm">
-        Track who changed what in your project and when. Monitor settings,
-        configurations, and data changes over time. Reach out to the Langfuse
-        team if you require more detailed/filtered audit logs.
+        {t("auditLogs.projectSettingsDescription")}
       </p>
       {body}
     </>

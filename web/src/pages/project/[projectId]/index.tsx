@@ -44,6 +44,7 @@ import {
   getDashboardQuerySchedulerMaxConcurrent,
   useDashboardQueryScheduler,
 } from "@/src/hooks/useDashboardQueryScheduler";
+import { useI18n } from "@/src/features/i18n";
 
 const HOME_DASHBOARD_CARD_IDS = {
   traces: "home:traces",
@@ -59,6 +60,7 @@ const HOME_DASHBOARD_CARD_IDS = {
 } as const;
 
 export default function Dashboard() {
+  const { t } = useI18n();
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const { timeRange, setTimeRange } = useDashboardDateRange();
@@ -97,33 +99,33 @@ export default function Dashboard() {
 
   const filterColumns: ColumnDefinition[] = [
     {
-      name: "Trace Name",
+      name: t("observability.columns.traceName"),
       id: "traceName",
       type: "stringOptions",
       options: nameOptions,
       internal: "internalValue",
     },
     {
-      name: "Tags",
+      name: t("observability.columns.tags"),
       id: "tags",
       type: "arrayOptions",
       options: tagsOptions,
       internal: "internalValue",
     },
     {
-      name: "User",
+      name: t("observability.columns.user"),
       id: "user",
       type: "string",
       internal: "internalValue",
     },
     {
-      name: "Release",
+      name: t("observability.columns.release"),
       id: "release",
       type: "string",
       internal: "internalValue",
     },
     {
-      name: "Version",
+      name: t("observability.columns.version"),
       id: "version",
       type: "string",
       internal: "internalValue",
@@ -204,7 +206,7 @@ export default function Dashboard() {
         withPadding
         scrollable
         headerProps={{
-          title: "Home",
+          title: t("dashboard.home.title"),
           actionButtonsLeft: (
             <>
               <TimeRangePicker
@@ -224,8 +226,8 @@ export default function Dashboard() {
                 }
               />
               <MultiSelect
-                title="Environment"
-                label="Env"
+                title={t("observability.columns.environment")}
+                label={t("observability.columns.environmentAbbrev")}
                 values={selectedEnvironments}
                 onValueChange={useDebounce(setSelectedEnvironments)}
                 options={environmentOptions.map((env) => ({
@@ -244,8 +246,8 @@ export default function Dashboard() {
             <>
               {uiCustomization?.feedbackHref === undefined && (
                 <FeedbackButtonWrapper
-                  title="Request Chart"
-                  description="Your feedback matters! Let the Langfuse team know what additional data or metrics you'd like to see in your dashboard."
+                  title={t("dashboard.requestChart")}
+                  description={t("dashboard.requestChartDescription")}
                   className="hidden lg:flex"
                 >
                   <Button
@@ -259,7 +261,7 @@ export default function Dashboard() {
                       className="text-primary group-hover:text-primary-accent hidden h-6 w-6 shrink-0 lg:block"
                       aria-hidden="true"
                     />
-                    Request Chart
+                    {t("dashboard.requestChart")}
                   </Button>
                 </FeedbackButtonWrapper>
               )}

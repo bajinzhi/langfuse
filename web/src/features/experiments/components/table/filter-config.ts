@@ -2,6 +2,7 @@ import {
   omitFilterFacets,
   type FilterConfig,
 } from "@/src/features/filters/lib/filter-config";
+import { translateClientMessage } from "@/src/features/i18n";
 import type { ColumnToBackendKeyMap } from "@/src/features/filters/lib/filter-transform";
 import type { ColumnDefinition } from "@langfuse/shared";
 
@@ -11,86 +12,86 @@ import type { ColumnDefinition } from "@langfuse/shared";
 // These must align with packages/shared/src/server/tableMappings/mapExperimentTable.ts
 export const experimentsTableCols: ColumnDefinition[] = [
   {
-    name: "ID",
+    name: translateClientMessage("experiments.columns.id"),
     id: "id",
     type: "string",
     internal: "experiment_id",
   },
   {
-    name: "Name",
+    name: translateClientMessage("experiments.columns.name"),
     id: "name",
     type: "string",
     internal: "experiment_name",
   },
   {
-    name: "Description",
+    name: translateClientMessage("experiments.columns.description"),
     id: "description",
     type: "string",
     internal: "experiment_description",
     nullable: true,
   },
   {
-    name: "Metadata",
+    name: translateClientMessage("experiments.columns.metadata"),
     id: "metadata",
     type: "stringObject",
     internal: "experiment_metadata",
     nullable: true,
   },
   {
-    name: "Referenced Prompts",
+    name: translateClientMessage("experiments.columns.referencedPrompts"),
     id: "prompts",
     type: "string",
     internal: "prompts",
     nullable: true,
   },
   {
-    name: "Dataset",
+    name: translateClientMessage("experiments.columns.dataset"),
     id: "experimentDatasetId",
     type: "stringOptions",
     internal: "experiment_dataset_id",
     options: [],
   },
   {
-    name: "Start Time",
+    name: translateClientMessage("experiments.columns.startTime"),
     id: "startTime",
     type: "datetime",
     internal: "start_time",
   },
   {
-    name: "Item Count",
+    name: translateClientMessage("experiments.columns.itemCount"),
     id: "itemCount",
     type: "number",
     internal: "item_count",
   },
   {
-    name: "Total Cost ($)",
+    name: translateClientMessage("experiments.columns.totalCostUsd"),
     id: "totalCost",
     type: "number",
     internal: "total_cost",
     nullable: true,
   },
   {
-    name: "Latency (s)",
+    name: translateClientMessage("experiments.columns.latencySeconds"),
     id: "latencyAvg",
     type: "number",
     internal: "latency_avg",
     nullable: true,
   },
   {
-    name: "Error Count",
+    name: translateClientMessage("experiments.columns.errorCount"),
     id: "errorCount",
     type: "number",
     internal: "error_count",
   },
   // Observation-level scores (eos.* alias in backend)
   {
-    name: "Scores (numeric)",
+    name: translateClientMessage("experiments.columns.scoresNumeric"),
     id: "obs_scores_avg",
     type: "numberObject",
     internal: "obs_scores_avg",
   },
   {
-    name: "Scores (categorical)",
+    name: translateClientMessage("experiments.columns.scoresCategorical"),
     id: "obs_score_categories",
     type: "categoryOptions",
     internal: "obs_score_categories",
@@ -99,13 +100,13 @@ export const experimentsTableCols: ColumnDefinition[] = [
   },
   // Trace-level scores (ets.* alias in backend)
   {
-    name: "Trace Scores (numeric)",
+    name: translateClientMessage("experiments.columns.traceScoresNumeric"),
     id: "trace_scores_avg",
     type: "numberObject",
     internal: "trace_scores_avg",
   },
   {
-    name: "Trace Scores (categorical)",
+    name: translateClientMessage("experiments.columns.traceScoresCategorical"),
     id: "trace_score_categories",
     type: "categoryOptions",
     internal: "trace_score_categories",
