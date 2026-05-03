@@ -129,7 +129,7 @@ export const NewOrganizationForm = ({
               <FormLabel>{t("organizations.name")}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="my-org"
+                  placeholder={t("organizations.namePlaceholder")}
                   {...field}
                   data-testid="new-org-name-input"
                 />

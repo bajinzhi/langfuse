@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
 import { Search, X, MoreHorizontal } from "lucide-react";
+import { useI18n } from "@/src/features/i18n";
 
 interface MultiSelectComboboxProps<T> {
   selectedItems: T[];
@@ -42,6 +43,7 @@ export function MultiSelectCombobox<T>({
   showSelectedItemsInInput = true,
   dropdownClassName,
 }: MultiSelectComboboxProps<T>) {
+  const { t } = useI18n();
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [previousResults, setPreviousResults] = useState<T[]>([]);
@@ -215,7 +217,7 @@ export function MultiSelectCombobox<T>({
                   <MoreHorizontal className="h-4 w-4" />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs italic">
-                      More results available, refine your search
+                      {t("common.moreResultsRefineSearch")}
                     </p>
                   </div>
                 </div>
@@ -224,8 +226,8 @@ export function MultiSelectCombobox<T>({
           ) : (
             <div className="bg-background text-muted-foreground absolute top-0 z-10 w-full rounded-md border py-6 text-center text-xs shadow-md">
               {searchQuery
-                ? `No results found for "${searchQuery}"`
-                : "No results available"}
+                ? t("common.noResultsForSearch", { query: searchQuery })
+                : t("common.noResultsAvailable")}
             </div>
           )}
         </div>

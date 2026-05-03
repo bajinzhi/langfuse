@@ -23,6 +23,7 @@ import {
   useAddToDatasetWizard,
   type UseAddToDatasetWizardProps,
 } from "./useAddToDatasetWizard";
+import { useI18n } from "@/src/features/i18n";
 
 type AddObservationsToDatasetDialogProps = {
   projectId: string;
@@ -33,6 +34,7 @@ export function AddObservationsToDatasetDialog(
   props: AddObservationsToDatasetDialogProps,
 ) {
   const { projectId, onClose } = props;
+  const { t } = useI18n();
 
   const {
     state,
@@ -67,7 +69,9 @@ export function AddObservationsToDatasetDialog(
       <DialogContent className="flex max-h-[90vh] max-w-6xl flex-col">
         <DialogHeader>
           <DialogTitle>
-            Add {displayCount} Observation(s) to dataset
+            {t("batchActions.addObservationsDialogTitle", {
+              count: displayCount,
+            })}
             {!["select", "create", "choice"].includes(step)
               ? " " + state.dataset.name
               : ""}
@@ -100,7 +104,7 @@ export function AddObservationsToDatasetDialog(
           {step === "input-mapping" && (
             <MappingStep
               field="input"
-              fieldLabel="Input"
+              fieldLabel={t("batchActions.input")}
               defaultSourceField="input"
               config={state.mapping.input}
               onConfigChange={handleInputConfigChange}
@@ -114,7 +118,7 @@ export function AddObservationsToDatasetDialog(
           {step === "output-mapping" && (
             <MappingStep
               field="expectedOutput"
-              fieldLabel="Expected Output"
+              fieldLabel={t("batchActions.expectedOutput")}
               defaultSourceField="output"
               config={state.mapping.expectedOutput}
               onConfigChange={handleOutputConfigChange}
@@ -128,7 +132,7 @@ export function AddObservationsToDatasetDialog(
           {step === "metadata-mapping" && (
             <MappingStep
               field="metadata"
-              fieldLabel="Metadata"
+              fieldLabel={t("batchActions.metadata")}
               defaultSourceField="metadata"
               config={state.mapping.metadata}
               onConfigChange={handleMetadataConfigChange}
@@ -168,7 +172,7 @@ export function AddObservationsToDatasetDialog(
               {showBackButton && (
                 <Button type="button" variant="ghost" onClick={goBack}>
                   <ChevronLeft className="mr-1 h-4 w-4" />
-                  Back
+                  {t("common.back")}
                 </Button>
               )}
             </div>

@@ -6,6 +6,7 @@ import { CloudSpendAlertQueue } from "./cloudSpendAlertQueue";
 import { CloudFreeTierUsageThresholdQueue } from "./cloudFreeTierUsageThresholdQueue";
 import { DatasetRunItemUpsertQueue } from "./datasetRunItemUpsert";
 import { ExperimentCreateQueue } from "./experimentCreateQueue";
+import { PromptfooExperimentCreateQueue } from "./promptfooExperimentCreateQueue";
 import { TraceDeleteQueue } from "./traceDelete";
 import { ProjectDeleteQueue } from "./projectDelete";
 import { PostHogIntegrationQueue } from "./postHogIntegrationQueue";
@@ -57,6 +58,8 @@ export function getQueue(
       return DatasetDeleteQueue.getInstance();
     case QueueName.ExperimentCreate:
       return ExperimentCreateQueue.getInstance();
+    case QueueName.PromptfooExperimentCreate:
+      return PromptfooExperimentCreateQueue.getInstance();
     case QueueName.TraceDelete:
       return TraceDeleteQueue.getInstance();
     case QueueName.ProjectDelete:

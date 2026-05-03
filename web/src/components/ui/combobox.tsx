@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/src/components/ui/popover";
+import { useI18n } from "@/src/features/i18n";
 
 export interface ComboboxOption<
   T extends string | number | boolean | { id: string },
@@ -84,14 +85,18 @@ export function Combobox<T extends string | number | boolean | { id: string }>({
   options,
   value,
   onValueChange,
-  placeholder = "Select option...",
-  emptyText = "No option found.",
-  searchPlaceholder = "Search...",
+  placeholder,
+  emptyText,
+  searchPlaceholder,
   disabled = false,
   className,
   name,
 }: ComboboxProps<T>) {
+  const { t } = useI18n();
   const [open, setOpen] = React.useState(false);
+  const resolvedPlaceholder = placeholder ?? t("common.selectOption");
+  const resolvedEmptyText = emptyText ?? t("common.noOptionFound");
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t("common.searchDots");
 
   const selectedOption = React.useMemo(() => {
     if (isGroupedOptions(options)) {
@@ -122,16 +127,19 @@ export function Combobox<T extends string | number | boolean | { id: string }>({
           <span className="truncate">
             {selectedOption
               ? (selectedOption.label ?? String(selectedOption.value))
-              : placeholder}
+              : resolvedPlaceholder}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
         <Command>
-          <CommandInput placeholder={searchPlaceholder} className="text-xs" />
+          <CommandInput
+            placeholder={resolvedSearchPlaceholder}
+            className="text-xs"
+          />
           <CommandList>
-            <CommandEmpty>{emptyText}</CommandEmpty>
+            <CommandEmpty>{resolvedEmptyText}</CommandEmpty>
             {isGroupedOptions(options) ? (
               // Render with groups
               options.map((group, groupIndex) => (

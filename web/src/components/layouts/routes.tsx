@@ -203,6 +203,7 @@ export const ROUTES: Route[] = [
     group: RouteGroup.Evaluation,
     section: RouteSection.Main,
     label: "Beta",
+    labelKey: "trace.beta",
   },
   {
     title: "Upgrade",

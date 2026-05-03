@@ -135,7 +135,7 @@ export const WebhookActionForm: React.FC<WebhookActionFormProps> = ({
             </FormLabel>
             <FormControl>
               <Input
-                placeholder="https://example.com/webhook"
+                placeholder={t("automations.webhook.urlPlaceholder")}
                 {...field}
                 disabled={disabled}
               />
@@ -449,7 +449,9 @@ export const RegenerateWebhookSecretButton = ({
       >
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>{t("automations.webhook.regeneratedTitle")}</DialogTitle>
+            <DialogTitle>
+              {t("automations.webhook.regeneratedTitle")}
+            </DialogTitle>
             <DialogDescription>
               {t("automations.webhook.regeneratedDescription")}
             </DialogDescription>

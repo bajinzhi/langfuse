@@ -1,4 +1,5 @@
 import { api } from "@/src/utils/api";
+import type { ExperimentRunCallbackData } from "@/src/features/experiments/types";
 import { useMemo, useState } from "react";
 import { useQueryParams, withDefault, ArrayParam } from "use-query-params";
 
@@ -31,17 +32,22 @@ export function useDatasetRunsCompare(projectId: string, datasetId: string) {
 
   const utils = api.useUtils();
 
-  const handleExperimentSettled = async (data?: {
-    success: boolean;
-    datasetId: string;
-    runId: string;
-    runName: string;
-  }) => {
+  const handleExperimentSettled = async (data?: ExperimentRunCallbackData) => {
     if (!data) return;
+    const newRunIds = data.runIds?.length ? data.runIds : [data.runId];
+    const nextRunIds = Array.from(new Set([...(runIds ?? []), ...newRunIds]));
+
     void utils.datasets.baseRunDataByDatasetId.invalidate();
-    setLocalRuns((prev) => [...prev, { key: data.runId, value: data.runName }]);
+    setLocalRuns((prev) => {
+      const knownRunIds = new Set(prev.map((run) => run.key));
+      const localRunsToAdd = newRunIds
+        .filter((runId) => !knownRunIds.has(runId))
+        .map((runId) => ({ key: runId, value: data.runName }));
+
+      return [...prev, ...localRunsToAdd];
+    });
     setRunState({
-      runs: [...(runIds ?? []), data.runId],
+      runs: nextRunIds,
     });
   };
 

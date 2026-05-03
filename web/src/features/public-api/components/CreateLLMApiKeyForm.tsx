@@ -769,7 +769,7 @@ export function CreateLLMApiKeyForm({
                         existingKey?.config &&
                         (existingKey.config as BedrockConfig).region && (
                           <span className="text-sm">
-                            Current:{" "}
+                            {t("publicApi.current")}{" "}
                             <code className="bg-muted rounded px-1 py-0.5">
                               {(existingKey.config as BedrockConfig).region}
                             </code>
@@ -802,16 +802,16 @@ export function CreateLLMApiKeyForm({
                       <FormDescription>
                         {mode === "update" ? (
                           <>
-                            Use{" "}
+                            {t("publicApi.useBedrockApiKeysUpdatePrefix")}{" "}
                             <a
                               href="https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html"
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 underline hover:text-blue-800"
                             >
-                              Amazon Bedrock API keys
+                              {t("publicApi.amazonBedrockApiKeys")}
                             </a>{" "}
-                            to replace the current authentication.
+                            {t("publicApi.useBedrockApiKeysUpdateSuffix")}
                           </>
                         ) : (
                           <>
@@ -1075,13 +1075,8 @@ export function CreateLLMApiKeyForm({
                       {t("publicApi.defaultCredentialProviderChainDescription")}
                     </p>
                     <ul className="ml-2 list-inside list-disc space-y-1">
-                      <li>
-                        Environment variable (GOOGLE_APPLICATION_CREDENTIALS)
-                      </li>
-                      <li>
-                        gcloud CLI credentials (gcloud auth application-default
-                        login)
-                      </li>
+                      <li>{t("publicApi.gcpAdcEnvironmentVariable")}</li>
+                      <li>{t("publicApi.gcloudCliCredentials")}</li>
                       <li>{t("publicApi.gkeWorkloadIdentity")}</li>
                       <li>{t("publicApi.cloudRunServiceAccount")}</li>
                       <li>{t("publicApi.gceInstanceServiceAccount")}</li>
@@ -1093,7 +1088,7 @@ export function CreateLLMApiKeyForm({
                         rel="noopener noreferrer"
                         className="text-blue-600 underline hover:text-blue-800"
                       >
-                        Learn more about GCP Application Default Credentials →
+                        {t("publicApi.learnMoreGcpAdc")}
                       </a>
                     </p>
                   </div>

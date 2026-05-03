@@ -234,7 +234,10 @@ export default function SignIn({
                     <FormItem>
                       <FormLabel>{t("auth.name")}</FormLabel>
                       <FormControl>
-                        <Input placeholder={t("auth.namePlaceholder")} {...field} />
+                        <Input
+                          placeholder={t("auth.namePlaceholder")}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -316,7 +319,7 @@ export default function SignIn({
             </Link>
           </p>
         </div>
-        <CloudPrivacyNotice action="creating an account" />
+        <CloudPrivacyNotice actionKey="auth.cloudPrivacy.action.createAccount" />
       </div>
     </>
   );

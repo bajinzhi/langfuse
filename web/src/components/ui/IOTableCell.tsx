@@ -12,6 +12,7 @@ import {
   HoverCardTrigger,
 } from "@/src/components/ui/hover-card";
 import { decodeUnicodeEscapesOnly } from "@/src/utils/unicode";
+import { useI18n } from "@/src/features/i18n";
 
 const IOTableCellContent = ({
   data,
@@ -22,6 +23,7 @@ const IOTableCellContent = ({
   singleLine: boolean;
   className?: string;
 }) => {
+  const { t } = useI18n();
   const stringifiedJson =
     data !== null && data !== undefined ? stringifyJsonNode(data) : undefined;
 
@@ -54,7 +56,7 @@ const IOTableCellContent = ({
         borderless
       />
       <div className="text-muted-foreground text-xs">
-        Content was truncated.
+        {t("trace.contentTruncated")}
       </div>
     </div>
   ) : (

@@ -40,7 +40,9 @@ export const GitHubDispatchActionForm: React.FC<
             </FormLabel>
             <FormControl>
               <Input
-                placeholder="https://api.github.com/repos/owner/repo/dispatches"
+                placeholder={t(
+                  "automations.github.repositoryDispatchUrlPlaceholder",
+                )}
                 disabled={disabled}
                 {...field}
               />
@@ -74,7 +76,7 @@ export const GitHubDispatchActionForm: React.FC<
             </FormLabel>
             <FormControl>
               <Input
-                placeholder="prompt-update"
+                placeholder={t("automations.github.eventTypePlaceholder")}
                 disabled={disabled}
                 {...field}
               />

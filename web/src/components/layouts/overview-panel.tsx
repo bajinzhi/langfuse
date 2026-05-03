@@ -7,6 +7,7 @@ import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { cn } from "@/src/utils/tailwind";
 import { Button } from "@/src/components/ui/button";
 import { ResizableDesktopLayout } from "./ResizableDesktopLayout";
+import { useI18n } from "@/src/features/i18n";
 
 // --- Toggle Button ---
 
@@ -20,23 +21,27 @@ interface OverviewPanelToggleProps extends React.ComponentPropsWithoutRef<
 const OverviewPanelToggle = React.forwardRef<
   React.ComponentRef<typeof Button>,
   OverviewPanelToggleProps
->(({ open, onOpenChange, className, ...props }, ref) => (
-  <Button
-    ref={ref}
-    variant="outline"
-    size="icon"
-    onClick={() => onOpenChange(!open)}
-    title={open ? "Hide details" : "Show details"}
-    className={className}
-    {...props}
-  >
-    {open ? (
-      <PanelRightClose className="h-4 w-4" />
-    ) : (
-      <PanelRightOpen className="h-4 w-4" />
-    )}
-  </Button>
-));
+>(({ open, onOpenChange, className, ...props }, ref) => {
+  const { t } = useI18n();
+
+  return (
+    <Button
+      ref={ref}
+      variant="outline"
+      size="icon"
+      onClick={() => onOpenChange(!open)}
+      title={open ? t("common.hideDetails") : t("common.showDetails")}
+      className={className}
+      {...props}
+    >
+      {open ? (
+        <PanelRightClose className="h-4 w-4" />
+      ) : (
+        <PanelRightOpen className="h-4 w-4" />
+      )}
+    </Button>
+  );
+});
 OverviewPanelToggle.displayName = "OverviewPanelToggle";
 
 // --- Layout ---

@@ -75,7 +75,9 @@ export function MentionAutocomplete({
             </div>
           )}
           {!isLoading && users.length === 0 && (
-            <CommandEmpty role="status">{t("comments.noUsersFound")}</CommandEmpty>
+            <CommandEmpty role="status">
+              {t("comments.noUsersFound")}
+            </CommandEmpty>
           )}
           {!isLoading && users.length > 0 && (
             <>
@@ -119,7 +121,7 @@ export function MentionAutocomplete({
                   role="status"
                   aria-live="polite"
                 >
-                  and {remainingCount} more...
+                  {t("comments.moreUsers", { count: remainingCount })}
                 </div>
               )}
             </>

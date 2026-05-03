@@ -66,6 +66,8 @@ import {
 import { PromptVariableListPreview } from "@/src/features/prompts/components/PromptVariableListPreview";
 import { createBreadcrumbItems } from "@/src/features/folders/utils";
 import { useI18n } from "@/src/features/i18n";
+import type { ExperimentRunCallbackData } from "@/src/features/experiments/types";
+import { toDatasetCompareRunsUrl } from "@/src/features/experiments/utils/experimentUrlTranslation";
 
 const getPythonCode = (
   name: string,
@@ -192,14 +194,10 @@ export const PromptDetail = ({
 
   const utils = api.useUtils();
 
-  const handleExperimentSuccess = async (data?: {
-    success: boolean;
-    datasetId: string;
-    runId: string;
-    runName: string;
-  }) => {
+  const handleExperimentSuccess = async (data?: ExperimentRunCallbackData) => {
     setIsCreateExperimentDialogOpen(false);
-    if (!data) return;
+    if (!data || !projectId) return;
+    const runIds = data.runIds?.length ? data.runIds : [data.runId];
     void utils.datasets.baseRunDataByDatasetId.invalidate();
     void utils.datasets.runsByDatasetId.invalidate();
     showSuccessToast({
@@ -207,7 +205,7 @@ export const PromptDetail = ({
       description: t("prompts.detail.experimentWaiting"),
       link: {
         text: t("prompts.detail.viewExperiment"),
-        href: `/project/${projectId}/datasets/${data.datasetId}/compare?runs=${data.runId}`,
+        href: toDatasetCompareRunsUrl(projectId, data.datasetId, runIds),
       },
     });
   };

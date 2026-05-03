@@ -12,6 +12,7 @@ import { Loader2 } from "lucide-react";
 import { JSONView } from "@/src/components/ui/CodeJsonViewer";
 import { type FlatLogItem } from "./log-view-types";
 import { useLogViewAllObservationsIO } from "./useLogViewAllObservationsIO";
+import { useI18n } from "@/src/features/i18n";
 
 export interface LogViewJsonModeProps {
   items: FlatLogItem[];
@@ -34,6 +35,7 @@ export const LogViewJsonMode = memo(function LogViewJsonMode({
   isCollapsed,
   onToggleCollapse,
 }: LogViewJsonModeProps) {
+  const { t } = useI18n();
   const { data, isLoading, isError, loadAllData, totalCount } =
     useLogViewAllObservationsIO({
       items,
@@ -55,7 +57,7 @@ export const LogViewJsonMode = memo(function LogViewJsonMode({
         <div className="flex flex-1 items-center justify-center">
           <Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
           <span className="text-muted-foreground ml-2 text-sm">
-            Loading observations (0/{totalCount})...
+            {t("trace.loadingObservations", { total: totalCount })}
           </span>
         </div>
       )}
@@ -64,7 +66,7 @@ export const LogViewJsonMode = memo(function LogViewJsonMode({
       {isError && !isLoading && (
         <div className="flex flex-1 items-center justify-center">
           <div className="border-destructive/50 bg-destructive/10 text-destructive rounded border p-4 text-sm">
-            Failed to load observation data
+            {t("trace.failedToLoadObservationData")}
           </div>
         </div>
       )}
@@ -87,7 +89,7 @@ export const LogViewJsonMode = memo(function LogViewJsonMode({
       {!data && !isLoading && !isError && (
         <div className="flex flex-1 items-center justify-center">
           <div className="text-muted-foreground text-sm">
-            No observation data available
+            {t("trace.noObservationDataAvailable")}
           </div>
         </div>
       )}

@@ -43,13 +43,13 @@ export default function HfSpaces({ deploymentDomain }: PageProps) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/assets/huggingface-logo.svg"
-              alt="Hugging Face Logo"
+              alt={t("auth.hfSpaces.huggingFaceLogoAlt")}
               width={36}
               height={36}
             />
           </div>
           <h2 className="text-primary mt-4 text-center text-2xl leading-9 font-bold tracking-tight">
-            Langfuse on Hugging Face
+            {t("auth.hfSpaces.headTitle")}
           </h2>
         </div>
 

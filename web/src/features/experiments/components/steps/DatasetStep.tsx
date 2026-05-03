@@ -246,7 +246,7 @@ export const DatasetStep: React.FC<DatasetStepProps> = ({
                   <Info className="h-4 w-4" />
                 </CardTitle>
                 <CardDescription className="text-foreground">
-                  {validationResult?.message}
+                  {t(validationResult.messageKey)}
                 </CardDescription>
               </CardHeader>
             </Card>

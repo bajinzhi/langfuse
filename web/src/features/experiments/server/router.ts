@@ -62,9 +62,16 @@ const ValidConfigResponse = z.object({
   variablesMap: z.record(z.string(), z.number()),
 });
 
+const ExperimentValidationMessageKey = z.enum([
+  "experiments.validation.datasetEmpty",
+  "experiments.validation.noDatasetItemVariables",
+  "experiments.validation.promptNotFound",
+  "experiments.validation.promptVariablesRequired",
+]);
+
 const InvalidConfigResponse = z.object({
   isValid: z.literal(false),
-  message: z.string(),
+  messageKey: ExperimentValidationMessageKey,
 });
 
 const ConfigResponse = z.discriminatedUnion("isValid", [
@@ -133,7 +140,7 @@ export const experimentsRouter = createTRPCRouter({
       if (!prompt) {
         return {
           isValid: false,
-          message: "Selected prompt not found.",
+          messageKey: "experiments.validation.promptNotFound" as const,
         };
       }
 
@@ -143,7 +150,7 @@ export const experimentsRouter = createTRPCRouter({
       if (!resolvedPrompt) {
         return {
           isValid: false,
-          message: "Selected prompt not found.",
+          messageKey: "experiments.validation.promptNotFound" as const,
         };
       }
 
@@ -167,7 +174,7 @@ export const experimentsRouter = createTRPCRouter({
       if (!Boolean(allVariables.length)) {
         return {
           isValid: false,
-          message: "Selected prompt has no variables or placeholders.",
+          messageKey: "experiments.validation.promptVariablesRequired" as const,
         };
       }
 
@@ -183,7 +190,7 @@ export const experimentsRouter = createTRPCRouter({
       if (!Boolean(items.length)) {
         return {
           isValid: false,
-          message: "Selected dataset is empty or all items are inactive.",
+          messageKey: "experiments.validation.datasetEmpty" as const,
         };
       }
 
@@ -192,7 +199,7 @@ export const experimentsRouter = createTRPCRouter({
       if (!Boolean(Object.keys(variablesMap).length)) {
         return {
           isValid: false,
-          message: "No dataset item contains any variables.",
+          messageKey: "experiments.validation.noDatasetItemVariables" as const,
         };
       }
 

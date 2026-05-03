@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/src/components/ui/dialog";
 import { CreateExperimentsForm } from "@/src/features/experiments/components/CreateExperimentsForm";
+import type { ExperimentRunCallbackData } from "@/src/features/experiments/types";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import Page from "@/src/components/layouts/page";
@@ -28,6 +29,7 @@ import { toExperimentsResultsUrl } from "@/src/features/experiments/utils/experi
 import { useExperimentAccess } from "@/src/features/experiments/hooks/useExperimentAccess";
 import { ExperimentsBetaSwitch } from "@/src/features/experiments/components/ExperimentsBetaSwitch";
 import { useI18n } from "@/src/features/i18n";
+import { PromptfooReportButtons } from "@/src/features/promptfoo/components/PromptfooReportButtons";
 
 function DatasetCompareInternal() {
   const { t } = useI18n();
@@ -39,6 +41,9 @@ function DatasetCompareInternal() {
   const [isCreateExperimentDialogOpen, setIsCreateExperimentDialogOpen] =
     useState(false);
   const [isAnnotationPanelOpen, setIsAnnotationPanelOpen] = useState(false);
+  const [promptfooReportRunId, setPromptfooReportRunId] = useState<
+    string | undefined
+  >();
   const {
     canUseExperimentsBetaToggle,
     isExperimentsBetaEnabled,
@@ -63,15 +68,23 @@ function DatasetCompareInternal() {
 
   const { activeCell, clearActiveCell } = useActiveCell();
 
-  const handleExperimentSettled = async (data?: {
-    success: boolean;
-    datasetId: string;
-    runId: string;
-    runName: string;
-  }) => {
+  const handleExperimentSettled = async (data?: ExperimentRunCallbackData) => {
     setIsCreateExperimentDialogOpen(false);
+    if (data?.runIds?.length) {
+      setPromptfooReportRunId(data.runIds[0]);
+    }
     await handleExperimentSettledBase(data);
   };
+
+  useEffect(() => {
+    if (
+      promptfooReportRunId &&
+      runIds &&
+      !runIds.includes(promptfooReportRunId)
+    ) {
+      setPromptfooReportRunId(undefined);
+    }
+  }, [promptfooReportRunId, runIds]);
 
   // Clear annotation state on URL change (filters, navigation, etc.)
   useEffect(() => {
@@ -120,6 +133,10 @@ function DatasetCompareInternal() {
       onEnabledChange={handleBetaSwitchChange}
     />
   ) : null;
+  const latestSelectedRunId =
+    runIds && runIds.length > 0 ? runIds[runIds.length - 1] : undefined;
+  const promptfooReportDatasetRunId =
+    promptfooReportRunId ?? latestSelectedRunId;
 
   if (isExperimentsBetaActive) {
     return (
@@ -178,6 +195,10 @@ function DatasetCompareInternal() {
         actionButtonsRight: (
           <>
             {betaSwitch}
+            <PromptfooReportButtons
+              projectId={projectId}
+              datasetRunId={promptfooReportDatasetRunId}
+            />
             <Dialog
               key="create-experiment-dialog"
               open={isCreateExperimentDialogOpen}
@@ -274,7 +295,7 @@ function DatasetCompareInternal() {
             open: isAnnotationPanelOpen,
             onOpenChange: handlePanelOpenChange,
           }}
-          mobileTitle="Annotate"
+          mobileTitle={t("datasets.annotate")}
         >
           <SidePanelContent className="h-full">
             {activeCell ? (
@@ -282,7 +303,7 @@ function DatasetCompareInternal() {
             ) : (
               <div className="flex items-center justify-center p-4">
                 <span className="text-muted-foreground text-sm">
-                  Loading annotation data...
+                  {t("datasets.loadingAnnotationData")}
                 </span>
               </div>
             )}

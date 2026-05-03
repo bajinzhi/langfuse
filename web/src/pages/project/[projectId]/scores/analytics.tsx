@@ -192,7 +192,9 @@ export default function ScoresAnalyticsV2Page() {
     <Page
       headerProps={{
         title: t("nav.scores"),
-        breadcrumb: [{ name: t("nav.scores"), href: `/project/${projectId}/scores` }],
+        breadcrumb: [
+          { name: t("nav.scores"), href: `/project/${projectId}/scores` },
+        ],
         help: {
           description: t("scores.help"),
           href: "https://langfuse.com/docs/evaluation/overview",
@@ -274,7 +276,7 @@ export default function ScoresAnalyticsV2Page() {
             <div className="flex flex-col items-center justify-center gap-4 rounded-lg border p-12">
               <Loader2 className="text-muted-foreground h-12 w-12 animate-spin" />
               <p className="text-muted-foreground text-sm">
-                Loading analytics data...
+                {t("scoreAnalytics.loadingAnalyticsData")}
               </p>
             </div>
           )}

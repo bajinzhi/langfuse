@@ -6,8 +6,10 @@ import { Card } from "@/src/components/ui/card";
 import { numberFormatter, compactNumberFormatter } from "@/src/utils/numbers";
 import { type Plan } from "@langfuse/shared";
 import { MAX_EVENTS_FREE_PLAN } from "@/src/ee/features/billing/constants";
+import { useI18n } from "@/src/features/i18n";
 
 export const BillingUsageChart = () => {
+  const { t } = useI18n();
   const organization = useQueryOrganization();
 
   const usage = api.cloudBilling.getUsage.useQuery(
@@ -27,10 +29,16 @@ export const BillingUsageChart = () => {
   const hobbyPlanLimit =
     organization?.cloudConfig?.monthlyObservationLimit ?? MAX_EVENTS_FREE_PLAN;
   const plan: Plan = organization?.plan ?? "cloud:hobby";
-  const usageType = usage.data?.usageType
-    ? usage.data.usageType.charAt(0).toUpperCase() +
+  const usageType = (() => {
+    if (!usage.data?.usageType) return t("billing.usageType.events");
+    if (usage.data.usageType === "events") return t("billing.usageType.events");
+    if (usage.data.usageType === "units") return t("billing.usageType.units");
+
+    return (
+      usage.data.usageType.charAt(0).toUpperCase() +
       usage.data.usageType.slice(1)
-    : "Events";
+    );
+  })();
 
   if (usage.data === null) {
     // Might happen in dev mode if STRIPE_SECRET_KEY is not set
@@ -45,8 +53,8 @@ export const BillingUsageChart = () => {
           <>
             <p className="text-muted-foreground text-sm">
               {usage.data.billingPeriod
-                ? `Consumed ${usageType} in current billing period (updated about once every 60 minutes)`
-                : `Consumed ${usageType} / last 30d`}
+                ? t("billing.consumedInCurrentPeriod", { usageType })
+                : t("billing.consumedLast30Days", { usageType })}
             </p>
             <div className="text-3xl font-bold">
               {numberFormatter(usage.data.usageCount, 0)}
@@ -56,7 +64,9 @@ export const BillingUsageChart = () => {
                 <div className="mt-4 flex justify-between">
                   <span className="text-sm">{`${numberFormatter((usage.data.usageCount / hobbyPlanLimit) * 100)}%`}</span>
                   <span className="text-sm">
-                    Plan limit: {compactNumberFormatter(hobbyPlanLimit)}
+                    {t("billing.planLimit", {
+                      limit: compactNumberFormatter(hobbyPlanLimit),
+                    })}
                   </span>
                 </div>
                 <div
@@ -84,7 +94,7 @@ export const BillingUsageChart = () => {
           </>
         ) : (
           <span className="text-muted-foreground text-sm">
-            Loading (might take a moment) ...
+            {t("billing.loadingUsage")}
           </span>
         )}
       </Card>

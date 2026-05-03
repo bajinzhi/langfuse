@@ -120,7 +120,7 @@ export const PieChart: React.FC<ChartProps> = ({
                         y={(viewBox.cy || 0) + 24}
                         className="fill-muted-foreground"
                       >
-                        Total
+                        {t("widgets.table.total")}
                       </tspan>
                     </text>
                   );

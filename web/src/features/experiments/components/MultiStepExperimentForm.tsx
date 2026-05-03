@@ -34,6 +34,7 @@ import { Skeleton } from "@/src/components/ui/skeleton";
 import {
   createExperimentDataSchema,
   type CreateExperiment,
+  type ExperimentRunCallbackData,
 } from "@/src/features/experiments/types";
 import {
   generateDefaultExperimentName,
@@ -67,18 +68,8 @@ export const MultiStepExperimentForm = ({
     name: string;
     version: number;
   };
-  handleExperimentSuccess?: (data?: {
-    success: boolean;
-    datasetId: string;
-    runId: string;
-    runName: string;
-  }) => Promise<void>;
-  handleExperimentSettled?: (data?: {
-    success: boolean;
-    datasetId: string;
-    runId: string;
-    runName: string;
-  }) => Promise<void>;
+  handleExperimentSuccess?: (data?: ExperimentRunCallbackData) => Promise<void>;
+  handleExperimentSettled?: (data?: ExperimentRunCallbackData) => Promise<void>;
 }) => {
   const capture = usePostHogClientCapture();
   const { t } = useI18n();

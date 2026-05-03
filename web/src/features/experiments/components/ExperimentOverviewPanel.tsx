@@ -5,6 +5,12 @@ import { Button } from "@/src/components/ui/button";
 import { ExperimentComparisonSelector } from "./ExperimentComparisonSelector";
 import { ExperimentBaselineControls } from "./ExperimentBaselineControls";
 import { useI18n } from "@/src/features/i18n";
+import { api } from "@/src/utils/api";
+import { PromptfooReportButtons } from "@/src/features/promptfoo/components/PromptfooReportButtons";
+import {
+  PROMPTFOO_REPORT_METADATA_REFETCH_INTERVAL_MS,
+  shouldPollPromptfooReportMetadata,
+} from "@/src/features/promptfoo/utils/reportMetadataPolling";
 
 type ExperimentOverviewPanelProps = {
   projectId: string;
@@ -41,7 +47,24 @@ export function ExperimentOverviewPanel({
 
   const provider = experiment?.metadata?.provider;
   const model = experiment?.metadata?.model;
-
+  const isPromptfooExperiment =
+    experiment?.metadata?.execution_mode === "promptfoo" ||
+    Boolean(experiment?.metadata?.promptfoo_matrix_run_id);
+  const promptfooReport = api.promptfoo.reportMetadata.useQuery(
+    {
+      projectId,
+      datasetRunId: experiment?.id ?? "",
+    },
+    {
+      enabled: Boolean(experiment?.id && isPromptfooExperiment),
+      refetchInterval: (query) => {
+        const metadata = query.state.data;
+        return metadata && shouldPollPromptfooReportMetadata(metadata.status)
+          ? PROMPTFOO_REPORT_METADATA_REFETCH_INTERVAL_MS
+          : false;
+      },
+    },
+  );
   // Get the first prompt name and version from the prompts array
   const [promptName, promptVersion] =
     experiment && experiment.prompts.length > 0
@@ -151,6 +174,40 @@ export function ExperimentOverviewPanel({
               </div>
               <LocalIsoDate date={experiment.startTime} />
             </div>
+
+            {/* Promptfoo report */}
+            {isPromptfooExperiment && (
+              <div>
+                <div className="text-muted-foreground text-xs">
+                  {t("promptfoo.report.title")}
+                </div>
+                {promptfooReport.data?.reportHtmlObjectKey ||
+                promptfooReport.data?.reportObjectKey ? (
+                  <div className="mt-1">
+                    <PromptfooReportButtons
+                      projectId={projectId}
+                      datasetRunId={experiment.id}
+                    />
+                  </div>
+                ) : promptfooReport.data?.status === "FAILED" ? (
+                  <div className="text-destructive text-xs">
+                    {t("promptfoo.report.failed", {
+                      error:
+                        promptfooReport.data.error ??
+                        t("promptfoo.report.unknownError"),
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground text-xs">
+                    {promptfooReport.isLoading
+                      ? t("promptfoo.report.loading")
+                      : t("promptfoo.report.pending", {
+                          status: promptfooReport.data?.status ?? "PENDING",
+                        })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </>
       ) : null}

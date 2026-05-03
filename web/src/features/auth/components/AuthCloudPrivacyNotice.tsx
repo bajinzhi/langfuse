@@ -1,33 +1,41 @@
 import { env } from "@/src/env.mjs";
+import { type MessageKey, useI18n } from "@/src/features/i18n";
 
-export const CloudPrivacyNotice = ({ action }: { action: string }) =>
-  env.NEXT_PUBLIC_LANGFUSE_CLOUD_REGION !== undefined ? (
+export const CloudPrivacyNotice = ({
+  actionKey,
+}: {
+  actionKey: MessageKey;
+}) => {
+  const { t } = useI18n();
+
+  return env.NEXT_PUBLIC_LANGFUSE_CLOUD_REGION !== undefined ? (
     <div className="text-muted-foreground mx-auto mt-10 max-w-lg text-center text-xs">
-      By {action} you are agreeing to our{" "}
+      {t("auth.cloudPrivacy.prefix", { action: t(actionKey) })}{" "}
       <a
         href="https://langfuse.com/terms"
         target="_blank"
         rel="noopener noreferrer"
         className="italic"
       >
-        Terms and Conditions
+        {t("auth.cloudPrivacy.terms")}
       </a>
-      ,{" "}
+      {t("auth.cloudPrivacy.separator")}{" "}
       <a
         href="https://langfuse.com/privacy"
         rel="noopener noreferrer"
         className="italic"
       >
-        Privacy Policy
+        {t("auth.cloudPrivacy.privacy")}
       </a>
-      , and{" "}
+      {t("auth.cloudPrivacy.and")}{" "}
       <a
         href="https://langfuse.com/cookie-policy"
         rel="noopener noreferrer"
         className="italic"
       >
-        Cookie Policy
+        {t("auth.cloudPrivacy.cookies")}
       </a>
-      . You also confirm that the entered data is accurate.
+      {t("auth.cloudPrivacy.suffix")}
     </div>
   ) : null;
+};

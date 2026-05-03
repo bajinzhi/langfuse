@@ -11,6 +11,7 @@ import type {
   SchemaValidationError,
 } from "./types";
 import { wizardReducer, initialWizardState } from "./wizardReducer";
+import { useI18n } from "@/src/features/i18n";
 
 export type UseAddToDatasetWizardProps = {
   projectId: string;
@@ -26,6 +27,7 @@ export type UseAddToDatasetWizardProps = {
 };
 
 export function useAddToDatasetWizard(props: UseAddToDatasetWizardProps) {
+  const { t } = useI18n();
   const {
     projectId,
     selectedObservationIds,
@@ -270,44 +272,51 @@ export function useAddToDatasetWizard(props: UseAddToDatasetWizardProps) {
   const nextButtonLabel = useMemo(() => {
     switch (state.step) {
       case "select":
-        return "Continue";
+        return t("batchActions.continue");
       case "create":
         return state.createStep.isCreating
-          ? "Creating..."
-          : "Create & Continue";
+          ? t("batchActions.creatingDots")
+          : t("batchActions.createAndContinue");
       case "input-mapping":
       case "output-mapping":
       case "metadata-mapping":
-        return "Next";
+        return t("common.next");
       case "preview":
-        return state.submission.isSubmitting ? "Adding..." : "Add to Dataset";
+        return state.submission.isSubmitting
+          ? t("batchActions.addingDots")
+          : t("batchActions.addToDataset");
       default:
-        return "Continue";
+        return t("batchActions.continue");
     }
-  }, [state.step, state.createStep.isCreating, state.submission.isSubmitting]);
+  }, [
+    state.step,
+    state.createStep.isCreating,
+    state.submission.isSubmitting,
+    t,
+  ]);
 
   const dialogDescription = useMemo(() => {
     switch (state.step) {
       case "choice":
-        return "Choose where to add your observations";
+        return t("batchActions.chooseWhereAddObservations");
       case "select":
-        return "Select an existing dataset";
+        return t("batchActions.selectExistingDataset");
       case "create":
-        return "Create a new dataset";
+        return t("batchActions.createNewDataset");
       case "input-mapping":
-        return "Configure dataset item input mapping";
+        return t("batchActions.configureDatasetItemInputMapping");
       case "output-mapping":
-        return "Configure dataset item expected output mapping";
+        return t("batchActions.configureDatasetItemExpectedOutputMapping");
       case "metadata-mapping":
-        return "Configure dataset item metadata mapping";
+        return t("batchActions.configureDatasetItemMetadataMapping");
       case "preview":
-        return "Review and confirm your configuration";
+        return t("batchActions.reviewAndConfirmConfiguration");
       case "status":
-        return "Your bulk action status";
+        return t("batchActions.bulkActionStatus");
       default:
         return "";
     }
-  }, [state.step]);
+  }, [state.step, t]);
 
   const showBackButton = state.step !== "choice" && state.step !== "status";
   const canClose = !state.submission.isSubmitting;

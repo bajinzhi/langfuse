@@ -28,6 +28,7 @@ import { heatMapTextColor } from "@/src/components/trace2/lib/helpers";
 import { useViewPreferences } from "../contexts/ViewPreferencesContext";
 import { useTraceData } from "../contexts/TraceDataContext";
 import type Decimal from "decimal.js";
+import { useI18n } from "@/src/features/i18n";
 
 interface SpanContentProps {
   node: TreeNode;
@@ -48,6 +49,7 @@ export function SpanContent({
   onHover,
   className,
 }: SpanContentProps) {
+  const { t } = useI18n();
   const { mergedScores, roots } = useTraceData();
   const {
     showDuration,
@@ -148,7 +150,7 @@ export function SpanContent({
               <span
                 title={
                   node.children.length > 0 || node.type === "TRACE"
-                    ? "Aggregated duration of all child observations"
+                    ? t("trace.aggregatedDurationTooltip")
                     : undefined
                 }
                 className={cn(
@@ -185,7 +187,7 @@ export function SpanContent({
               <span
                 title={
                   node.children.length > 0 || node.type === "TRACE"
-                    ? "Aggregated cost of all child observations"
+                    ? t("trace.aggregatedCostTooltip")
                     : undefined
                 }
                 className={cn(

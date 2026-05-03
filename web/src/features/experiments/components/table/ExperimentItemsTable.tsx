@@ -1116,7 +1116,7 @@ export default function ExperimentItemsTable({
               ) : (
                 <div className="flex flex-1 items-center justify-center">
                   <span className="text-muted-foreground text-sm">
-                    Please select a baseline experiment.
+                    {t("experiments.selectBaselineExperiment")}
                   </span>
                 </div>
               )
@@ -1141,7 +1141,7 @@ export default function ExperimentItemsTable({
                 noResultsMessage={
                   !hasSelectedRuns ? (
                     <span className="text-muted-foreground text-sm">
-                      Please select a baseline experiment.
+                      {t("experiments.selectBaselineExperiment")}
                     </span>
                   ) : undefined
                 }

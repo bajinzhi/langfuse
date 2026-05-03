@@ -9,6 +9,7 @@ import { ListFilter, ChevronsUpDown, X, Check } from "lucide-react";
 import { useMemo, useState } from "react";
 import { type FilterCondition, type FilterState } from "@langfuse/shared";
 import { cn } from "@/src/utils/tailwind";
+import { useI18n } from "@/src/features/i18n";
 
 interface ExperimentFilterPillsProps {
   filtersByExperiment: { runId: string; filters: FilterState }[];
@@ -79,6 +80,7 @@ function FilterPillWithTarget({
   onRemove,
 }: FilterPillWithTargetProps) {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
 
   return (
     <Badge
@@ -102,7 +104,7 @@ function FilterPillWithTarget({
         </PopoverTrigger>
         <PopoverContent className="w-[200px] p-1" align="start">
           <div className="text-muted-foreground px-2 py-1.5 text-xs font-medium">
-            Target Experiment
+            {t("experiments.targetExperiment")}
           </div>
           <div className="space-y-0.5">
             {selectedExperimentNames.map((exp) => (

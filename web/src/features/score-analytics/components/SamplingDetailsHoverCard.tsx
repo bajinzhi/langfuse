@@ -112,8 +112,7 @@ export function SamplingDetailsHoverCard({
                   {t("scoreAnalytics.sampling")}
                 </dt>
                 <dd className="font-medium">
-                  {(samplingMetadata.samplingRate * 100).toFixed(1)}%
-                  (hash-based)
+                  {`${(samplingMetadata.samplingRate * 100).toFixed(1)}% (${t("scoreAnalytics.hashBased")})`}
                 </dd>
               </div>
               {samplingMetadata.adaptiveFinal && (

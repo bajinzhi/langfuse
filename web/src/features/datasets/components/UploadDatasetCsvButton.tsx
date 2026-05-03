@@ -5,6 +5,7 @@ import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAcces
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import { ActionButton } from "@/src/components/ActionButton";
 import { CsvUploadDialog } from "@/src/features/datasets/components/CsvUploadDialog";
+import { useI18n } from "@/src/features/i18n";
 
 export const UploadDatasetCsvButton = (props: {
   projectId: string;
@@ -17,6 +18,7 @@ export const UploadDatasetCsvButton = (props: {
     scope: "datasets:CUD",
   });
   const capture = usePostHogClientCapture();
+  const { t } = useI18n();
 
   return (
     <CsvUploadDialog
@@ -34,7 +36,7 @@ export const UploadDatasetCsvButton = (props: {
           onClick={() => capture("dataset_item:upload_csv_button_click")}
           icon={<UploadIcon className="h-4 w-4" aria-hidden="true" />}
         >
-          Upload CSV
+          {t("datasets.uploadCsv")}
         </ActionButton>
       </DialogTrigger>
     </CsvUploadDialog>

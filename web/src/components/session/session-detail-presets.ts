@@ -1,11 +1,14 @@
 import { type FilterState } from "@langfuse/shared";
+import { type MessageKey } from "@/src/features/i18n";
 
 const SYSTEM_PRESET_ID_PREFIX = "__langfuse_";
 
 export interface SessionDetailSystemPreset {
   id: string;
   name: string;
+  nameKey: MessageKey;
   description?: string;
+  descriptionKey?: MessageKey;
   filters: FilterState;
 }
 
@@ -13,7 +16,9 @@ export const SESSION_DETAIL_SYSTEM_PRESETS: SessionDetailSystemPreset[] = [
   {
     id: `${SYSTEM_PRESET_ID_PREFIX}first_generation__`,
     name: "First Generation in Trace",
+    nameKey: "sessions.presets.firstGeneration.name",
     description: "Shows only the first generation in each trace",
+    descriptionKey: "sessions.presets.firstGeneration.description",
     filters: [
       {
         column: "type",
@@ -32,7 +37,9 @@ export const SESSION_DETAIL_SYSTEM_PRESETS: SessionDetailSystemPreset[] = [
   {
     id: `${SYSTEM_PRESET_ID_PREFIX}last_generation__`,
     name: "Last Generation in Trace",
+    nameKey: "sessions.presets.lastGeneration.name",
     description: "Shows only the last generation in each trace",
+    descriptionKey: "sessions.presets.lastGeneration.description",
     filters: [
       {
         column: "type",

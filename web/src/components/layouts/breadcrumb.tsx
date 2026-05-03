@@ -33,12 +33,18 @@ import {
 import { isCloudPlan, planLabels } from "@langfuse/shared";
 import Link from "next/link";
 import { Badge } from "@/src/components/ui/badge";
+import { useI18n } from "@/src/features/i18n";
 
-const LoadingMenuItem = () => (
-  <DropdownMenuItem>
-    <LoaderCircle className="mr-1.5 h-4 w-4 animate-spin" /> Loading...
-  </DropdownMenuItem>
-);
+const LoadingMenuItem = () => {
+  const { t } = useI18n();
+
+  return (
+    <DropdownMenuItem>
+      <LoaderCircle className="mr-1.5 h-4 w-4 animate-spin" />
+      {t("common.loadingDots")}
+    </DropdownMenuItem>
+  );
+};
 
 const BreadcrumbComponent = ({
   items,
@@ -49,6 +55,7 @@ const BreadcrumbComponent = ({
 }) => {
   const router = useRouter();
   const session = useSession();
+  const { t } = useI18n();
   const { organization, project } = useQueryProjectOrOrganization();
 
   const organizations = session.data?.user?.organizations;
@@ -98,7 +105,7 @@ const BreadcrumbComponent = ({
         {organization && (
           <DropdownMenu>
             <DropdownMenuTrigger className="text-primary flex items-center gap-1 text-sm">
-              {organization?.name ?? "Organization"}
+              {organization?.name ?? t("organizations.organization")}
               {isCloudPlan(organization?.plan) &&
                 organization.id !== env.NEXT_PUBLIC_DEMO_ORG_ID && (
                   <Badge
@@ -113,7 +120,7 @@ const BreadcrumbComponent = ({
             <DropdownMenuContent align="start">
               <DropdownMenuItem className="font-semibold" asChild>
                 <Link href="/" className="cursor-pointer">
-                  Organizations
+                  {t("nav.organizations")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -186,7 +193,7 @@ const BreadcrumbComponent = ({
                           className="mr-1.5 h-4 w-4"
                           aria-hidden="true"
                         />
-                        New Organization
+                        {t("organizations.newOrganization")}
                       </Link>
                     </Button>
                   </DropdownMenuItem>
@@ -202,7 +209,7 @@ const BreadcrumbComponent = ({
             </BreadcrumbSeparator>
             <DropdownMenu>
               <DropdownMenuTrigger className="text-primary flex items-center gap-1">
-                {project?.name ?? "Project"}
+                {project?.name ?? t("projects.project")}
                 <ChevronDownIcon className="h-4 w-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
@@ -211,7 +218,7 @@ const BreadcrumbComponent = ({
                     href={`/organization/${organization.id}`}
                     className="cursor-pointer"
                   >
-                    Projects
+                    {t("nav.projects")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -272,7 +279,7 @@ const BreadcrumbComponent = ({
                             className="mr-1.5 h-4 w-4"
                             aria-hidden="true"
                           />
-                          New Project
+                          {t("projects.newProject")}
                         </Link>
                       </Button>
                     </DropdownMenuItem>

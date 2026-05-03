@@ -136,6 +136,10 @@ const EnvSchema = z.object({
     .number()
     .positive()
     .default(5),
+  LANGFUSE_PROMPTFOO_CREATOR_WORKER_CONCURRENCY: z.coerce
+    .number()
+    .positive()
+    .default(2),
 
   // Skip the read from ClickHouse within the Ingestion pipeline for the given
   // project ids. Applicable for projects that were created after the S3 write
@@ -221,6 +225,9 @@ const EnvSchema = z.object({
     .enum(["true", "false"])
     .default("true"),
   QUEUE_CONSUMER_EXPERIMENT_CREATE_QUEUE_IS_ENABLED: z
+    .enum(["true", "false"])
+    .default("true"),
+  QUEUE_CONSUMER_PROMPTFOO_EXPERIMENT_CREATE_QUEUE_IS_ENABLED: z
     .enum(["true", "false"])
     .default("true"),
   QUEUE_CONSUMER_POSTHOG_INTEGRATION_QUEUE_IS_ENABLED: z

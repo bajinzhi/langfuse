@@ -193,7 +193,10 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                     <FormItem>
                       <FormLabel>{t("playground.dialog.name")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., get_weather" {...field} />
+                        <Input
+                          placeholder={t("playground.dialog.namePlaceholder")}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -228,9 +231,7 @@ export const CreateOrEditLLMSchemaDialog: React.FC<
                   name="schema"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        {t("playground.dialog.jsonSchema")}
-                      </FormLabel>
+                      <FormLabel>{t("playground.dialog.jsonSchema")}</FormLabel>
                       <FormDescription>
                         {t("playground.dialog.jsonSchemaDescription")}{" "}
                         <a

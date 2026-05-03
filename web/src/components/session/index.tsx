@@ -15,7 +15,13 @@ import { usdFormatter } from "@/src/utils/numbers";
 import { getNumberFromMap } from "@/src/utils/map-utils";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { AnnotateDrawer } from "@/src/features/scores/components/AnnotateDrawer";
 import { Button } from "@/src/components/ui/button";
@@ -117,9 +123,7 @@ export function SessionUsers({
           rel="noopener noreferrer"
         >
           <Badge className="max-w-[300px]">
-            <span className="truncate">
-              {t("sessions.userId", { userId })}
-            </span>
+            <span className="truncate">{t("sessions.userId", { userId })}</span>
             <ExternalLinkIcon className="ml-1 h-3 w-3" />
           </Badge>
         </Link>
@@ -133,7 +137,9 @@ export function SessionUsers({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[300px]">
-            <Label className="text-base capitalize">{t("sessions.users")}</Label>
+            <Label className="text-base capitalize">
+              {t("sessions.users")}
+            </Label>
             <ScrollArea className="h-[300px]">
               <div className="flex flex-col gap-2 p-2">
                 {remainingUsers
@@ -641,7 +647,10 @@ export const SessionEventsPage: React.FC<{
     [t],
   );
   const sessionEventsFilterConfig = React.useMemo(() => {
-    const observationEventsFilterConfig = getObservationEventsFilterConfig([], t);
+    const observationEventsFilterConfig = getObservationEventsFilterConfig(
+      [],
+      t,
+    );
     return {
       ...observationEventsFilterConfig,
       tableName: sessionEventsTableName,
@@ -814,6 +823,18 @@ export const SessionEventsPage: React.FC<{
     [queryFilter, viewControllers],
   );
 
+  const localizedSystemFilterPresets = useMemo(
+    () =>
+      SESSION_DETAIL_SYSTEM_PRESETS.map((preset) => ({
+        ...preset,
+        name: t(preset.nameKey),
+        description: preset.descriptionKey
+          ? t(preset.descriptionKey)
+          : preset.description,
+      })),
+    [t],
+  );
+
   useEffect(() => {
     if (defaultPresetAppliedRef.current) return;
     if (isViewLoading) return; // Wait for view manager to initialize
@@ -962,7 +983,7 @@ export const SessionEventsPage: React.FC<{
               columnVisibility,
               searchQuery: "",
             }}
-            systemFilterPresets={SESSION_DETAIL_SYSTEM_PRESETS}
+            systemFilterPresets={localizedSystemFilterPresets}
           />
 
           {/* Filter Builder */}
@@ -1069,6 +1090,7 @@ export const SessionIO = ({
   timestamp: Date;
   showCorrections: boolean;
 }) => {
+  const { t } = useI18n();
   const trace = api.traces.byId.useQuery(
     { traceId, projectId, timestamp },
     {
@@ -1113,7 +1135,7 @@ export const SessionIO = ({
         />
       ) : (
         <div className="text-muted-foreground p-2 text-xs">
-          This trace has no input or output.
+          {t("trace.noInputOrOutput")}
         </div>
       )}
     </div>

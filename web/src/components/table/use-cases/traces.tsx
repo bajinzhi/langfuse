@@ -320,7 +320,16 @@ export default function TracesTable({
         environmentFilterOptions.data?.map((value) => value.environment) ??
         undefined,
       level: ["DEFAULT", "DEBUG", "WARNING", "ERROR"],
-      bookmarked: ["Bookmarked", "Not bookmarked"],
+      bookmarked: [
+        {
+          value: "Bookmarked",
+          displayValue: t("observability.filters.bookmarkedTrue"),
+        },
+        {
+          value: "Not bookmarked",
+          displayValue: t("observability.filters.bookmarkedFalse"),
+        },
+      ],
       userId:
         traceFilterOptionsResponse.data?.users?.map((u) => ({
           value: u.value,
@@ -341,7 +350,7 @@ export default function TracesTable({
       score_categories: scoreCategories,
       scores_avg: scoresNumeric,
     };
-  }, [environmentFilterOptions.data, traceFilterOptionsResponse.data]);
+  }, [environmentFilterOptions.data, traceFilterOptionsResponse.data, t]);
 
   const isSidebarFilterLoading =
     traceFilterOptionsResponse.isPending || environmentFilterOptions.isPending;
@@ -1214,7 +1223,10 @@ export default function TracesTable({
       itemType: "TRACE" as const,
       detailNavigationKey: "traces",
       peekEventOptions: {
-        ignoredSelectors: ['[role="checkbox"]', '[aria-label="bookmark"]'],
+        ignoredSelectors: [
+          '[role="checkbox"]',
+          '[data-row-click-ignore="bookmark"]',
+        ],
       },
       ...peekNavigationProps,
     };

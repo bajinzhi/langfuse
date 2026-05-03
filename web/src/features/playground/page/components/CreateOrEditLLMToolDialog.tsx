@@ -193,7 +193,10 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
                     <FormItem>
                       <FormLabel>{t("playground.dialog.name")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., get_weather" {...field} />
+                        <Input
+                          placeholder={t("playground.dialog.namePlaceholder")}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -235,9 +238,7 @@ export const CreateOrEditLLMToolDialog: React.FC<CreateOrEditLLMToolDialog> = (
                         {t("playground.dialog.parametersJsonSchema")}
                       </FormLabel>
                       <FormDescription>
-                        {t(
-                          "playground.dialog.toolParametersDescription",
-                        )}{" "}
+                        {t("playground.dialog.toolParametersDescription")}{" "}
                         <a
                           href="https://json-schema.org/learn/miscellaneous-examples"
                           target="_blank"

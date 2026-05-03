@@ -60,7 +60,8 @@ export function proxy(request: NextRequest) {
     locale: preferredLocale,
     currentLocale,
     hasExplicitNonDefaultLocale:
-      explicitLocale !== null && explicitLocale !== DEFAULT_LOCALE,
+      currentLocale !== DEFAULT_LOCALE ||
+      (explicitLocale !== null && explicitLocale !== DEFAULT_LOCALE),
   });
 
   if (!redirectPath) {

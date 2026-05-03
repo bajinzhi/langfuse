@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/src/components/ui/button";
-import { Code2, Wand2, Cog, Zap } from "lucide-react";
+import { Code2, Wand2, Cog, Zap, Table2 } from "lucide-react";
 import { api } from "@/src/utils/api";
 import {
   Card,
@@ -19,8 +19,12 @@ import {
 } from "@/src/components/ui/dialog";
 import Link from "next/link";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
-import { type CreateExperiment } from "@/src/features/experiments/types";
+import {
+  type CreateExperiment,
+  type ExperimentRunCallbackData,
+} from "@/src/features/experiments/types";
 import { MultiStepExperimentForm } from "@/src/features/experiments/components/MultiStepExperimentForm";
+import { PromptfooMatrixForm } from "@/src/features/promptfoo/components/PromptfooMatrixForm";
 import { RemoteExperimentUpsertForm } from "@/src/features/experiments/components/RemoteExperimentUpsertForm";
 import { RemoteExperimentTriggerModal } from "@/src/features/experiments/components/RemoteExperimentTriggerModal";
 import { Skeleton } from "@/src/components/ui/skeleton";
@@ -42,23 +46,14 @@ export const CreateExperimentsForm = ({
     name: string;
     version: number;
   };
-  handleExperimentSuccess?: (data?: {
-    success: boolean;
-    datasetId: string;
-    runId: string;
-    runName: string;
-  }) => Promise<void>;
-  handleExperimentSettled?: (data?: {
-    success: boolean;
-    datasetId: string;
-    runId: string;
-    runName: string;
-  }) => Promise<void>;
+  handleExperimentSuccess?: (data?: ExperimentRunCallbackData) => Promise<void>;
+  handleExperimentSettled?: (data?: ExperimentRunCallbackData) => Promise<void>;
   showSDKRunInfoPage?: boolean;
 }) => {
   const capture = usePostHogClientCapture();
   const { t } = useI18n();
   const [showPromptForm, setShowPromptForm] = useState(false);
+  const [showPromptfooMatrixForm, setShowPromptfooMatrixForm] = useState(false);
   const [showRemoteExperimentUpsertForm, setShowRemoteExperimentUpsertForm] =
     useState(false);
   const [
@@ -93,6 +88,7 @@ export const CreateExperimentsForm = ({
   if (
     showSDKRunInfoPage &&
     !showPromptForm &&
+    !showPromptfooMatrixForm &&
     !showRemoteExperimentUpsertForm &&
     !showRemoteExperimentTriggerModal
   ) {
@@ -113,7 +109,7 @@ export const CreateExperimentsForm = ({
           </DialogDescription>
         </DialogHeader>
         <DialogBody className="pb-8">
-          <div className="mt-4 grid grid-cols-2 grid-rows-1 gap-2">
+          <div className="mt-4 grid grid-cols-1 gap-2 lg:grid-cols-3">
             <Card className="flex flex-1 flex-col">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
@@ -149,6 +145,33 @@ export const CreateExperimentsForm = ({
                   <Link href="https://langfuse.com/docs/evaluation/dataset-runs/native-run">
                     {t("experiments.entry.viewDocs")}
                   </Link>
+                </Button>
+              </CardFooter>
+            </Card>
+
+            <Card className="flex flex-1 flex-col">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Table2 className="size-4" />
+                  {t("experiments.entry.viaPromptfoo")}
+                </CardTitle>
+                <CardDescription>
+                  {t("experiments.entry.promptfooDescription")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="text-muted-foreground list-disc space-y-2 pl-4 text-sm">
+                  <li>{t("experiments.entry.promptfooMatrix")}</li>
+                  <li>{t("experiments.entry.promptfooAssertions")}</li>
+                  <li>{t("experiments.entry.promptfooReport")}</li>
+                </ul>
+              </CardContent>
+              <CardFooter className="mt-auto">
+                <Button
+                  className="w-full"
+                  onClick={() => setShowPromptfooMatrixForm(true)}
+                >
+                  {t("experiments.entry.configureMatrix")}
                 </Button>
               </CardFooter>
             </Card>
@@ -252,6 +275,21 @@ export const CreateExperimentsForm = ({
         datasetId={datasetId}
         existingRemoteExperiment={existingRemoteExperiment.data}
         setShowRemoteExperimentUpsertForm={setShowRemoteExperimentUpsertForm}
+      />
+    );
+  }
+
+  if (showPromptfooMatrixForm) {
+    return (
+      <PromptfooMatrixForm
+        projectId={projectId}
+        setFormOpen={setFormOpen}
+        defaultValues={{
+          datasetId: defaultValues.datasetId,
+          promptIds: defaultValues.promptId ? [defaultValues.promptId] : [],
+        }}
+        handleExperimentSettled={handleExperimentSettled}
+        handleExperimentSuccess={handleExperimentSuccess}
       />
     );
   }

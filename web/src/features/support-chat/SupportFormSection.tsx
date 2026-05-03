@@ -8,8 +8,12 @@ import {
   SEVERITIES,
   INTEGRATION_TYPES,
   TopicGroups,
+  createSupportFormSchema,
+  type IntegrationType,
   type MessageType,
-  SupportFormSchema,
+  type Severity,
+  type SupportFormSchema,
+  type Topic,
 } from "./formConstants";
 
 import { api } from "@/src/utils/api";
@@ -49,6 +53,7 @@ import { useI18n } from "@/src/features/i18n";
 /** Make RHF generics match the resolver (Zod defaults => input can be undefined) */
 type SupportFormInput = z.input<typeof SupportFormSchema>;
 type SupportFormValues = z.output<typeof SupportFormSchema>;
+type Translate = ReturnType<typeof useI18n>["t"];
 
 /**
  * File upload constraints - single source of truth for validation
@@ -64,7 +69,10 @@ const FILE_UPLOAD_CONSTRAINTS = {
  * Validates files against upload constraints
  * @returns {isValid: boolean, error?: string}
  */
-function validateFiles(files: File[] | undefined): {
+function validateFiles(
+  files: File[] | undefined,
+  t: Translate,
+): {
   isValid: boolean;
   error?: string;
 } {
@@ -79,7 +87,7 @@ function validateFiles(files: File[] | undefined): {
   if (files.length > maxFiles) {
     return {
       isValid: false,
-      error: `Please upload at most ${maxFiles} files.`,
+      error: t("support.upload.maxFiles", { maxFiles }),
     };
   }
 
@@ -89,7 +97,10 @@ function validateFiles(files: File[] | undefined): {
     const maxMB = (maxFileSizeBytes / (1024 * 1024)).toFixed(0);
     return {
       isValid: false,
-      error: `File "${oversizedFile.name}" is too large. Maximum file size is ${maxMB}MB per file.`,
+      error: t("support.upload.fileTooLargeWithName", {
+        fileName: oversizedFile.name,
+        maxMB,
+      }),
     };
   }
 
@@ -100,7 +111,7 @@ function validateFiles(files: File[] | undefined): {
     const maxMB = (maxCombinedBytes / (1024 * 1024)).toFixed(0);
     return {
       isValid: false,
-      error: `Total attachment size (${totalMB}MB) exceeds the limit of ${maxMB}MB.`,
+      error: t("support.upload.totalTooLarge", { totalMB, maxMB }),
     };
   }
 
@@ -110,7 +121,7 @@ function validateFiles(files: File[] | undefined): {
 /**
  * Converts technical file error messages to user-friendly ones
  */
-function formatFileError(error: Error): string {
+function formatFileError(error: Error, t: Translate): string {
   const msg = error.message.toLowerCase();
   const { maxFiles, maxFileSizeBytes, maxCombinedBytes } =
     FILE_UPLOAD_CONSTRAINTS;
@@ -124,7 +135,7 @@ function formatFileError(error: Error): string {
     msg.includes("10mb") ||
     msg.includes("too large")
   ) {
-    return `File is too large. Maximum file size is ${maxMB}MB per file.`;
+    return t("support.upload.fileTooLarge", { maxMB });
   }
 
   // File count errors
@@ -133,20 +144,20 @@ function formatFileError(error: Error): string {
     msg.includes("maxfiles") ||
     msg.includes("5 files")
   ) {
-    return `Too many files. Maximum ${maxFiles} files allowed.`;
+    return t("support.upload.tooManyFiles", { maxFiles });
   }
 
   // Combined size errors
   if (msg.includes("total") && (msg.includes("50mb") || msg.includes("size"))) {
-    return `Total attachment size exceeds limit. Maximum combined size is ${maxCombinedMB}MB.`;
+    return t("support.upload.totalLimit", { maxMB: maxCombinedMB });
   }
 
   // File type errors
   if (msg.includes("file type") || msg.includes("accept")) {
-    return "File type not supported. Please select a different file.";
+    return t("support.upload.fileTypeUnsupported");
   }
 
-  return error.message || "File upload failed. Please try again.";
+  return error.message || t("support.upload.failed");
 }
 
 export function SupportFormSection({
@@ -158,6 +169,67 @@ export function SupportFormSection({
 }) {
   const { t } = useI18n();
   const { organization, project } = useQueryProjectOrOrganization();
+  const supportFormSchema = useMemo(() => createSupportFormSchema(t), [t]);
+  const messageTypeLabels = useMemo<Record<MessageType, string>>(
+    () => ({
+      Question: t("support.messageType.question"),
+      Feedback: t("support.messageType.feedback"),
+      Bug: t("support.messageType.bug"),
+    }),
+    [t],
+  );
+  const severityLabels = useMemo<Record<Severity, string>>(
+    () => ({
+      "Question or feature request": t(
+        "support.severity.questionOrFeatureRequest",
+      ),
+      "Feature not working as expected": t(
+        "support.severity.featureNotWorkingAsExpected",
+      ),
+      "Feature is not working at all": t(
+        "support.severity.featureNotWorkingAtAll",
+      ),
+      "Outage, data loss, or data breach": t(
+        "support.severity.outageDataLossOrBreach",
+      ),
+    }),
+    [t],
+  );
+  const topicLabels = useMemo<Record<Topic, string>>(
+    () => ({
+      "Account Changes": t("support.topic.accountChanges"),
+      "Account Deletion": t("support.topic.accountDeletion"),
+      "Billing / Usage": t("support.topic.billingUsage"),
+      "Inviting Users": t("support.topic.invitingUsers"),
+      "Set Up SSO": t("support.topic.setUpSso"),
+      "Slack Connect Channel": t("support.topic.slackConnectChannel"),
+      Observability: t("support.topic.observability"),
+      "Prompt Management": t("support.topic.promptManagement"),
+      Evaluation: t("support.topic.evaluation"),
+      Platform: t("support.topic.platform"),
+      Other: t("support.topic.other"),
+    }),
+    [t],
+  );
+  const integrationTypeLabels = useMemo<Record<IntegrationType, string>>(
+    () => ({
+      "Python SDK": t("support.integration.pythonSdk"),
+      "TypeScript SDK": t("support.integration.typescriptSdk"),
+      "Other SDK": t("support.integration.otherSdk"),
+      "Public API": t("support.integration.publicApi"),
+      "OpenAI SDK": t("support.integration.openaiSdk"),
+      "Vercel AI SDK": t("support.integration.vercelAiSdk"),
+      LangChain: t("support.integration.langChain"),
+      LangGraph: t("support.integration.langGraph"),
+      "OTel Instrumentation": t("support.integration.otelInstrumentation"),
+      "LLM Proxy (LiteLLM)": t("support.integration.llmProxy"),
+      "3rd Party (Dify / LangFlow / Flowise)": t(
+        "support.integration.thirdParty",
+      ),
+      "Other (please specify)": t("support.integration.otherPleaseSpecify"),
+    }),
+    [t],
+  );
 
   // Tracks whether we've already warned about a short message
   const [warnedShortOnce, setWarnedShortOnce] = useState(false);
@@ -173,7 +245,7 @@ export function SupportFormSection({
   const [isSubmittingLocal, setIsSubmittingLocal] = useState(false);
 
   const form = useForm<SupportFormInput>({
-    resolver: zodResolver(SupportFormSchema),
+    resolver: zodResolver(supportFormSchema),
     defaultValues: {
       messageType: "Question" as MessageType,
       severity: "Question or feature request",
@@ -201,8 +273,8 @@ export function SupportFormSection({
       setFiles(undefined);
       if (data.pylonIssueFailed) {
         showErrorToast(
-          "Support request was not sent",
-          "Please contact support@langfuse.com",
+          t("support.requestNotSent"),
+          t("support.contactSupportEmail"),
         );
       } else {
         onSuccess();
@@ -215,8 +287,8 @@ export function SupportFormSection({
     onError: (error) => {
       setIsSubmittingLocal(false);
       showErrorToast(
-        "Upload Preparation Failed",
-        error.message || "Failed to prepare file uploads. Please try again.",
+        t("support.upload.prepareFailed"),
+        error.message || t("support.upload.prepareFailedDescription"),
         "ERROR",
       );
     },
@@ -262,8 +334,7 @@ export function SupportFormSection({
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       throw new Error(
-        (body as { error?: string }).error ??
-          "Failed to upload attachments to Pylon.",
+        (body as { error?: string }).error ?? t("support.upload.pylonFailed"),
       );
     }
 
@@ -272,7 +343,7 @@ export function SupportFormSection({
   }
 
   const onSubmit = async (values: SupportFormInput) => {
-    const parsed: SupportFormValues = SupportFormSchema.parse(values);
+    const parsed: SupportFormValues = supportFormSchema.parse(values);
     const msgLen = (parsed.message ?? "").trim().length;
 
     if (msgLen < 50 && !warnedShortOnce) {
@@ -284,7 +355,7 @@ export function SupportFormSection({
       setIsSubmittingLocal(true);
 
       // Validate files using centralized validation function
-      const validation = validateFiles(files);
+      const validation = validateFiles(files, t);
       if (!validation.isValid) {
         throw new Error(validation.error);
       }
@@ -309,7 +380,7 @@ export function SupportFormSection({
         const plainUploadPromise = Promise.all(
           files.map(async (file, idx) => {
             const plan = uploadPlans.uploads[idx];
-            if (!plan) throw new Error("Missing upload plan for a file.");
+            if (!plan) throw new Error(t("support.upload.missingPlan"));
             await uploadToPlainS3(
               plan.uploadFormUrl,
               plan.uploadFormData,
@@ -411,7 +482,7 @@ export function SupportFormSection({
                         size="default"
                         onClick={() => field.onChange(v)}
                       >
-                        <span className="truncate">{v}</span>
+                        <span className="truncate">{messageTypeLabels[v]}</span>
                       </Button>
                     ))}
                   </RadioGroup>
@@ -441,7 +512,7 @@ export function SupportFormSection({
                     <SelectContent>
                       {SEVERITIES.map((s) => (
                         <SelectItem key={s} value={s}>
-                          {s}
+                          {severityLabels[s]}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -474,9 +545,9 @@ export function SupportFormSection({
                         <div className="text-muted-foreground mb-2 text-xs font-medium">
                           {t("support.group.productFeatures")}
                         </div>
-                        {TopicGroups["Product Features"].map((t) => (
-                          <SelectItem key={t} value={t}>
-                            {t}
+                        {TopicGroups["Product Features"].map((topic) => (
+                          <SelectItem key={topic} value={topic}>
+                            {topicLabels[topic]}
                           </SelectItem>
                         ))}
                       </div>
@@ -484,9 +555,9 @@ export function SupportFormSection({
                         <div className="text-muted-foreground mb-2 text-xs font-medium">
                           {t("support.group.operations")}
                         </div>
-                        {TopicGroups.Operations.map((t) => (
-                          <SelectItem key={t} value={t}>
-                            {t}
+                        {TopicGroups.Operations.map((topic) => (
+                          <SelectItem key={topic} value={topic}>
+                            {topicLabels[topic]}
                           </SelectItem>
                         ))}
                       </div>
@@ -505,9 +576,7 @@ export function SupportFormSection({
               name="integrationType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    {t("support.form.integrationType")}
-                  </FormLabel>
+                  <FormLabel>{t("support.form.integrationType")}</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
@@ -520,7 +589,7 @@ export function SupportFormSection({
                       <SelectContent>
                         {INTEGRATION_TYPES.map((it) => (
                           <SelectItem key={it} value={it}>
-                            {it}
+                            {integrationTypeLabels[it]}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -581,7 +650,7 @@ export function SupportFormSection({
                     })
                   }
                   onError={(error) => {
-                    const userMessage = formatFileError(error);
+                    const userMessage = formatFileError(error, t);
                     showErrorToast(
                       t("support.fileUploadError"),
                       userMessage,
@@ -596,7 +665,10 @@ export function SupportFormSection({
                       <Paperclip className="h-4 w-4" />
                       <span className="truncate">
                         {hasFiles
-                          ? `${files!.length} file${files!.length > 1 ? "s" : ""} • ${totalMB} MB`
+                          ? t("support.filesSummary", {
+                              count: files!.length,
+                              totalMB,
+                            })
                           : t("support.attachFiles")}
                       </span>
                     </div>

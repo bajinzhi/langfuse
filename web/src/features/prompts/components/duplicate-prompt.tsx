@@ -38,7 +38,7 @@ enum CopySettings {
 }
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1),
   isCopySingleVersion: z.enum(CopySettings),
 });
 

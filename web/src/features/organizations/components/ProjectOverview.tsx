@@ -92,9 +92,7 @@ const DemoOrganizationTile = () => {
       <CardHeader>
         <CardTitle>{t("organizations.demo.title")}</CardTitle>
       </CardHeader>
-      <CardContent>
-        {t("organizations.demo.description")}
-      </CardContent>
+      <CardContent>{t("organizations.demo.description")}</CardContent>
       <CardFooter>
         <Button asChild variant="secondary">
           <Link
@@ -349,20 +347,21 @@ export const OrganizationProjectOverview = () => {
 };
 
 const Onboarding = () => {
+  const { t } = useI18n();
   const session = useSession();
   const canCreateOrgs = session.data?.user?.canCreateOrganizations;
   return (
     <Card className="mt-5">
       <CardHeader>
         <CardTitle data-testid="create-new-project-title">
-          Get Started
+          {t("organizations.getStarted")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <CardDescription>
           {canCreateOrgs
-            ? "Create an organization to get started. Alternatively, ask your organization admin to invite you."
-            : "You need to get invited to an organization to get started with Langfuse."}
+            ? t("organizations.getStartedCreateOrg")
+            : t("organizations.getStartedInviteRequired")}
         </CardDescription>
       </CardContent>
       <CardFooter className="flex gap-4">
@@ -370,20 +369,20 @@ const Onboarding = () => {
           <Button data-testid="create-project-btn" asChild>
             <Link href={createOrganizationRoute}>
               <PlusIcon className="mr-2 h-4 w-4" aria-hidden="true" />
-              New Organization
+              {t("organizations.newOrganization")}
             </Link>
           </Button>
         )}
         <Button variant="secondary" asChild>
           <Link href="https://langfuse.com/docs" target="_blank">
             <BookOpen className="mr-2 h-4 w-4" aria-hidden="true" />
-            Docs
+            {t("common.docs")}
           </Link>
         </Button>
         <Button variant="secondary" asChild>
           <Link href="https://langfuse.com/docs/ask-ai" target="_blank">
             <MessageSquareText className="mr-2 h-4 w-4" aria-hidden="true" />
-            Ask AI
+            {t("common.askAi")}
           </Link>
         </Button>
       </CardFooter>

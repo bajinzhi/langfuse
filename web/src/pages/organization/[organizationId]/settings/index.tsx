@@ -35,6 +35,7 @@ export function useOrganizationSettingsPages(): OrganizationSettingsPage[] {
   const showBillingSettings = useHasEntitlement("cloud-billing");
   const showOrgApiKeySettings = useHasEntitlement("admin-api");
   const showAuditLogs = useHasEntitlement("audit-logs");
+  const showSsoSettings = useHasEntitlement("cloud-multi-tenant-sso");
   const plan = usePlan();
   const isLangfuseCloud = isCloudPlan(plan) ?? false;
   const isCloudBillingAvailable = useIsCloudBillingAvailable();
@@ -47,7 +48,7 @@ export function useOrganizationSettingsPages(): OrganizationSettingsPage[] {
     showBillingSettings: showBillingSettings && isCloudBillingAvailable,
     showOrgApiKeySettings,
     showAuditLogs,
-    isLangfuseCloud,
+    showSsoSettings: isLangfuseCloud && showSsoSettings,
     t,
   });
 }
@@ -57,14 +58,14 @@ export const getOrganizationSettingsPages = ({
   showBillingSettings,
   showOrgApiKeySettings,
   showAuditLogs,
-  isLangfuseCloud,
+  showSsoSettings,
   t,
 }: {
   organization: { id: string; name: string; metadata: Record<string, unknown> };
   showBillingSettings: boolean;
   showOrgApiKeySettings: boolean;
   showAuditLogs: boolean;
-  isLangfuseCloud: boolean;
+  showSsoSettings: boolean;
   t: Translate;
 }): OrganizationSettingsPage[] => [
   {
@@ -146,7 +147,7 @@ export const getOrganizationSettingsPages = ({
     slug: "sso",
     cmdKKeywords: ["sso", "login", "auth", "okta", "saml", "azure"],
     content: <SSOSettings />,
-    show: isLangfuseCloud,
+    show: showSsoSettings,
   },
   {
     title: t("settings.organization.projects"),

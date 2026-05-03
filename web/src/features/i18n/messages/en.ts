@@ -136,6 +136,7 @@ export const enMessages = {
   "auth.provider.workosConnection": "WorkOS (connection)",
   "auth.provider.workosOrganization": "WorkOS (organization)",
   "auth.hfSpaces.headTitle": "Langfuse on Hugging Face",
+  "auth.hfSpaces.huggingFaceLogoAlt": "Hugging Face Logo",
   "auth.hfSpaces.openInNewTab": "Open in new tab",
   "auth.hfSpaces.spaceHost": "HF Space Host",
   "auth.sso.initiateFailed":
@@ -167,6 +168,16 @@ export const enMessages = {
   "auth.signUp.metaDescription": "Create an account, no credit card required.",
   "auth.signUp.noCreditCard": "No credit card required.",
   "auth.signUp.title": "Create new account",
+  "auth.cloudPrivacy.action.createAccount": "creating an account",
+  "auth.cloudPrivacy.action.signIn": "signing in",
+  "auth.cloudPrivacy.and": ", and",
+  "auth.cloudPrivacy.cookies": "Cookie Policy",
+  "auth.cloudPrivacy.prefix": "By {action} you are agreeing to our",
+  "auth.cloudPrivacy.privacy": "Privacy Policy",
+  "auth.cloudPrivacy.separator": ",",
+  "auth.cloudPrivacy.suffix":
+    ". You also confirm that the entered data is accurate.",
+  "auth.cloudPrivacy.terms": "Terms and Conditions",
   "automations.action.description":
     "Configure what happens when the trigger fires.",
   "automations.action.title": "Action",
@@ -218,15 +229,25 @@ export const enMessages = {
   "automations.github.eventType": "Event Type",
   "automations.github.eventTypeDescription":
     "Event type for GitHub Actions workflow triggers. This will be used in the {code} filter in your workflow file.",
+  "automations.github.eventTypePlaceholder": "prompt-update",
   "automations.github.learnMore": "Learn more",
   "automations.github.patDescription":
     "GitHub PAT with {code} scope for repository dispatch.",
   "automations.github.repositoryDispatchUrl": "Repository Dispatch URL",
   "automations.github.repositoryDispatchUrlDescription":
     "GitHub API endpoint for repository dispatch.",
+  "automations.github.repositoryDispatchUrlPlaceholder":
+    "https://api.github.com/repos/owner/repo/dispatches",
   "automations.github.token": "GitHub Personal Access Token",
   "automations.github.tokenKeepExisting": "Leave empty to keep existing token.",
+  "automations.failureBanner.description":
+    "Check the execution history below, fix any issues with your webhook endpoint, then reactivate the automation.",
+  "automations.failureBanner.title":
+    "This automation was automatically disabled due to at least {count} consecutive webhook failures.",
+  "automations.loading": "Loading automations...",
   "automations.loadingDetails": "Loading automation details...",
+  "automations.emptyConfigured":
+    "No automations configured. Create your first automation to streamline workflows.",
   "automations.moreComingSoon": "More coming soon...",
   "automations.permissionDenied": "Permission Denied",
   "automations.permissionDeniedDescription":
@@ -289,6 +310,7 @@ export const enMessages = {
   "automations.webhook.url": "Webhook URL",
   "automations.webhook.urlDescription":
     "The HTTP URL to call when the trigger fires. We will send a POST request to this URL. Only HTTPS URLs are allowed for security.",
+  "automations.webhook.urlPlaceholder": "https://example.com/webhook",
   "automations.webhook.value": "Value",
   "automations.webhookNotFound.back": "Back to Webhooks",
   "automations.webhookNotFound.edit":
@@ -303,6 +325,7 @@ export const enMessages = {
   "annotationQueues.completedAt": "Completed At",
   "annotationQueues.completedBy": "Completed by",
   "annotationQueues.completedItems": "Completed Items",
+  "annotationQueues.currentlyEditedBy": "Currently edited by {name}",
   "annotationQueues.createDescription":
     "Create a new queue to manage your annotation workflows.",
   "annotationQueues.createQueue": "Create queue",
@@ -343,6 +366,8 @@ export const enMessages = {
   "annotationQueues.nameExists": "Queue name already exists.",
   "annotationQueues.newQueue": "New queue",
   "annotationQueues.newTitle": "New annotation queue",
+  "annotationQueues.nonAnnotationScoresHint":
+    "API and eval scores are visible when toggling on the detailed view. Add manual annotations above.",
   "annotationQueues.noMoreItems": "No more items left to annotate!",
   "annotationQueues.noQueuesDefined": "No queues defined",
   "annotationQueues.observationLabel": "Observation: {id}",
@@ -435,25 +460,43 @@ export const enMessages = {
   "batchActions.addingObservationsTitle": "Adding Observations to Dataset",
   "batchActions.addingObservationsStatus":
     "Adding {count} observations to {name}",
+  "batchActions.addingDots": "Adding...",
+  "batchActions.addObservationsDialogTitle":
+    "Add {count} Observation(s) to dataset",
+  "batchActions.addToDataset": "Add to Dataset",
   "batchActions.backgroundNoticePrefix":
     "You can safely close this dialog. The action is running in the background and you can track its progress in the",
   "batchActions.backgroundNoticeLink": "batch actions table",
   "batchActions.backToTemplateSelection": "Back to template selection",
+  "batchActions.bulkActionStatus": "Your bulk action status",
   "batchActions.chooseExistingDataset":
     "Choose an existing dataset to add your observations to",
+  "batchActions.chooseWhereAddObservations":
+    "Choose where to add your observations",
   "batchActions.completedWithIssues": "Completed with Issues",
   "batchActions.createDatasetDescription":
     "Fill in the details to create a new dataset",
   "batchActions.createDatasetForObservations":
     "Create a new dataset for these observations",
   "batchActions.createNewDataset": "Create New Dataset",
+  "batchActions.createAndContinue": "Create & Continue",
+  "batchActions.creatingDots": "Creating...",
   "batchActions.createNewEvaluator": "Create new Evaluator",
+  "batchActions.customMapping": "Custom mapping",
   "batchActions.createEvaluatorForBatchedRuns":
     "Create Evaluator for batched {target} runs",
   "batchActions.createEvaluatorForBatchedRunsDescription":
     "This form creates an evaluator for batched {target} runs.",
   "batchActions.clearEvaluatorSearch": "Clear evaluator search",
   "batchActions.continue": "Continue",
+  "batchActions.configureDatasetItemExpectedOutputMapping":
+    "Configure dataset item expected output mapping",
+  "batchActions.configureDatasetItemField":
+    "Configure how observation data maps to the Dataset Item {field}.",
+  "batchActions.configureDatasetItemInputMapping":
+    "Configure dataset item input mapping",
+  "batchActions.configureDatasetItemMetadataMapping":
+    "Configure dataset item metadata mapping",
   "batchActions.columns.actionType": "Action Type",
   "batchActions.columns.created": "Created",
   "batchActions.columns.createdBy": "Created By",
@@ -478,6 +521,8 @@ export const enMessages = {
   "batchActions.evaluateSelected": "Evaluate {count} {scope}(s)",
   "batchActions.evaluatorMappingInvalid":
     "Evaluator mapping is not valid for observation preview.",
+  "batchActions.evaluatorPromptPreview":
+    "Prompt preview with the first selected observation",
   "batchActions.evaluatorCreated": "Evaluator created",
   "batchActions.evaluatorCreatedDescription":
     "Select it in the previous step to run it on selected items.",
@@ -494,8 +539,14 @@ export const enMessages = {
   "batchActions.failedCount": "{count} failed",
   "batchActions.failedToLoadEvaluators": "Failed to load evaluators: {message}",
   "batchActions.failedToLoadTemplates": "Failed to load templates: {message}",
+  "batchActions.fullObservationField": "Full observation {field}",
+  "batchActions.fullObservationInput": "Full observation input",
+  "batchActions.fullObservationMetadata": "Full observation metadata",
+  "batchActions.fullObservationOutput": "Full observation output",
   "batchActions.fromSchema": "(from schema)",
+  "batchActions.input": "Input",
   "batchActions.invalidJsonPath": "Invalid JSONPath:",
+  "batchActions.invalidJsonPathFallback": "Invalid JSONPath",
   "batchActions.invalidJsonPathMessage":
     'Invalid JSONPath "{jsonPath}": {message}',
   "batchActions.invalidJsonPathsTitle": "Some JSONPaths are invalid",
@@ -516,7 +567,11 @@ export const enMessages = {
   "batchActions.keyValueMappings": "Key-value mappings",
   "batchActions.keyValueMappingsDescription":
     "Build an object with custom keys. Values starting with $ are treated as JSONPaths.",
+  "batchActions.datasetItemField": "Dataset Item {field}",
+  "batchActions.expectedOutput": "Expected Output",
   "batchActions.literal": "literal",
+  "batchActions.literalValuePlaceholder": "literal value",
+  "batchActions.metadata": "Metadata",
   "batchActions.mappingsSkippedDescription":
     "Items using these mappings will be skipped during processing.",
   "batchActions.mappingKey": '(key: "{key}")',
@@ -528,6 +583,7 @@ export const enMessages = {
   "batchActions.noData": "No data",
   "batchActions.noEvaluatorsMatch": "No evaluators match your search.",
   "batchActions.noEvaluatorsSelected": "No evaluators selected",
+  "batchActions.noMatchFoundInSourceData": "No match found in source data",
   "batchActions.noScopedEvaluators":
     "No {scope}-scoped evaluators found. Create a new {scope}-scoped evaluator and it will appear here.",
   "batchActions.pathInvalidSyntaxCount":
@@ -549,6 +605,8 @@ export const enMessages = {
   "batchActions.resultDatasetItem": "Result: Dataset Item {field}",
   "batchActions.results": "Results",
   "batchActions.reviewConfiguration": "Review Configuration",
+  "batchActions.reviewAndConfirmConfiguration":
+    "Review and confirm your configuration",
   "batchActions.reviewEvaluationBeforeRunning":
     "Review your evaluation configuration before running.",
   "batchActions.root": "Root",
@@ -560,6 +618,7 @@ export const enMessages = {
   "batchActions.selectEvaluator": "Select {name}",
   "batchActions.selectDataset": "Select Dataset",
   "batchActions.selectDatasetPlaceholder": "Select dataset...",
+  "batchActions.selectExistingDataset": "Select an existing dataset",
   "batchActions.scopeExperiment": "experiment",
   "batchActions.scopeExperimentItem": "experiment item",
   "batchActions.scopeObservation": "observation",
@@ -660,14 +719,19 @@ export const enMessages = {
   "common.andSeparator": " and ",
   "common.close": "Close",
   "common.copied": "Copied",
+  "common.copiedBang": "Copied!",
+  "common.copy": "Copy",
   "common.copyToClipboard": "Copy to clipboard",
   "common.copyPrompt": "Copy prompt",
   "common.add": "Add",
   "common.accessDenied": "Access Denied",
   "common.analytics": "Analytics",
+  "common.askAi": "Ask AI",
   "common.audioUnsupported": "Your browser does not support the audio element.",
   "common.browserVideoUnsupported":
     "Your browser does not support the video element.",
+  "common.bookmark": "Bookmark",
+  "common.breadcrumb": "Breadcrumb",
   "common.buildingTree": "Building tree...",
   "common.cannotLoadImage": "Cannot load image. {reason}",
   "common.clear": "Clear",
@@ -684,6 +748,8 @@ export const enMessages = {
   "common.dropzoneUploadMultiple": "Upload files",
   "common.dropzoneUploadSingle": "Upload a file",
   "common.failedToCopy": "Failed to copy to clipboard",
+  "common.featureNotAvailableInPlan":
+    "This feature is not available in your current plan.",
   "common.filters": "Filters",
   "common.gettingStarted": "Getting Started",
   "common.hideDetails": "Hide details",
@@ -704,11 +770,21 @@ export const enMessages = {
   "common.markdownImage": "Markdown image",
   "common.mediaPreview": "Media preview",
   "common.more": "More",
+  "common.moreResultsRefineSearch":
+    "More results available, refine your search",
   "common.next": "Next",
   "common.finish": "Finish",
   "common.newVersion": "New Version",
   "common.noChanges": "No changes",
+  "common.noData": "No data",
+  "common.noOptionFound": "No option found.",
+  "common.noResultsAvailable": "No results available",
+  "common.noResultsForSearch": 'No results found for "{query}"',
+  "common.noResourceAccess":
+    "You do not have access to this resource, please ask your admin to grant you access.",
   "common.none": "None",
+  "common.objectNotFoundDeleted": "{type} not found. Likely deleted.",
+  "common.observation": "observation",
   "common.or": "or",
   "common.originalVersion": "Original Version",
   "common.pageOf": "Page {page} of {total}",
@@ -716,8 +792,13 @@ export const enMessages = {
   "common.previous": "Previous",
   "common.renderImage": "Render image",
   "common.retry": "Retry",
+  "common.resourceLimitReached":
+    "You have reached the limit ({current}/{max}) for this resource at your current plan. Upgrade your plan to increase the limit.",
   "common.skip": "Skip",
+  "common.session": "session",
+  "common.showAll": "Show all",
   "common.redirecting": "Redirecting...",
+  "common.trace": "trace",
   "common.toggleImageSize": "Toggle image size",
   "common.toggleSidebar": "Toggle Sidebar",
   "common.configure": "Configure",
@@ -735,10 +816,14 @@ export const enMessages = {
   "common.reset": "Reset",
   "common.save": "Save",
   "common.search": "Search",
+  "common.searchDots": "Search...",
   "common.select": "Select",
+  "common.selectOption": "Select option...",
   "common.selectPage": "Select a page",
   "common.selectTab": "Select a tab",
   "common.showDetails": "Show details",
+  "common.hidePassword": "Hide password",
+  "common.showPassword": "Show password",
   "common.showFileInline": "Show {name} inline",
   "common.sliderValue": "Slider value",
   "common.status": "Status",
@@ -746,8 +831,17 @@ export const enMessages = {
   "common.tabs": "Tabs",
   "common.unexpectedError": "An unexpected error occurred",
   "common.unknown": "Unknown",
+  "common.unknownUser": "Unknown user",
   "common.update": "Update",
   "common.userAvatar": "User Avatar",
+  "publishObject.privateDescription":
+    "This {item} is private. Only authorized project members can view this {item}.",
+  "publishObject.privateTitle": "{item} Private",
+  "publishObject.publicDescription":
+    "This {item} is public. Anyone with the link can view this {item}.",
+  "publishObject.share": "Share",
+  "publishObject.sharedTitle": "{item} Shared",
+  "publishObject.unshare": "Unshare",
   "comments.add": "Add comment",
   "comments.comment": "Comment",
   "comments.count": "{count} comments",
@@ -757,6 +851,17 @@ export const enMessages = {
   "comments.loading": "Loading comments...",
   "comments.locationTooltip": "The location of the text commented on",
   "comments.markdownSupport": "Markdown and @-mentions support",
+  "comments.moreUsers": "and {count} more...",
+  "editor.promptLint.emptyVariable": "Empty variable is not allowed",
+  "editor.promptLint.invalidPromptDependencyTagFormat":
+    "Invalid prompt dependency tag format",
+  "editor.promptLint.invalidVariableName":
+    "Variable must start with a letter and can only contain letters and underscores",
+  "editor.promptLint.malformedPromptDependencyTag":
+    "Malformed prompt dependency tag",
+  "editor.promptLint.unclosedVariableBrackets": "Unclosed variable brackets",
+  "editor.promptLint.variablesCannotSpanMultipleLines":
+    "Variables cannot span multiple lines",
   "comments.mentionAutocomplete": "Mention user autocomplete",
   "comments.mentionSuggestions": "User mention suggestions",
   "comments.newComment": "New comment",
@@ -1053,6 +1158,8 @@ export const enMessages = {
   "datasets.itemMissingDescription":
     "This dataset item does not exist or has been deleted.",
   "datasets.item": "Item",
+  "datasets.hideVersionHistory": "Hide Version History",
+  "datasets.itemUnchangedInThisVersion": "Item unchanged in this version",
   "datasets.items": "Items",
   "datasets.itemPath": "Path {path}",
   "datasets.label": "Datasets",
@@ -1073,10 +1180,13 @@ export const enMessages = {
   "datasets.lastRun": "Last Run",
   "datasets.latest": "Latest",
   "datasets.latestVersion": "Latest Version",
+  "datasets.showDiffWithLatestVersion": "Show diff with latest version",
+  "datasets.showVersionHistory": "Show Version History",
   "datasets.latency": "Latency",
   "datasets.latencyAvg": "Latency (avg)",
   "datasets.latencyAndCost": "Latency and cost",
   "datasets.loading": "Loading...",
+  "datasets.loadingAnnotationData": "Loading annotation data...",
   "datasets.maximumFileSize": "Maximum file size is 10MB",
   "datasets.name": "Name",
   "datasets.nameAlreadyExists": "Dataset name already exists.",
@@ -1156,6 +1266,8 @@ export const enMessages = {
     "Unarchiving an item will include it back in new dataset runs.",
   "datasets.unknownError": "Unknown error",
   "datasets.updateDataset": "Update dataset",
+  "datasets.uploadCsv": "Upload CSV",
+  "datasets.varies": "Varies",
   "datasets.versionActions": "Version actions",
   "datasets.version": "Dataset Version",
   "datasets.versionChanges": "{count} change{plural} since this version",
@@ -1414,11 +1526,13 @@ export const enMessages = {
   "evals.config.deactivate": "Deactivate",
   "evals.config.deactivateConfirm":
     "This action will deactivate the evaluator. No more traces will be evaluated based on this evaluator.",
+  "evals.configureEvaluator": "Configure Evaluator",
   "evals.detail.changeHistory": "Change history",
   "evals.detail.editMode": "Edit mode",
   "evals.detail.notFound": "Evaluator not found",
   "evals.detail.version": "Version",
   "evals.detail.viewOnly": "View only",
+  "evals.editEvaluator": "Edit Evaluator",
   "evals.logs.endTime": "End Time",
   "evals.logs.evaluator": "Evaluator",
   "evals.logs.executionTrace": "Execution Trace",
@@ -1429,6 +1543,7 @@ export const enMessages = {
   "evals.logs.status": "Status",
   "evals.logs.targetTrace": "Target Trace",
   "evals.logs.template": "Template",
+  "evals.manageEvaluators": "Manage Evaluators",
   "evals.evaluatorTable.createdAt": "Created At",
   "evals.evaluatorTable.editConfiguration": "Edit configuration",
   "evals.evaluatorTable.evalVersion": "Eval Version",
@@ -1755,6 +1870,11 @@ export const enMessages = {
   "evals.variables.failedExtract": "Failed to extract variable",
   "evals.variables.invalidJsonPath": "Invalid JSONPath in variable mapping",
   "evals.variables.unknownError": "Unknown error",
+  "feedback.description":
+    "What do you think about Langfuse? What can be improved? Please share it with the community on GitHub to shape the future of Langfuse.",
+  "feedback.provideFeedback": "Provide Feedback",
+  "feedback.reportBug": "Report a Bug",
+  "feedback.submitFeatureRequest": "Submit Feature Request",
   "experiments.dataset.basedOnPrompt": "Based on prompt {prompt} v{version}",
   "experiments.dataset.description":
     "Choose the dataset to run your experiment on. The dataset structure must match the prompt template variables.",
@@ -1791,6 +1911,12 @@ export const enMessages = {
   "experiments.entry.editRemoteTrigger": "Edit remote trigger settings",
   "experiments.entry.enableInSettings": "Enable in settings to run",
   "experiments.entry.run": "Run",
+  "experiments.entry.configureMatrix": "Configure matrix",
+  "experiments.entry.promptfooAssertions": "Promptfoo assertions and metrics",
+  "experiments.entry.promptfooDescription":
+    "Run Promptfoo-powered prompt and model matrices from Langfuse datasets.",
+  "experiments.entry.promptfooMatrix": "Prompt x model matrix execution",
+  "experiments.entry.promptfooReport": "Original Promptfoo report retained",
   "experiments.entry.sdkCustomEvaluation": "Custom evaluation logic",
   "experiments.entry.sdkDescription":
     "Start any dataset run via the Langfuse SDKs. To configure runs via webhook, use the button below.",
@@ -1803,6 +1929,7 @@ export const enMessages = {
   "experiments.entry.uiDescription":
     "Test single prompts and model configurations via Langfuse UI.",
   "experiments.entry.uiNoCode": "No code required",
+  "experiments.entry.viaPromptfoo": "via Promptfoo Matrix",
   "experiments.entry.viaSdkApi": "via SDK / API",
   "experiments.entry.viaUi": "via User Interface",
   "experiments.entry.viewDocs": "View Docs",
@@ -1832,6 +1959,53 @@ export const enMessages = {
   "experiments.grid.traceScores": "Trace Scores",
   "experiments.grid.type": "Type:",
   "experiments.grid.comparison": "Comp",
+  "promptfoo.matrix.addModel": "Add model",
+  "promptfoo.matrix.assertion": "Assertion",
+  "promptfoo.matrix.assertionValue": "Value",
+  "promptfoo.matrix.concurrency": "Concurrency",
+  "promptfoo.matrix.createFailed": "Failed to create Promptfoo matrix.",
+  "promptfoo.matrix.dataset": "Dataset",
+  "promptfoo.matrix.defaultName": "Promptfoo matrix",
+  "promptfoo.matrix.description":
+    "Select a dataset, prompt versions, and model configurations. Promptfoo evaluates the full matrix and writes scores back to Langfuse.",
+  "promptfoo.matrix.descriptionLabel": "Description",
+  "promptfoo.matrix.metricName": "Metric name",
+  "promptfoo.matrix.models": "Models",
+  "promptfoo.matrix.name": "Matrix name",
+  "promptfoo.matrix.prompts": "Prompt versions",
+  "promptfoo.matrix.run": "Run matrix",
+  "promptfoo.matrix.title": "Promptfoo Matrix",
+  "promptfoo.matrix.validation.callLimitExceeded":
+    "Promptfoo matrix would create {calls} model calls, above the {limit} limit.",
+  "promptfoo.matrix.validation.datasetEmpty":
+    "Selected dataset is empty or all items are inactive.",
+  "promptfoo.matrix.validation.datasetNotFound": "Selected dataset not found.",
+  "promptfoo.matrix.validation.modelConfigInvalid":
+    "One or more model configurations are invalid: {error}",
+  "promptfoo.matrix.validation.modelConfigInvalidGeneric":
+    "One or more model configurations are invalid.",
+  "promptfoo.matrix.validation.noMatchingItems":
+    "No dataset item matches the selected prompt variables.",
+  "promptfoo.matrix.validation.noMatchingItemsWithExpectedOutput":
+    "No dataset item matches the selected prompt variables and has an expected output.",
+  "promptfoo.matrix.validation.promptNotFound":
+    "One or more selected prompts could not be found.",
+  "promptfoo.matrix.validation.promptVariablesRequired":
+    "Every selected prompt must have variables or placeholders.",
+  "promptfoo.matrix.validation.reservedVariables":
+    "Promptfoo matrix prompts cannot use reserved variables: {variables}. Rename these prompt variables before running a matrix.",
+  "promptfoo.matrix.validation.variableMismatch":
+    "All selected prompts must use the same variables.",
+  "promptfoo.matrix.validationOk":
+    "{calls} model calls across {items} valid dataset items",
+  "promptfoo.report.failed": "Report failed: {error}",
+  "promptfoo.report.loading": "Loading report status...",
+  "promptfoo.report.open": "Open raw report",
+  "promptfoo.report.openHtml": "Open HTML report",
+  "promptfoo.report.openJson": "Open raw JSON",
+  "promptfoo.report.pending": "Report is not ready yet ({status})",
+  "promptfoo.report.title": "Promptfoo report",
+  "promptfoo.report.unknownError": "Unknown error",
   "experiments.overview.baseline": "Baseline",
   "experiments.overview.compareWith": "Compare with",
   "experiments.overview.description": "Description",
@@ -1955,6 +2129,9 @@ export const enMessages = {
   "experiments.display.list": "List",
   "experiments.display.title": "Display",
   "experiments.noExperimentsFound": "No experiments found",
+  "experiments.selectBaselineExperiment":
+    "Please select a baseline experiment.",
+  "experiments.targetExperiment": "Target Experiment",
   "experiments.remote.back": "← Back",
   "experiments.remote.changesSaved": "Your changes have been saved.",
   "experiments.remote.checkConfiguration":
@@ -2002,6 +2179,7 @@ export const enMessages = {
   "experiments.remote.url": "URL",
   "experiments.remote.urlDescription":
     "The URL that will be called when the remote dataset run is triggered.",
+  "experiments.remote.urlPlaceholder": "https://your-service.com/webhook",
   "experiments.searchExperiments": "Search experiments...",
   "experiments.selectBaseline": "Select baseline...",
   "experiments.validation.datasetRequired": "Please select a dataset",
@@ -2009,7 +2187,14 @@ export const enMessages = {
   "experiments.validation.nameExists":
     "Experiment name already exists for this dataset.",
   "experiments.validation.nameRequired": "Please enter an experiment name",
+  "experiments.validation.datasetEmpty":
+    "Selected dataset is empty or all items are inactive.",
+  "experiments.validation.noDatasetItemVariables":
+    "No dataset item contains any variables.",
   "experiments.validation.promptRequired": "Please select a prompt",
+  "experiments.validation.promptNotFound": "Selected prompt not found.",
+  "experiments.validation.promptVariablesRequired":
+    "Selected prompt has no variables or placeholders.",
   "experiments.validation.providerRequired": "Please select a provider",
   "experiments.validation.runNameRequired": "Run name is required",
   "experiments.analytics": "Analytics",
@@ -2233,10 +2418,16 @@ export const enMessages = {
   "organizations.demo.title": "Try Langfuse Demo",
   "organizations.demo.viewProject": "View Demo Project",
   "organizations.goToProject": "Go to project",
+  "organizations.getStarted": "Get Started",
+  "organizations.getStartedCreateOrg":
+    "Create an organization to get started. Alternatively, ask your organization admin to invite you.",
+  "organizations.getStartedInviteRequired":
+    "You need to get invited to an organization to get started with Langfuse.",
   "organizations.helpDescription":
     "Organizations help you manage access to projects. Each organization can have multiple projects and team members with different roles.",
   "organizations.loading": "loading...",
   "organizations.name": "Organization name",
+  "organizations.namePlaceholder": "my-org",
   "organizations.newOrganization": "New Organization",
   "organizations.newProject": "New project",
   "organizations.noAccess": "No access",
@@ -2356,8 +2547,15 @@ export const enMessages = {
   "billing.confirmReactivationTitle":
     "Confirm Reactivation: Keep Your Subscription",
   "billing.contactSales": "Contact Sales",
+  "billing.consumedInCurrentPeriod":
+    "Consumed {usageType} in current billing period (updated about once every 60 minutes)",
+  "billing.consumedLast30Days": "Consumed {usageType} / last 30d",
+  "billing.billingPeriod": "Billing period:",
   "billing.currentPlan": "Current Plan",
+  "billing.currentPlanWithValue": "Current plan: {plan}",
   "billing.discounts": "Discounts",
+  "billing.willEndOnPrefix": "(will end on ",
+  "billing.willEndOnSuffix": ")",
   "billing.downgradePlanChangeP1":
     "No charge is made today. You stay on your current plan until the end of this billing period, then we switch you to the new plan. You can switch back anytime.",
   "billing.downgradePlanChangeP2":
@@ -2429,6 +2627,8 @@ export const enMessages = {
   "billing.plan.team.description":
     "Organizational and security controls for larger teams.",
   "billing.plan.team.title": "Pro + Teams Add-on",
+  "billing.loadingUsage": "Loading (might take a moment) ...",
+  "billing.planLimit": "Plan limit: {limit}",
   "billing.planChangedSuccessfully": "Plan changed successfully",
   "billing.planChangeFailed": "Failed to change plan",
   "billing.plans": "Plans",
@@ -2455,6 +2655,8 @@ export const enMessages = {
     "Contact your system/project administrator for access or upgrade your plan. Need help? Reach out to support.",
   "billing.untilNextPeriod": "(Until next period)",
   "billing.updateBillingDetails": "Update Billing Details",
+  "billing.usageType.events": "Events",
+  "billing.usageType.units": "Units",
   "billing.upgradePlanChangeP1":
     "You will be charged a prorated base fee today for the remainder of this billing period. Features update immediately; usage-based charges continue for the rest of the billing period.",
   "billing.upgradePlanChangeP2":
@@ -2523,9 +2725,39 @@ export const enMessages = {
   "support.attachedFiles": "Attached files",
   "support.breadcrumb.emailEngineer": "Email Engineer",
   "support.close": "Close",
+  "support.contactSupportEmail": "Please contact support@langfuse.com",
+  "support.intro.askAiTitle": "Ask AI",
+  "support.intro.askAiDescription":
+    "Get instant, helpful answers. Our AI knows the docs, examples, and best practices to guide you fast.",
+  "support.intro.chatWithAi": "Chat with AI",
+  "support.intro.docsTitle": "Docs",
+  "support.intro.docsDescription":
+    "Dive into guides, concepts, and API reference - clear steps and examples to move quickly.",
+  "support.intro.viewDocumentation": "View documentation",
+  "support.intro.customDescription":
+    "Ask AI & Docs did not unblock you? Get in touch with the support team.",
+  "support.intro.openSupport": "Open Support",
+  "support.intro.submitFeedback": "Submit Feedback",
+  "support.intro.featureRequest": "Feature request",
+  "support.intro.reportBug": "Report a bug",
+  "support.intro.emailEngineerTitle": "Email a Support Engineer",
+  "support.intro.emailEngineerDescription":
+    "Ask AI & Docs did not unblock you? One of our support engineers will help you get unblocked.",
+  "support.intro.communitySupportTitle": "Community Support",
+  "support.intro.communitySupportDescription":
+    "Ask AI & Docs did not unblock you? Get help from and share feedback with the community.",
+  "support.intro.getHelp": "Get Help",
+  "support.intro.communityResourcesTitle": "Community & Resources",
+  "support.intro.communityResourcesDescription":
+    "Join the conversation and connect with the Langfuse community.",
+  "support.intro.communityHours": "Community Hours",
+  "support.intro.statusPage": "Status Page",
   "support.fileUploadError": "File Upload Error",
+  "support.filesSummary": "{count} file(s) • {totalMB} MB",
   "support.form.description":
     "Details speed things up. The clearer your request, the quicker you get the answer you need.",
+  "support.form.descriptionRequired":
+    "Please provide a description of your issue.",
   "support.form.message": "Message",
   "support.form.messageDescription":
     "We will email you at your account address. Replies may take up to one business day.",
@@ -2548,15 +2780,68 @@ export const enMessages = {
   "support.form.title": "E-Mail a Support Engineer",
   "support.form.topic": "Topic",
   "support.form.topicPlaceholder": "Select a topic",
+  "support.form.topicRequired": "Please select a topic.",
   "support.form.integrationType": "Integration Type (optional)",
   "support.form.integrationTypePlaceholder": "Select integration type",
   "support.group.operations": "Operations",
   "support.group.productFeatures": "Product Features",
+  "support.integration.langChain": "LangChain",
+  "support.integration.langGraph": "LangGraph",
+  "support.integration.llmProxy": "LLM Proxy (LiteLLM)",
+  "support.integration.openaiSdk": "OpenAI SDK",
+  "support.integration.otherPleaseSpecify": "Other (please specify)",
+  "support.integration.otherSdk": "Other SDK",
+  "support.integration.otelInstrumentation": "OTel Instrumentation",
+  "support.integration.publicApi": "Public API",
+  "support.integration.pythonSdk": "Python SDK",
+  "support.integration.thirdParty": "3rd Party (Dify / LangFlow / Flowise)",
+  "support.integration.typescriptSdk": "TypeScript SDK",
+  "support.integration.vercelAiSdk": "Vercel AI SDK",
+  "support.messageType.bug": "Bug",
+  "support.messageType.feedback": "Feedback",
+  "support.messageType.question": "Question",
   "support.removeFile": "Remove file",
+  "support.requestNotSent": "Support request was not sent",
+  "support.severity.featureNotWorkingAsExpected":
+    "Feature not working as expected",
+  "support.severity.featureNotWorkingAtAll": "Feature is not working at all",
+  "support.severity.outageDataLossOrBreach":
+    "Outage, data loss, or data breach",
+  "support.severity.questionOrFeatureRequest": "Question or feature request",
   "support.success.another": "Submit another",
   "support.success.description":
     "We created a support ticket and will reply via email.",
   "support.success.title": "Thanks for your message",
+  "support.topic.accountChanges": "Account Changes",
+  "support.topic.accountDeletion": "Account Deletion",
+  "support.topic.billingUsage": "Billing / Usage",
+  "support.topic.evaluation": "Evaluation",
+  "support.topic.invitingUsers": "Inviting Users",
+  "support.topic.observability": "Observability",
+  "support.topic.other": "Other",
+  "support.topic.platform": "Platform",
+  "support.topic.promptManagement": "Prompt Management",
+  "support.topic.setUpSso": "Set Up SSO",
+  "support.topic.slackConnectChannel": "Slack Connect Channel",
+  "support.upload.failed": "File upload failed. Please try again.",
+  "support.upload.fileTooLarge":
+    "File is too large. Maximum file size is {maxMB}MB per file.",
+  "support.upload.fileTooLargeWithName":
+    'File "{fileName}" is too large. Maximum file size is {maxMB}MB per file.',
+  "support.upload.fileTypeUnsupported":
+    "File type not supported. Please select a different file.",
+  "support.upload.maxFiles": "Please upload at most {maxFiles} files.",
+  "support.upload.missingPlan": "Missing upload plan for a file.",
+  "support.upload.prepareFailed": "Upload Preparation Failed",
+  "support.upload.prepareFailedDescription":
+    "Failed to prepare file uploads. Please try again.",
+  "support.upload.pylonFailed": "Failed to upload attachments to Pylon.",
+  "support.upload.tooManyFiles":
+    "Too many files. Maximum {maxFiles} files allowed.",
+  "support.upload.totalLimit":
+    "Total attachment size exceeds limit. Maximum combined size is {maxMB}MB.",
+  "support.upload.totalTooLarge":
+    "Total attachment size ({totalMB}MB) exceeds the limit of {maxMB}MB.",
   "support.drawerDescription":
     "A list of resources and options to help you with your questions.",
   "sidebarNotifications.githubDescription":
@@ -2758,7 +3043,9 @@ export const enMessages = {
   "projects.hostName.title": "Host Name",
   "projects.nameTitle": "Project Name",
   "projects.newProject": "New Project",
+  "projects.namePlaceholder": "my-llm-project",
   "projects.noAccess": "No access",
+  "projects.project": "Project",
   "projects.projectName": "Project name",
   "projects.renamePreview":
     'Your Project will be renamed from "{currentName}" to "{newName}".',
@@ -2978,6 +3265,7 @@ export const enMessages = {
   "scoreAnalytics.firstScore": "First score",
   "scoreAnalytics.hashSamplingDescription":
     "Hash-based sampling ensures consistent, repeatable results while maintaining statistical accuracy.",
+  "scoreAnalytics.hashBased": "hash-based",
   "scoreAnalytics.heatmapTitle": "Score Comparison Heatmap",
   "scoreAnalytics.heatmapDescriptionCategorical":
     "Agreement matrix between categorical scores",
@@ -3091,6 +3379,8 @@ export const enMessages = {
   "scoreAnalytics.interpretation.strength.weak": "Weak",
   "scoreAnalytics.noScoresFound": "No scores found.",
   "scoreAnalytics.noTimeSeriesData": "No time series data available",
+  "scoreAnalytics.noTimeSeriesDataForRange":
+    "No time series data available for the selected time range",
   "scoreAnalytics.noDataPointsForTimeRange":
     "No data points available for the selected time range",
   "scoreAnalytics.noScoresAvailable": "No Scores Available",
@@ -3109,6 +3399,7 @@ export const enMessages = {
     "Analyzing ~{score1Count} (Score 1) and ~{score2Count} (Score 2) scores",
   "scoreAnalytics.estimatedTime": "Est. time: {duration}",
   "scoreAnalytics.loadingAnalytics": "Loading analytics...",
+  "scoreAnalytics.loadingAnalyticsData": "Loading analytics data...",
   "scoreAnalytics.observations": "{count} observations",
   "scoreAnalytics.scoreObservations": "{scoreName} - {count} observations",
   "scoreAnalytics.scoreMatched":
@@ -3183,10 +3474,13 @@ export const enMessages = {
   "notifications.emailNotifications": "Email Notifications",
   "notifications.loadingPreferences": "Loading preferences...",
   "notifications.path": "Path: {path}",
+  "notifications.refreshPage": "Refresh page",
   "notifications.reportIssue": "Report issue to Langfuse team",
   "notifications.settingsTitle": "Notification Settings",
   "notifications.updateFailed":
     "Failed to update notification preference. Please try again.",
+  "notifications.versionUpdateAvailable":
+    "We have released a new version of Langfuse. Please refresh your browser to get the latest update.",
   "observability.actions.addToAnnotationQueue": "Add to Annotation Queue",
   "observability.actions.addToDataset": "Add to Dataset",
   "observability.actions.annotationQueue": "Annotation Queue",
@@ -3312,6 +3606,16 @@ export const enMessages = {
   "observability.tracingSetup.help":
     "Setup tracing to track and analyze your LLM calls. You can create API keys and integrate Langfuse with your application.",
   "observability.tracingSetup.title": "Tracing Setup",
+  "observability.tracingSetup.addTracingDescription":
+    "Langfuse relies on OpenTelemetry to instrument your application and export LLM application/agent traces to Langfuse. You can use one of our SDKs or 50+ framework integrations. Please follow the quickstart in the documentation to add Langfuse to your application.",
+  "observability.tracingSetup.addTracingTitle":
+    "2. Add tracing to your application",
+  "observability.tracingSetup.createApiKey": "Create new API key",
+  "observability.tracingSetup.createApiKeyDescription":
+    "You need to create an API key to start tracing your application. You can create more keys later in the project settings.",
+  "observability.tracingSetup.getApiKeysTitle": "1. Get API keys",
+  "observability.tracingSetup.manageApiKeys": "Manage API keys",
+  "observability.tracingSetup.quickstartGuide": "Quickstart guide",
   "observability.events.actions.addDataset.description":
     "Add selected observations to a dataset.",
   "observability.events.actions.addQueue.description":
@@ -3365,6 +3669,9 @@ export const enMessages = {
     "Please upgrade the SDK as the URL schema has changed.",
   "trace.backToLangfuse": "Back to Langfuse",
   "trace.beta": "Beta",
+  "trace.aggregatedCostTooltip": "Aggregated cost of all child observations",
+  "trace.aggregatedDurationTooltip":
+    "Aggregated duration of all child observations",
   "trace.breakdown.aggregateAcross": "Aggregate across {count} {noun}",
   "trace.breakdown.cost": "Cost breakdown",
   "trace.breakdown.generation": "generation",
@@ -3388,10 +3695,14 @@ export const enMessages = {
   "trace.clearSearch": "Clear search",
   "trace.collapseAll": "Collapse all",
   "trace.collapseAllRows": "Collapse all rows",
+  "trace.collapsePanel": "Collapse panel",
+  "trace.collapseSystemPrompt": "Collapse system prompt",
   "trace.copyId": "Copy ID",
   "trace.copyItem": "Copy {item}",
   "trace.copyJson": "Copy as JSON",
   "trace.copyJsonCacheOnly": "Copy as JSON (cache only)",
+  "trace.contentTruncated": "Content was truncated.",
+  "trace.description": "Description",
   "trace.arguments": "Arguments",
   "trace.corrections.add": "Click to add corrected output",
   "trace.corrections.correctedOutput": "Corrected Output",
@@ -3418,6 +3729,7 @@ export const enMessages = {
   "trace.corrections.viewDiff":
     "View diff between original and corrected output",
   "trace.disabledForLargeTraces": "Disabled for large traces",
+  "trace.depth": "depth",
   "trace.downloadJson": "Download as JSON",
   "trace.downloadJsonCacheOnly": "Download as JSON (cache only)",
   "trace.downloadTraceJson": "Download trace as JSON",
@@ -3428,13 +3740,19 @@ export const enMessages = {
   "trace.encryptedThinkingData": "[Encrypted thinking data]",
   "trace.expandAll": "Expand all",
   "trace.expandAllRows": "Expand all rows",
+  "trace.expandPanel": "Expand panel",
+  "trace.expandSystemPrompt": "Expand system prompt",
   "trace.failedToLoadData": "Failed to load data",
+  "trace.failedToLoadObservationData": "Failed to load observation data",
   "trace.filterBy": "filter by",
   "trace.firstToken": "First token",
   "trace.formatted": "Formatted",
+  "trace.fromParent": "from parent",
   "trace.graphView": "Graph View",
   "trace.hideIndentation": "Hide indentation",
   "trace.hideMilliseconds": "Hide milliseconds",
+  "trace.hiddenObservationsBelowLevel":
+    "{count} hidden observations below {level} level.",
   "trace.id": "ID",
   "trace.environmentLabel": "Env: {value}",
   "trace.indentationDisabledDescription":
@@ -3448,12 +3766,14 @@ export const enMessages = {
   "trace.jsonViewUnavailableDescription":
     "Disabled for traces with {count}+ observations to maintain performance.",
   "trace.jumpTo": "Jump to:",
+  "trace.keysCount": "{count} keys",
   "trace.logView.depth": "Depth",
   "trace.logView.start": "Start",
   "trace.langfuse": "Langfuse",
   "trace.latencyLabel": "Latency: {value}",
   "trace.loadingData": "Loading data...",
   "trace.loadingGraph": "Loading graph...",
+  "trace.loadingObservations": "Loading observations (0/{total})...",
   "trace.log.largeTrace": "Large Trace",
   "trace.log.largeTraceCachedOnly":
     "Download/copy includes I/O for cached observations only",
@@ -3475,14 +3795,20 @@ export const enMessages = {
     "Shows all {count} observations with virtualization enabled.",
   "trace.many": "many",
   "trace.media": "Media",
+  "trace.markdownParsingFailed":
+    "Markdown parsing failed. Displaying raw JSON.",
   "trace.minimumLevel": "Minimum Level",
   "trace.minLevel": "Min Level: {level}",
+  "trace.nameFilterValue": "name:{name}",
   "trace.navigation": "Navigation",
   "trace.nextMatch": "Next match (Enter)",
   "trace.noAccess": "You do not have access to this trace.",
+  "trace.noAdditionalDetails": "No additional details available",
   "trace.noInputOutputMetadata": "No input/output/metadata",
+  "trace.noInputOrOutput": "This trace has no input or output.",
   "trace.noItems": "No items",
   "trace.noMatches": "No matches",
+  "trace.noObservationDataAvailable": "No observation data available",
   "trace.noObservationsInTrace": "No observations in this trace",
   "trace.noObservationsMatchQuery": 'No observations match "{query}"',
   "trace.noObservationsFound":
@@ -3492,8 +3818,10 @@ export const enMessages = {
   "trace.notFoundShort": "Not found",
   "trace.observationsLoadedCount": "{loaded} of {total}",
   "trace.observationsLoadedSuffix": "observations loaded",
+  "trace.observationNotFound": "Observation not found",
   "trace.options": "Options",
   "trace.output": "Output",
+  "trace.parameters": "Parameters",
   "trace.parsingData": "Parsing data...",
   "trace.parsingInBackground": "Parsing in background...",
   "trace.placeholder": "Placeholder",
@@ -3530,12 +3858,17 @@ export const enMessages = {
   "trace.timeline": "Timeline",
   "trace.timeToFirstTokenLabel": "Time to first token: {value}",
   "trace.toolCalled": "Tool called",
+  "trace.tools": "Tools",
+  "trace.toolStatus.called": "called",
+  "trace.toolStatus.calledTimes": "called {count}x",
+  "trace.toolStatus.notCalled": "not called",
   "trace.totalCostLabel": "Total Cost: {value}",
   "trace.truncatedDescription":
     "This trace has too many observations for the detail view. Only a subset is shown.",
   "trace.truncatedTitle": "Trace truncated",
   "trace.unnamedPlaceholder": "Unnamed placeholder",
   "trace.viewDocumentation": "View Documentation",
+  "trace.viewExecutionTrace": "View execution trace",
   "trace.viewModelDetails": "View model details",
   "trace.viewOptions": "View Options",
   "trace.sessionLabel": "Session: {id}",
@@ -4001,6 +4334,12 @@ export const enMessages = {
   "sessions.notFoundMessage":
     "The session is either still being processed or has been deleted.",
   "sessions.observationFallback": "Observation",
+  "sessions.presets.firstGeneration.description":
+    "Shows only the first generation in each trace",
+  "sessions.presets.firstGeneration.name": "First Generation in Trace",
+  "sessions.presets.lastGeneration.description":
+    "Shows only the last generation in each trace",
+  "sessions.presets.lastGeneration.name": "Last Generation in Trace",
   "sessions.showCorrections": "Show corrections",
   "sessions.totalCost": "Total cost: {cost}",
   "sessions.totalTraces": "Total traces: {count}",
@@ -4282,6 +4621,7 @@ export const enMessages = {
   "playground.dialog.jsonSchemaDescription":
     "Define the structure of your schema using JSON Schema format.",
   "playground.dialog.name": "Name",
+  "playground.dialog.namePlaceholder": "e.g., get_weather",
   "playground.dialog.noteSchemas":
     "Note: Changes to schemas are reflected to all members of this project.",
   "playground.dialog.noteTools":
@@ -4434,6 +4774,7 @@ export const enMessages = {
   "publicApi.createApiKeys": "Create API Keys",
   "publicApi.createNewApiKeys": "Create new API keys",
   "publicApi.created": "Created",
+  "publicApi.current": "Current:",
   "publicApi.deleteApiKey": "Delete API key",
   "publicApi.deleteApiKeyConfirm":
     "Are you sure you want to delete this API key? This action cannot be undone.",
@@ -4508,6 +4849,10 @@ export const enMessages = {
   "publicApi.gcpServiceAccountKeyJson": "GCP Service Account Key (JSON)",
   "publicApi.gcpServiceAccountJsonDescription":
     "Paste your GCP service account JSON key here. The service account must have `Vertex AI User` role permissions. Example JSON:",
+  "publicApi.gcpAdcEnvironmentVariable":
+    "Environment variable (GOOGLE_APPLICATION_CREDENTIALS)",
+  "publicApi.gcloudCliCredentials":
+    "gcloud CLI credentials (gcloud auth application-default login)",
   "publicApi.gkeWorkloadIdentity": "GKE Workload Identity",
   "publicApi.cloudRunServiceAccount": "Cloud Run service account",
   "publicApi.gceInstanceServiceAccount":
@@ -4533,6 +4878,8 @@ export const enMessages = {
   "publicApi.iamRolesEcs": "IAM roles for ECS tasks",
   "publicApi.learnMoreAwsCredentialProviders":
     "Learn more about AWS credential providers ->",
+  "publicApi.learnMoreGcpAdc":
+    "Learn more about GCP Application Default Credentials →",
   "publicApi.llmAdapter": "LLM adapter",
   "publicApi.llmAdapterDescription":
     "Schema that is accepted at that provider endpoint.",
@@ -4546,6 +4893,9 @@ export const enMessages = {
   "publicApi.useAdcDescription":
     "When enabled, authentication uses the GCP environment's default credentials instead of a service account key.",
   "publicApi.useBedrockApiKeysPrefix": "Use",
+  "publicApi.useBedrockApiKeysUpdatePrefix": "Use",
+  "publicApi.useBedrockApiKeysUpdateSuffix":
+    "to replace the current authentication.",
   "publicApi.placeholder.azureBaseUrl":
     "https://your-instance.openai.azure.com/openai/deployments",
   "publicApi.placeholder.default": "default",

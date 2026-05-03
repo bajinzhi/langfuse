@@ -398,7 +398,9 @@ export const TracePreview = ({
           {viewType === "detailed" && (
             <TooltipProvider>
               <TabsBarList>
-                <TabsBarTrigger value="preview">{t("trace.preview")}</TabsBarTrigger>
+                <TabsBarTrigger value="preview">
+                  {t("trace.preview")}
+                </TabsBarTrigger>
                 {showLogViewTab && (
                   <TabsBarTrigger value="log" disabled={isLogViewDisabled}>
                     <Tooltip>
@@ -421,7 +423,9 @@ export const TracePreview = ({
                   </TabsBarTrigger>
                 )}
                 {showScoresTab && (
-                  <TabsBarTrigger value="scores">{t("trace.scores")}</TabsBarTrigger>
+                  <TabsBarTrigger value="scores">
+                    {t("trace.scores")}
+                  </TabsBarTrigger>
                 )}
                 {selectedTab.includes("preview") && isPrettyViewAvailable && (
                   <>
@@ -456,7 +460,7 @@ export const TracePreview = ({
                           onCheckedChange={handleBetaToggle}
                         />
                         <span className="text-muted-foreground text-xs">
-                          Beta
+                          {t("trace.beta")}
                         </span>
                       </div>
                     )}
@@ -474,13 +478,13 @@ export const TracePreview = ({
                           value="pretty"
                           className="h-fit px-1 text-xs"
                         >
-                          Formatted
+                          {t("trace.formatted")}
                         </TabsTrigger>
                         <TabsTrigger
                           value="json"
                           className="h-fit px-1 text-xs"
                         >
-                          JSON
+                          {t("trace.json")}
                         </TabsTrigger>
                       </TabsList>
                     </Tabs>
@@ -492,7 +496,7 @@ export const TracePreview = ({
                           onCheckedChange={handleBetaToggle}
                         />
                         <span className="text-muted-foreground text-xs">
-                          Beta
+                          {t("trace.beta")}
                         </span>
                       </div>
                     )}

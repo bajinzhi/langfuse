@@ -1,4 +1,5 @@
 import { Button } from "@/src/components/ui/button";
+import { translateClientMessage } from "@/src/features/i18n";
 import { toast } from "sonner";
 
 export const showVersionUpdateToast = () => {
@@ -8,8 +9,7 @@ export const showVersionUpdateToast = () => {
         <div className="flex min-w-[300px] flex-1 flex-col gap-2">
           <div className="flex items-center gap-2">
             <div className="text-foreground/70 m-0 text-sm leading-tight font-medium">
-              We have released a new version of Langfuse. Please refresh your
-              browser to get the latest update.
+              {translateClientMessage("notifications.versionUpdateAvailable")}
             </div>
           </div>
           <Button
@@ -20,7 +20,7 @@ export const showVersionUpdateToast = () => {
               window.location.reload();
             }}
           >
-            Refresh page
+            {translateClientMessage("notifications.refreshPage")}
           </Button>
         </div>
       </div>

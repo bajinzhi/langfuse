@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/src/components/ui/dialog";
 import { CreateExperimentsForm } from "@/src/features/experiments/components/CreateExperimentsForm";
+import type { ExperimentRunCallbackData } from "@/src/features/experiments/types";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 import { DatasetAnalytics } from "@/src/features/datasets/components/DatasetAnalytics";
 import { CompareViewAdapter } from "@/src/features/scores/adapters";
@@ -45,6 +46,7 @@ import { useExperimentAccess } from "@/src/features/experiments/hooks/useExperim
 import { ExperimentsBetaSwitch } from "@/src/features/experiments/components/ExperimentsBetaSwitch";
 import { toExperimentsResultsUrl } from "@/src/features/experiments/utils/experimentUrlTranslation";
 import { useI18n } from "@/src/features/i18n";
+import { PromptfooReportButtons } from "@/src/features/promptfoo/components/PromptfooReportButtons";
 
 export default function DatasetCompare() {
   const { t } = useI18n();
@@ -56,6 +58,9 @@ export default function DatasetCompare() {
 
   const [isCreateExperimentDialogOpen, setIsCreateExperimentDialogOpen] =
     useState(false);
+  const [promptfooReportRunId, setPromptfooReportRunId] = useState<
+    string | undefined
+  >();
   const {
     canUseExperimentsBetaToggle,
     isExperimentsBetaEnabled,
@@ -85,15 +90,23 @@ export default function DatasetCompare() {
   const { chartDataMap, scoreAnalyticsOptions, scoreKeyToData, isLoading } =
     useDatasetRunCompareChartData(projectId, datasetId, runIds);
 
-  const handleExperimentSettled = async (data?: {
-    success: boolean;
-    datasetId: string;
-    runId: string;
-    runName: string;
-  }) => {
+  const handleExperimentSettled = async (data?: ExperimentRunCallbackData) => {
     setIsCreateExperimentDialogOpen(false);
+    if (data?.runIds?.length) {
+      setPromptfooReportRunId(data.runIds[0]);
+    }
     await handleExperimentSettledBase(data);
   };
+
+  useEffect(() => {
+    if (
+      promptfooReportRunId &&
+      runIds &&
+      !runIds.includes(promptfooReportRunId)
+    ) {
+      setPromptfooReportRunId(undefined);
+    }
+  }, [promptfooReportRunId, runIds]);
 
   const handleBetaSwitchChange = (enabled: boolean) => {
     setExperimentsBetaEnabled(enabled);
@@ -116,6 +129,10 @@ export default function DatasetCompare() {
       onEnabledChange={handleBetaSwitchChange}
     />
   ) : null;
+  const latestSelectedRunId =
+    runIds && runIds.length > 0 ? runIds[runIds.length - 1] : undefined;
+  const promptfooReportDatasetRunId =
+    promptfooReportRunId ?? latestSelectedRunId;
 
   if (isExperimentsBetaActive) {
     return (
@@ -174,6 +191,10 @@ export default function DatasetCompare() {
         actionButtonsRight: (
           <>
             {betaSwitch}
+            <PromptfooReportButtons
+              projectId={projectId}
+              datasetRunId={promptfooReportDatasetRunId}
+            />
             <Dialog
               key="create-experiment-dialog"
               open={isCreateExperimentDialogOpen}

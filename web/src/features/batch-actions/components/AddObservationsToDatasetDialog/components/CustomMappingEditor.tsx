@@ -228,9 +228,9 @@ export function CustomMappingEditor({
                   }
                   onRemove={() => handleRemoveEntry(entry.id)}
                   canRemove={canRemove}
-            sourceData={getSourceData(entry.sourceField)}
-            t={t}
-          />
+                  sourceData={getSourceData(entry.sourceField)}
+                  t={t}
+                />
               );
             })}
           </div>
@@ -357,7 +357,7 @@ function KeyValueEntryRow({
               <Input
                 value={entry.value}
                 onChange={(e) => onValueChange(e.target.value)}
-                placeholder="literal value"
+                placeholder={t("batchActions.literalValuePlaceholder")}
                 className="h-9"
               />
             )}

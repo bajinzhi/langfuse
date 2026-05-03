@@ -45,13 +45,14 @@ export function DetailHeaderActionsMenu({
     setTimeout(() => setCopiedId(null), 1500);
   };
 
-  const shouldShowFilterItem = Boolean(spanName?.trim());
+  const filterSpanName = spanName?.trim() ?? "";
+  const shouldShowFilterItem = Boolean(filterSpanName);
 
   const href = shouldShowFilterItem
     ? buildEventsTablePathForSpanName({
         currentPath: router.asPath,
         projectId,
-        spanName: spanName ?? "",
+        spanName: filterSpanName,
       })
     : null;
 
@@ -86,9 +87,11 @@ export function DetailHeaderActionsMenu({
                 className="text-xs"
                 onSelect={() => void router.push(href)}
               >
-                <span className="max-w-[260px] truncate" title={spanName}>
+                <span className="max-w-[260px] truncate" title={filterSpanName}>
                   {t("trace.filterBy")}{" "}
-                  <span className="font-semibold">name:{spanName}</span>
+                  <span className="font-semibold">
+                    {t("trace.nameFilterValue", { name: filterSpanName })}
+                  </span>
                 </span>
               </DropdownMenuItem>
             )}

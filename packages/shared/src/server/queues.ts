@@ -10,6 +10,11 @@ import { EventActionSchema } from "../domain";
 import { PromptDomainSchema } from "../domain/prompts";
 import { ObservationAddToDatasetConfigSchema } from "../features/batchAction/addToDatasetTypes";
 import { EvalTargetObjectSchema } from "../features/evals/types";
+import {
+  PROMPTFOO_MATRIX_CONCURRENCY_DEFAULT,
+  PromptfooMatrixRunStatus,
+  PromptfooMatrixRunStatusSchema,
+} from "../features/promptfoo/types";
 
 export const IngestionEvent = z.object({
   data: z.object({
@@ -119,6 +124,20 @@ export const ExperimentCreateEventSchema = z.object({
   datasetId: z.string(),
   runId: z.string(),
   description: z.string().optional(),
+});
+export const PromptfooExperimentCreateEventSchema = z.object({
+  projectId: z.string(),
+  datasetId: z.string(),
+  matrixRunId: z.string(),
+  datasetRunIds: z.array(z.string()).min(1),
+  concurrency: z
+    .number()
+    .int()
+    .positive()
+    .default(PROMPTFOO_MATRIX_CONCURRENCY_DEFAULT),
+  status: PromptfooMatrixRunStatusSchema.default(
+    PromptfooMatrixRunStatus.Pending,
+  ),
 });
 export const DataRetentionProcessingEventSchema = z.object({
   projectId: z.string(),
@@ -292,6 +311,9 @@ export type OtelIngestionEventQueueType = z.infer<typeof OtelIngestionEvent>;
 export type ExperimentCreateEventType = z.infer<
   typeof ExperimentCreateEventSchema
 >;
+export type PromptfooExperimentCreateEventType = z.infer<
+  typeof PromptfooExperimentCreateEventSchema
+>;
 export type PostHogIntegrationProcessingEventType = z.infer<
   typeof PostHogIntegrationProcessingEventSchema
 >;
@@ -335,6 +357,7 @@ export enum QueueName {
   CloudSpendAlertQueue = "cloud-spend-alert-queue",
   CloudFreeTierUsageThresholdQueue = "cloud-free-tier-usage-threshold-queue",
   ExperimentCreate = "experiment-create-queue",
+  PromptfooExperimentCreate = "promptfoo-experiment-create-queue",
   PostHogIntegrationQueue = "posthog-integration-queue",
   PostHogIntegrationProcessingQueue = "posthog-integration-processing-queue",
   MixpanelIntegrationQueue = "mixpanel-integration-queue",
@@ -371,6 +394,7 @@ export enum QueueJobs {
   IngestionJob = "ingestion-job",
   IngestionSecondaryJob = "secondary-ingestion-job",
   ExperimentCreateJob = "experiment-create-job",
+  PromptfooExperimentCreateJob = "promptfoo-experiment-create-job",
   PostHogIntegrationJob = "posthog-integration-job",
   PostHogIntegrationProcessingJob = "posthog-integration-processing-job",
   MixpanelIntegrationJob = "mixpanel-integration-job",
@@ -480,6 +504,13 @@ export type TQueueJobTypes = {
     id: string;
     payload: ExperimentCreateEventType;
     name: QueueJobs.ExperimentCreateJob;
+    retryBaggage?: RetryBaggage;
+  };
+  [QueueName.PromptfooExperimentCreate]: {
+    timestamp: Date;
+    id: string;
+    payload: PromptfooExperimentCreateEventType;
+    name: QueueJobs.PromptfooExperimentCreateJob;
     retryBaggage?: RetryBaggage;
   };
   [QueueName.PostHogIntegrationProcessingQueue]: {

@@ -33,6 +33,20 @@ export function toExperimentsResultsUrl(
   return `/project/${projectId}/experiments/results?${params.toString()}`;
 }
 
+export function toDatasetCompareRunsUrl(
+  projectId: string,
+  datasetId: string,
+  runIds: string[],
+): string {
+  const params = new URLSearchParams();
+
+  runIds.forEach((id) => {
+    params.append("runs", id);
+  });
+
+  return `/project/${projectId}/datasets/${datasetId}/compare?${params.toString()}`;
+}
+
 /**
  * Translate single run view to experiments results URL.
  */

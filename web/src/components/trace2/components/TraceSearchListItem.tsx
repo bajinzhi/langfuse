@@ -12,6 +12,7 @@ import { SpanContent } from "./SpanContent";
 import { cn } from "@/src/utils/tailwind";
 import { useTraceData } from "../contexts/TraceDataContext";
 import { formatIntervalSeconds } from "@/src/utils/dates";
+import { useI18n } from "@/src/features/i18n";
 
 interface TraceSearchListItemProps {
   item: TraceSearchListItem;
@@ -26,6 +27,7 @@ export function TraceSearchListItem({
   onSelect,
   onHover,
 }: TraceSearchListItemProps) {
+  const { t } = useI18n();
   const { node, parentTotalCost, parentTotalDuration } = item;
   const { comments } = useTraceData();
 
@@ -59,9 +61,9 @@ export function TraceSearchListItem({
         {/* Temporal and depth context - only show for observations (not TRACE root) */}
         {node.type !== "TRACE" && (
           <div className="text-muted-foreground/70 text-xs">
-            depth {node.depth} • +{traceRelativeTime}
+            {t("trace.depth")} {node.depth} • +{traceRelativeTime}
             {parentRelativeTime !== null &&
-              ` • +${parentRelativeTime} from parent`}
+              ` • +${parentRelativeTime} ${t("trace.fromParent")}`}
           </div>
         )}
       </div>

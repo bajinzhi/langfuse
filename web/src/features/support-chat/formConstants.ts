@@ -1,5 +1,11 @@
 // formModels.ts
 import { z } from "zod";
+import { type MessageKey, type MessageValues } from "@/src/features/i18n";
+
+type SupportFormTranslator = (
+  key: MessageKey,
+  values?: MessageValues,
+) => string;
 
 /** ── Message Type ────────────────────────────────────────────────────────── */
 export const MessageTypeSchema = z.enum(["Question", "Feedback", "Bug"]);
@@ -62,19 +68,21 @@ export const IntegrationTypeSchema = z.enum([
 ]);
 export type IntegrationType = z.infer<typeof IntegrationTypeSchema>;
 
-export const SupportFormSchema = z.object({
-  messageType: MessageTypeSchema.default("Question"),
-  severity: SeveritySchema,
-  integrationType: z.string().optional(),
-  topic: z
-    .union([TopicSchema, z.literal("")])
-    .refine((val) => val !== "", { message: "Please select a topic." })
-    .transform((val) => val as z.infer<typeof TopicSchema>),
-  message: z
-    .string()
-    .trim()
-    .min(1, "Please provide a description of your issue."),
-});
+export const createSupportFormSchema = (t: SupportFormTranslator) =>
+  z.object({
+    messageType: MessageTypeSchema.default("Question"),
+    severity: SeveritySchema,
+    integrationType: z.string().optional(),
+    topic: z
+      .union([TopicSchema, z.literal("")])
+      .refine((val) => val !== "", {
+        message: t("support.form.topicRequired"),
+      })
+      .transform((val) => val as z.infer<typeof TopicSchema>),
+    message: z.string().trim().min(1, t("support.form.descriptionRequired")),
+  });
+
+export const SupportFormSchema = createSupportFormSchema((key) => key);
 export type SupportFormValues = z.infer<typeof SupportFormSchema>;
 
 export const MESSAGE_TYPES = MessageTypeSchema.options;

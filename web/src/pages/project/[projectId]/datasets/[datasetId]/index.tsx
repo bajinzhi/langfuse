@@ -43,6 +43,8 @@ import useLocalStorage from "@/src/components/useLocalStorage";
 import { getDatasetBreadcrumb } from "@/src/features/datasets/utils/getDatasetBreadcrumb";
 import { ExperimentsTable } from "@/src/features/experiments/components/table";
 import { useI18n } from "@/src/features/i18n";
+import type { ExperimentRunCallbackData } from "@/src/features/experiments/types";
+import { toDatasetCompareRunsUrl } from "@/src/features/experiments/utils/experimentUrlTranslation";
 
 export default function Dataset() {
   const { t } = useI18n();
@@ -86,14 +88,10 @@ export default function Dataset() {
     isExperimentsBetaActive,
   } = useExperimentAccess();
 
-  const handleExperimentSuccess = async (data?: {
-    success: boolean;
-    datasetId: string;
-    runId: string;
-    runName: string;
-  }) => {
+  const handleExperimentSuccess = async (data?: ExperimentRunCallbackData) => {
     setIsCreateExperimentDialogOpen(false);
     if (!data) return;
+    const runIds = data.runIds?.length ? data.runIds : [data.runId];
 
     if (isExperimentsBetaActive) {
       void utils.experiments.all.invalidate();
@@ -108,7 +106,7 @@ export default function Dataset() {
       description: t("datasets.experimentTriggeredDescription"),
       link: {
         text: t("datasets.viewExperiment"),
-        href: `/project/${projectId}/datasets/${data.datasetId}/compare?runs=${data.runId}`,
+        href: toDatasetCompareRunsUrl(projectId, data.datasetId, runIds),
       },
     });
   };
@@ -364,7 +362,7 @@ export default function Dataset() {
                   <DropdownMenuItem asChild>
                     <Link href={`/project/${projectId}/evals?target=dataset`}>
                       <Bot className="mr-2 ml-1 h-4 w-4" />
-                      Manage Evaluators
+                      {t("evals.manageEvaluators")}
                     </Link>
                   </DropdownMenuItem>
                 )}
@@ -393,8 +391,9 @@ export default function Dataset() {
           <DialogContent className="max-h-[90vh] max-w-(--breakpoint-md) overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {selectedEvaluatorData.evaluator.id ? "Edit" : "Configure"}{" "}
-                Evaluator
+                {selectedEvaluatorData.evaluator.id
+                  ? t("evals.editEvaluator")
+                  : t("evals.configureEvaluator")}
               </DialogTitle>
             </DialogHeader>
             <EvaluatorForm

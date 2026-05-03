@@ -874,7 +874,7 @@ export default function SignIn({
             </p>
           ) : null}
         </div>
-        <CloudPrivacyNotice action="signing in" />
+        <CloudPrivacyNotice actionKey="auth.cloudPrivacy.action.signIn" />
       </div>
     </>
   );

@@ -47,6 +47,7 @@ export function useProjectSettingsPages(): ProjectSettingsPage[] {
   const { project, organization } = useQueryProject();
   const showBillingSettings = useHasEntitlement("cloud-billing");
   const showRetentionSettings = useHasEntitlement("data-retention");
+  const showAuditLogsSettings = useHasEntitlement("audit-logs");
   const showProtectedLabelsSettings = useHasEntitlement(
     "prompt-protected-labels",
   );
@@ -61,6 +62,7 @@ export function useProjectSettingsPages(): ProjectSettingsPage[] {
     organization,
     showBillingSettings,
     showRetentionSettings,
+    showAuditLogsSettings,
     showLLMConnectionsSettings: true,
     showProtectedLabelsSettings,
     t,
@@ -72,6 +74,7 @@ export const getProjectSettingsPages = ({
   organization,
   showBillingSettings,
   showRetentionSettings,
+  showAuditLogsSettings,
   showLLMConnectionsSettings,
   showProtectedLabelsSettings,
   t,
@@ -80,6 +83,7 @@ export const getProjectSettingsPages = ({
   organization: { id: string; name: string; metadata: Record<string, unknown> };
   showBillingSettings: boolean;
   showRetentionSettings: boolean;
+  showAuditLogsSettings: boolean;
   showLLMConnectionsSettings: boolean;
   showProtectedLabelsSettings: boolean;
   t: Translate;
@@ -225,6 +229,7 @@ export const getProjectSettingsPages = ({
     slug: "audit-logs",
     cmdKKeywords: ["trail"],
     content: <AuditLogsSettingsPage projectId={project.id} />,
+    show: showAuditLogsSettings,
   },
   {
     title: t("nav.notifications"),
@@ -331,32 +336,33 @@ const Integrations = (props: { projectId: string }) => {
           </div>
         </Card>
 
-        <Card className="p-3">
-          <span className="font-semibold">
-            {t("integrations.blobStorage.cardTitle")}
-          </span>
-          <p className="text-primary mb-4 text-sm">
-            {t("integrations.blobStorage.cardDescription")}
-          </p>
-          <div className="flex items-center gap-2">
-            <ActionButton
-              variant="secondary"
-              hasAccess={hasAccess}
-              hasEntitlement={allowBlobStorageIntegration}
-              href={`/project/${props.projectId}/settings/integrations/blobstorage`}
-            >
-              {t("common.configure")}
-            </ActionButton>
-            <Button asChild variant="ghost">
-              <Link
-                href="https://langfuse.com/docs/query-traces#blob-storage"
-                target="_blank"
+        {allowBlobStorageIntegration && (
+          <Card className="p-3">
+            <span className="font-semibold">
+              {t("integrations.blobStorage.cardTitle")}
+            </span>
+            <p className="text-primary mb-4 text-sm">
+              {t("integrations.blobStorage.cardDescription")}
+            </p>
+            <div className="flex items-center gap-2">
+              <ActionButton
+                variant="secondary"
+                hasAccess={hasAccess}
+                href={`/project/${props.projectId}/settings/integrations/blobstorage`}
               >
-                {t("common.integrationDocs")}
-              </Link>
-            </Button>
-          </div>
-        </Card>
+                {t("common.configure")}
+              </ActionButton>
+              <Button asChild variant="ghost">
+                <Link
+                  href="https://langfuse.com/docs/query-traces#blob-storage"
+                  target="_blank"
+                >
+                  {t("common.integrationDocs")}
+                </Link>
+              </Button>
+            </div>
+          </Card>
+        )}
 
         <Card className="p-3">
           <div className="mb-4 flex items-center gap-2">

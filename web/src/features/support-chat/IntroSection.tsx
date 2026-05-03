@@ -17,6 +17,7 @@ import { isCloudPlan } from "@langfuse/shared";
 import { useUiCustomization } from "@/src/ee/features/ui-customization/useUiCustomization";
 import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
+import { useI18n } from "@/src/features/i18n";
 
 type SupportType = "in-app-support" | "custom" | "community";
 
@@ -24,6 +25,7 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
   const uiCustomization = useUiCustomization();
   const { isLangfuseCloud } = useLangfuseCloudRegion();
   const capture = usePostHogClientCapture();
+  const { t } = useI18n();
 
   // Note: We previously added an entitlement for in-app support, but removed it for now.
   //       The issue was that on global routes e.g., https://langfuse.com/setup, the entitlement
@@ -52,11 +54,11 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
     <div className="mt-1 flex flex-col gap-6">
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2 text-base font-semibold">
-          <Sparkles className="h-4 w-4" /> Ask AI
+          <Sparkles className="h-4 w-4" />
+          {t("support.intro.askAiTitle")}
         </div>
         <p className="text-muted-foreground mt-1 text-sm">
-          Get instant, helpful answers. Our AI knows the docs, examples, and
-          best practices to guide you fast.
+          {t("support.intro.askAiDescription")}
         </p>
 
         <RainbowButton asChild>
@@ -65,7 +67,7 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
             target="_blank"
             rel="noopener"
           >
-            Chat with AI
+            {t("support.intro.chatWithAi")}
           </a>
         </RainbowButton>
       </div>
@@ -74,11 +76,11 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
 
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2 text-base font-semibold">
-          <LibraryBig className="h-4 w-4" /> Docs
+          <LibraryBig className="h-4 w-4" />
+          {t("support.intro.docsTitle")}
         </div>
         <p className="text-muted-foreground text-sm">
-          Dive into guides, concepts, and API reference — clear steps and
-          examples to move quickly.
+          {t("support.intro.docsDescription")}
         </p>
 
         <Button asChild variant="outline">
@@ -89,7 +91,7 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
             target="_blank"
             rel="noopener"
           >
-            View documentation
+            {t("support.intro.viewDocumentation")}
           </a>
         </Button>
       </div>
@@ -100,11 +102,11 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
         <>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2 text-base font-semibold">
-              <LifeBuoy className="h-4 w-4" /> Support
+              <LifeBuoy className="h-4 w-4" />
+              {t("nav.support")}
             </div>
             <p className="text-muted-foreground text-sm">
-              Ask AI & Docs did not unblock you? Get in touch with the support
-              team.
+              {t("support.intro.customDescription")}
             </p>
             <Button variant="outline" asChild>
               <a
@@ -112,7 +114,7 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
                 target="_blank"
                 rel="noopener"
               >
-                Open Support
+                {t("support.intro.openSupport")}
               </a>
             </Button>
             {uiCustomization?.feedbackHref && (
@@ -122,7 +124,7 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
                   target="_blank"
                   rel="noopener"
                 >
-                  Submit Feedback
+                  {t("support.intro.submitFeedback")}
                 </a>
               </Button>
             )}
@@ -134,7 +136,7 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
                     target="_blank"
                     rel="noopener"
                   >
-                    Feature request
+                    {t("support.intro.featureRequest")}
                   </a>
                 </Button>
                 <Button variant="outline" asChild>
@@ -143,7 +145,7 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
                     target="_blank"
                     rel="noopener"
                   >
-                    Report a bug
+                    {t("support.intro.reportBug")}
                   </a>
                 </Button>
               </>
@@ -158,14 +160,14 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
         <>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2 text-base font-semibold">
-              <LifeBuoy className="h-4 w-4" /> Email a Support Engineer
+              <LifeBuoy className="h-4 w-4" />
+              {t("support.intro.emailEngineerTitle")}
             </div>
             <p className="text-muted-foreground text-sm">
-              Ask AI & Docs did not unblock you? One of our support engineers
-              will help you get unblocked.
+              {t("support.intro.emailEngineerDescription")}
             </p>
             <Button variant="outline" onClick={onStartForm}>
-              Email a Support Engineer
+              {t("support.intro.emailEngineerTitle")}
             </Button>
           </div>
 
@@ -177,11 +179,11 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
         <>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2 text-base font-semibold">
-              <LifeBuoy className="h-4 w-4" /> Community Support
+              <LifeBuoy className="h-4 w-4" />
+              {t("support.intro.communitySupportTitle")}
             </div>
             <p className="text-muted-foreground text-sm">
-              Ask AI & Docs did not unblock you? Get help from and share
-              feedback with the community.
+              {t("support.intro.communitySupportDescription")}
             </p>
             <Button variant="outline" asChild>
               <a
@@ -189,7 +191,8 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
                 target="_blank"
                 rel="noopener"
               >
-                <SiGithub className="mr-2 h-4 w-4" /> Get Help ↗
+                <SiGithub className="mr-2 h-4 w-4" />
+                {t("support.intro.getHelp")} ↗
               </a>
             </Button>
             <Button variant="outline" asChild>
@@ -198,7 +201,8 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
                 target="_blank"
                 rel="noopener"
               >
-                <Lightbulb className="mr-2 h-4 w-4" /> Feature request ↗
+                <Lightbulb className="mr-2 h-4 w-4" />
+                {t("support.intro.featureRequest")} ↗
               </a>
             </Button>
             <Button variant="outline" asChild>
@@ -207,7 +211,8 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
                 target="_blank"
                 rel="noopener"
               >
-                <Bug className="mr-2 h-4 w-4" /> Report a bug ↗
+                <Bug className="mr-2 h-4 w-4" />
+                {t("support.intro.reportBug")} ↗
               </a>
             </Button>
           </div>
@@ -219,10 +224,11 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
       {supportType !== "custom" && (
         <div>
           <div className="flex items-center gap-2 text-base font-semibold">
-            <SiGithub className="h-4 w-4" /> Community & Resources
+            <SiGithub className="h-4 w-4" />
+            {t("support.intro.communityResourcesTitle")}
           </div>
           <p className="text-muted-foreground mt-1 text-sm">
-            Join the conversation and connect with the Langfuse community.
+            {t("support.intro.communityResourcesDescription")}
           </p>
           <div className="mt-3 grid grid-cols-1 gap-2">
             <Button asChild variant="ghost" className="justify-start px-1.5">
@@ -252,7 +258,8 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
                 className="flex items-center"
                 onClick={() => capture("support_chat:community_hours_click")}
               >
-                <Calendar className="mr-2 h-4 w-4" /> Community Hours ↗
+                <Calendar className="mr-2 h-4 w-4" />
+                {t("support.intro.communityHours")} ↗
               </a>
             </Button>
 
@@ -264,7 +271,8 @@ export function IntroSection({ onStartForm }: { onStartForm: () => void }) {
                   rel="noopener"
                   className="flex items-center"
                 >
-                  <Radio className="mr-2 h-4 w-4" /> Status Page ↗
+                  <Radio className="mr-2 h-4 w-4" />
+                  {t("support.intro.statusPage")} ↗
                 </a>
               </Button>
             )}

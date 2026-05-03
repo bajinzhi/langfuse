@@ -4,6 +4,7 @@ import { type UIModelParams } from "@langfuse/shared/src/server";
 import { type ModelParamsContext } from "@/src/components/ModelParameters";
 import { type EvalTemplate, type PromptType } from "@langfuse/shared";
 import { type PartialConfig } from "@/src/features/evals/types";
+import { type MessageKey } from "@/src/features/i18n";
 
 type ValidationResult =
   | {
@@ -13,7 +14,7 @@ type ValidationResult =
     }
   | {
       isValid: false;
-      message: string;
+      messageKey: MessageKey;
     }
   | undefined;
 

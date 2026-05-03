@@ -1,6 +1,10 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": [".env"],
+  "globalPassThroughEnv": [
+    "PROMPTFOO_DISABLE_TELEMETRY",
+    "PROMPTFOO_DISABLE_TEMPLATE_ENV_VARS"
+  ],
   "envMode": "loose",
   "tasks": {
     "build": {

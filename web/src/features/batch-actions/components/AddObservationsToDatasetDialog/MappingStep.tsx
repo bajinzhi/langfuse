@@ -13,6 +13,7 @@ import type {
   MappingMode,
   CustomMappingConfig,
 } from "./types";
+import { useI18n } from "@/src/features/i18n";
 
 export function MappingStep({
   field,
@@ -25,6 +26,7 @@ export function MappingStep({
   schema,
   onValidationChange,
 }: MappingStepProps) {
+  const { t } = useI18n();
   const hasSchema = schema !== null && schema !== undefined;
   const isObjectType = hasSchema && isObjectSchema(schema);
   const hasInitializedRef = useRef(false);
@@ -73,13 +75,13 @@ export function MappingStep({
   const getFullLabel = () => {
     switch (field) {
       case "input":
-        return "Full observation input";
+        return t("batchActions.fullObservationInput");
       case "expectedOutput":
-        return "Full observation output";
+        return t("batchActions.fullObservationOutput");
       case "metadata":
-        return "Full observation metadata";
+        return t("batchActions.fullObservationMetadata");
       default:
-        return `Full observation ${field}`;
+        return t("batchActions.fullObservationField", { field });
     }
   };
 
@@ -118,7 +120,7 @@ export function MappingStep({
         <div>
           <div className="flex items-center gap-2">
             <h3 className="grow text-lg font-semibold">
-              Dataset Item {fieldLabel}
+              {t("batchActions.datasetItemField", { field: fieldLabel })}
             </h3>
             {hasSchema && (
               <DatasetSchemaHoverCard
@@ -131,8 +133,9 @@ export function MappingStep({
             )}
           </div>
           <p className="text-muted-foreground text-sm">
-            Configure how observation data maps to the Dataset Item {fieldLabel}
-            .
+            {t("batchActions.configureDatasetItemField", {
+              field: fieldLabel,
+            })}
           </p>
         </div>
 

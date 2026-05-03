@@ -231,7 +231,16 @@ export default function SessionsTable({
     const scoresNumeric = filterOptions.data?.scores_avg ?? undefined;
 
     return {
-      bookmarked: ["Bookmarked", "Not bookmarked"],
+      bookmarked: [
+        {
+          value: "Bookmarked",
+          displayValue: t("observability.filters.bookmarkedTrue"),
+        },
+        {
+          value: "Not bookmarked",
+          displayValue: t("observability.filters.bookmarkedFalse"),
+        },
+      ],
       environment: environmentOptions,
       userIds:
         filterOptions.data?.userIds.map((u) => ({
@@ -250,7 +259,7 @@ export default function SessionsTable({
       score_categories: scoreCategories,
       scores_avg: scoresNumeric,
     };
-  }, [environmentOptions, filterOptions.data]);
+  }, [environmentOptions, filterOptions.data, t]);
 
   const isSidebarFilterLoading =
     filterOptions.isPending || environmentFilterOptions.isPending;

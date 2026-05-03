@@ -26,3 +26,11 @@ export const createExperimentDataSchema = (t: Translate) =>
 export type CreateExperiment = z.infer<
   ReturnType<typeof createExperimentDataSchema>
 >;
+
+export type ExperimentRunCallbackData = {
+  success: boolean;
+  datasetId: string;
+  runId: string;
+  runIds?: string[];
+  runName: string;
+};

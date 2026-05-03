@@ -190,7 +190,7 @@ export const RemoteExperimentUpsertForm = ({
             <FormField
               control={form.control}
               name="url"
-                render={({ field }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t("experiments.remote.url")}</FormLabel>
                   <FormDescription>
@@ -198,7 +198,7 @@ export const RemoteExperimentUpsertForm = ({
                   </FormDescription>
                   <FormControl>
                     <Input
-                      placeholder="https://your-service.com/webhook"
+                      placeholder={t("experiments.remote.urlPlaceholder")}
                       {...field}
                     />
                   </FormControl>
@@ -210,7 +210,7 @@ export const RemoteExperimentUpsertForm = ({
             <FormField
               control={form.control}
               name="defaultPayload"
-                render={({ field }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t("experiments.remote.defaultConfig")}</FormLabel>
                   <FormDescription>

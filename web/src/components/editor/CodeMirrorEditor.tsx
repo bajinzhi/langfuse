@@ -17,7 +17,7 @@ import { json, jsonParseLinter } from "@codemirror/lang-json";
 import { linter, type Diagnostic } from "@codemirror/lint";
 import { useTheme } from "next-themes";
 import { cn } from "@/src/utils/tailwind";
-import { useState, useCallback, type RefObject } from "react";
+import { useState, useCallback, useMemo, type RefObject } from "react";
 import { LanguageSupport, StreamLanguage } from "@codemirror/language";
 import type { StringStream } from "@codemirror/language";
 import {
@@ -30,6 +30,7 @@ import {
 } from "@langfuse/shared";
 import { lightTheme } from "@/src/components/editor/light-theme";
 import { darkTheme } from "@/src/components/editor/dark-theme";
+import { useI18n } from "@/src/features/i18n";
 
 // Custom language mode for prompts that highlights mustache variables and prompt dependency tags
 const promptLanguage = StreamLanguage.define({
@@ -57,78 +58,87 @@ const promptLanguage = StreamLanguage.define({
   },
 });
 
+type PromptLinterMessages = {
+  variablesCannotSpanMultipleLines: string;
+  unclosedVariableBrackets: string;
+  emptyVariable: string;
+  invalidVariableName: string;
+  malformedPromptDependencyTag: string;
+  invalidPromptDependencyTagFormat: string;
+};
+
 // Linter for prompt variables
-const promptLinter = linter((view) => {
-  const diagnostics: Diagnostic[] = [];
-  const content = view.state.doc.toString();
+const createPromptLinter = (messages: PromptLinterMessages) =>
+  linter((view) => {
+    const diagnostics: Diagnostic[] = [];
+    const content = view.state.doc.toString();
 
-  // Check for multiline variables
-  for (const match of content.matchAll(MULTILINE_VARIABLE_REGEX)) {
-    diagnostics.push({
-      from: match.index,
-      to: match.index + match[0].length,
-      severity: "error",
-      message: "Variables cannot span multiple lines",
-    });
-  }
-
-  // Check for unclosed variables
-  for (const match of content.matchAll(UNCLOSED_VARIABLE_REGEX)) {
-    diagnostics.push({
-      from: match.index,
-      to: match.index + 2,
-      severity: "error",
-      message: "Unclosed variable brackets",
-    });
-  }
-
-  // Check variable format
-  for (const match of content.matchAll(MUSTACHE_REGEX)) {
-    const variable = match[1];
-    if (!variable || variable.trim() === "") {
+    // Check for multiline variables
+    for (const match of content.matchAll(MULTILINE_VARIABLE_REGEX)) {
       diagnostics.push({
         from: match.index,
         to: match.index + match[0].length,
         severity: "error",
-        message: "Empty variable is not allowed",
-      });
-    } else if (!isValidVariableName(variable)) {
-      diagnostics.push({
-        from: match.index,
-        to: match.index + match[0].length,
-        severity: "error",
-        message:
-          "Variable must start with a letter and can only contain letters and underscores",
+        message: messages.variablesCannotSpanMultipleLines,
       });
     }
-  }
 
-  // Check for malformed prompt dependency tags
-  for (const match of content.matchAll(PromptDependencyRegex)) {
-    const tagContent = match[0];
-    try {
-      const parsedTags = parsePromptDependencyTags(tagContent);
+    // Check for unclosed variables
+    for (const match of content.matchAll(UNCLOSED_VARIABLE_REGEX)) {
+      diagnostics.push({
+        from: match.index,
+        to: match.index + 2,
+        severity: "error",
+        message: messages.unclosedVariableBrackets,
+      });
+    }
 
-      if (parsedTags.length === 0) {
+    // Check variable format
+    for (const match of content.matchAll(MUSTACHE_REGEX)) {
+      const variable = match[1];
+      if (!variable || variable.trim() === "") {
+        diagnostics.push({
+          from: match.index,
+          to: match.index + match[0].length,
+          severity: "error",
+          message: messages.emptyVariable,
+        });
+      } else if (!isValidVariableName(variable)) {
+        diagnostics.push({
+          from: match.index,
+          to: match.index + match[0].length,
+          severity: "error",
+          message: messages.invalidVariableName,
+        });
+      }
+    }
+
+    // Check for malformed prompt dependency tags
+    for (const match of content.matchAll(PromptDependencyRegex)) {
+      const tagContent = match[0];
+      try {
+        const parsedTags = parsePromptDependencyTags(tagContent);
+
+        if (parsedTags.length === 0) {
+          diagnostics.push({
+            from: match.index,
+            to: match.index + match[0].length,
+            severity: "warning",
+            message: messages.malformedPromptDependencyTag,
+          });
+        }
+      } catch {
         diagnostics.push({
           from: match.index,
           to: match.index + match[0].length,
           severity: "warning",
-          message: "Malformed prompt dependency tag",
+          message: messages.invalidPromptDependencyTagFormat,
         });
       }
-    } catch {
-      diagnostics.push({
-        from: match.index,
-        to: match.index + match[0].length,
-        severity: "warning",
-        message: "Invalid prompt dependency tag format",
-      });
     }
-  }
 
-  return diagnostics;
-});
+    return diagnostics;
+  });
 
 // Create a language support instance that combines the language and its configuration
 const promptSupport = new LanguageSupport(promptLanguage);
@@ -393,11 +403,32 @@ export function CodeMirrorEditor({
   enableSearchKeymap?: boolean;
   onEditorMount?: () => void;
 }) {
+  const { t } = useI18n();
   const { resolvedTheme } = useTheme();
   const codeMirrorTheme = resolvedTheme === "dark" ? darkTheme : lightTheme;
   // used to disable linter when field is empty
   const [linterEnabled, setLinterEnabled] = useState<boolean>(
     !!value && value !== "",
+  );
+  const promptLinter = useMemo(
+    () =>
+      createPromptLinter({
+        variablesCannotSpanMultipleLines: t(
+          "editor.promptLint.variablesCannotSpanMultipleLines",
+        ),
+        unclosedVariableBrackets: t(
+          "editor.promptLint.unclosedVariableBrackets",
+        ),
+        emptyVariable: t("editor.promptLint.emptyVariable"),
+        invalidVariableName: t("editor.promptLint.invalidVariableName"),
+        malformedPromptDependencyTag: t(
+          "editor.promptLint.malformedPromptDependencyTag",
+        ),
+        invalidPromptDependencyTagFormat: t(
+          "editor.promptLint.invalidPromptDependencyTagFormat",
+        ),
+      }),
+    [t],
   );
 
   const handleEditorRef = useCallback(

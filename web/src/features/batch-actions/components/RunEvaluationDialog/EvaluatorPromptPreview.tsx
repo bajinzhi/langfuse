@@ -3,6 +3,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/src/components/ui/hover-card";
+import { useI18n } from "@/src/features/i18n";
 
 type EvaluatorPromptPreviewProps = {
   trigger: React.ReactNode;
@@ -11,6 +12,7 @@ type EvaluatorPromptPreviewProps = {
 
 export function EvaluatorPromptPreview(props: EvaluatorPromptPreviewProps) {
   const { trigger, previewContent } = props;
+  const { t } = useI18n();
 
   return (
     <HoverCard openDelay={150} closeDelay={150}>
@@ -21,7 +23,7 @@ export function EvaluatorPromptPreview(props: EvaluatorPromptPreviewProps) {
         onWheel={(event) => event.stopPropagation()}
       >
         <p className="text-muted-foreground mb-2 text-xs">
-          Prompt preview with the first selected observation
+          {t("batchActions.evaluatorPromptPreview")}
         </p>
         <pre
           className="bg-muted/20 max-h-[320px] overflow-y-auto rounded-md border p-2 text-xs wrap-break-word whitespace-pre-wrap"

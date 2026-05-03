@@ -37,6 +37,7 @@ import { commentReactionsRouter } from "@/src/server/api/routers/commentReaction
 import { queueRouter } from "@/src/features/annotation-queues/server/annotationQueuesRouter";
 import { queueItemRouter } from "@/src/features/annotation-queues/server/annotationQueueItemsRouter";
 import { experimentsRouter } from "@/src/features/experiments/server/router";
+import { promptfooRouter } from "@/src/features/promptfoo/server/promptfoo-router";
 import { mediaRouter } from "@/src/server/api/routers/media";
 import { backgroundMigrationsRouter } from "@/src/features/background-migrations/server/background-migrations-router";
 import { auditLogsRouter } from "./routers/auditLogs";
@@ -88,6 +89,7 @@ export const appRouter = createTRPCRouter({
   evals: evalRouter,
   defaultLlmModel: defaultEvalModelRouter,
   experiments: experimentsRouter,
+  promptfoo: promptfooRouter,
   posthogIntegration: posthogIntegrationRouter,
   mixpanelIntegration: mixpanelIntegrationRouter,
   blobStorageIntegration: blobStorageIntegrationRouter,

@@ -6,6 +6,7 @@ import {
 } from "@/src/components/ui/hover-card";
 import { cn } from "@/src/utils/tailwind";
 import { api } from "@/src/utils/api";
+import { useI18n } from "@/src/features/i18n";
 
 interface ReactionBarProps {
   projectId: string;
@@ -18,6 +19,7 @@ export function ReactionBar({
   commentId,
   onReactionToggle,
 }: ReactionBarProps) {
+  const { t } = useI18n();
   const { data: reactions } = api.commentReactions.listForComment.useQuery({
     projectId,
     commentId,
@@ -64,7 +66,7 @@ export function ReactionBar({
               <div className="flex flex-col gap-1">
                 {reaction.users.map((user) => (
                   <div key={user.id} className="text-muted-foreground text-xs">
-                    {user.name || "Unknown user"}
+                    {user.name || t("common.unknownUser")}
                   </div>
                 ))}
               </div>

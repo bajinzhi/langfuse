@@ -1,6 +1,7 @@
 import { Label } from "@/src/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/src/components/ui/radio-group";
 import type { MappingMode } from "../types";
+import { useI18n } from "@/src/features/i18n";
 
 type MappingModeSelectorProps = {
   value: MappingMode;
@@ -15,6 +16,8 @@ export function MappingModeSelector({
   fullLabel,
   fieldName,
 }: MappingModeSelectorProps) {
+  const { t } = useI18n();
+
   return (
     <RadioGroup value={value} onValueChange={(v) => onChange(v as MappingMode)}>
       <div className="hover:bg-muted/50 flex items-center space-x-3 rounded-md border px-3">
@@ -32,7 +35,7 @@ export function MappingModeSelector({
           htmlFor={`${fieldName}-custom`}
           className="flex-1 cursor-pointer py-3 text-sm font-medium"
         >
-          Custom mapping
+          {t("batchActions.customMapping")}
         </Label>
       </div>
       {fieldName !== "input" && (
@@ -46,7 +49,7 @@ export function MappingModeSelector({
             htmlFor={`${fieldName}-none`}
             className="flex-1 cursor-pointer py-3 text-sm font-medium"
           >
-            None
+            {t("common.none")}
           </Label>
         </div>
       )}
