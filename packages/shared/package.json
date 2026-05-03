@@ -64,6 +64,7 @@
     "db:generate": "dotenv -e ../../.env -- npx prisma generate",
     "db:seed:examples": "dotenv -e ../../.env -- npx prisma db seed -- --environment examples",
     "db:seed:load": "dotenv -e ../../.env -- npx prisma db seed -- --environment load",
+    "examples:cn-marketplace": "dotenv -e ../../.env -- node scripts/examples/cn-marketplace/run.cjs",
     "ch:up": "bash clickhouse/scripts/up.sh",
     "ch:down": "bash clickhouse/scripts/down.sh",
     "ch:drop": "bash clickhouse/scripts/drop.sh",
