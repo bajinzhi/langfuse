@@ -28,7 +28,7 @@ export default function TableLink({
   return (
     <Link
       className={cn(
-        "text-accent-dark-blue hover:text-primary-accent/60 inline-block max-w-full text-xs font-semibold",
+        "text-accent-dark-blue hover:text-primary-accent inline-block max-w-full text-xs font-semibold",
         className,
         icon && "max-h-4",
       )}

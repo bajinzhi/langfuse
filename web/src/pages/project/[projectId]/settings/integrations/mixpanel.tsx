@@ -91,16 +91,14 @@ export default function MixpanelIntegrationSettings() {
         ),
       }}
     >
-      <p className="text-primary mb-4 text-sm">
+      <p className="text-foreground mb-4 text-sm">
         {t("integrations.mixpanel.descriptionPrefix")}{" "}
         <Link href="https://mixpanel.com" className="underline">
           Mixpanel
         </Link>{" "}
         {t("integrations.mixpanel.descriptionSuffix")}
       </p>
-      {!hasAccess && (
-        <p className="text-sm">{t("integrations.noAccess")}</p>
-      )}
+      {!hasAccess && <p className="text-sm">{t("integrations.noAccess")}</p>}
       {hasAccess && (
         <>
           <Header title={t("common.configuration")} />
@@ -117,7 +115,7 @@ export default function MixpanelIntegrationSettings() {
       {state.data?.enabled && (
         <>
           <Header title={t("common.status")} className="mt-8" />
-          <p className="text-primary text-sm">
+          <p className="text-foreground text-sm">
             {t("integrations.dataSyncedUntil")}{" "}
             {state.data?.lastSyncAt
               ? formatDate(state.data.lastSyncAt, {
@@ -353,9 +351,7 @@ const MixpanelIntegrationSettingsForm = ({
           loading={mutDelete.isPending}
           disabled={isLoading || !!!state}
           onClick={() => {
-            if (
-              confirm(t("integrations.mixpanel.resetConfirm"))
-            )
+            if (confirm(t("integrations.mixpanel.resetConfirm")))
               mutDelete.mutate({ projectId });
           }}
         >

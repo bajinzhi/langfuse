@@ -106,16 +106,16 @@ export function ApiKeyList(props: { entityId: string; scope: ApiKeyScope }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-primary hidden md:table-cell">
+              <TableHead className="text-foreground hidden md:table-cell">
                 {t("publicApi.created")}
               </TableHead>
-              <TableHead className="text-primary">
+              <TableHead className="text-foreground">
                 {t("publicApi.note")}
               </TableHead>
-              <TableHead className="text-primary">
+              <TableHead className="text-foreground">
                 {t("publicApi.publicKey")}
               </TableHead>
-              <TableHead className="text-primary">
+              <TableHead className="text-foreground">
                 {t("publicApi.secretKey")}
               </TableHead>
               <TableHead />

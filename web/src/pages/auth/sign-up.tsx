@@ -201,7 +201,7 @@ export default function SignIn({
       <div className="flex flex-1 flex-col py-6 sm:min-h-full sm:justify-center sm:px-6 sm:py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <LangfuseIcon className="mx-auto" />
-          <h2 className="text-primary mt-4 text-center text-2xl leading-9 font-bold tracking-tight">
+          <h2 className="text-foreground mt-4 text-center text-2xl leading-9 font-bold tracking-tight">
             {t("auth.signUp.title")}
           </h2>
         </div>

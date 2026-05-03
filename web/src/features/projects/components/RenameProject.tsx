@@ -65,14 +65,14 @@ export default function RenameProject() {
       <Header title={t("projects.nameTitle")} />
       <Card className="mb-4 p-3">
         {form.getValues().name !== "" ? (
-          <p className="text-primary mb-4 text-sm">
+          <p className="text-foreground mb-4 text-sm">
             {t("projects.renamePreview", {
               currentName: project?.name ?? "",
               newName: form.watch().name,
             })}
           </p>
         ) : (
-          <p className="text-primary mb-4 text-sm">
+          <p className="text-foreground mb-4 text-sm">
             {t("projects.currentName", { name: project?.name ?? "" })}
           </p>
         )}

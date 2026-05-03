@@ -68,27 +68,25 @@ export function LlmApiKeyList(props: { projectId: string }) {
   return (
     <div id="llm-api-keys">
       <Header title={t("publicApi.llmConnections")} />
-      <p className="mb-4 text-sm">
-        {t("publicApi.llmConnectionsDescription")}
-      </p>
+      <p className="mb-4 text-sm">{t("publicApi.llmConnectionsDescription")}</p>
       <Card className="mb-4 overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-primary md:table-cell">
+              <TableHead className="text-foreground md:table-cell">
                 {t("publicApi.provider")}
               </TableHead>
-              <TableHead className="text-primary md:table-cell">
+              <TableHead className="text-foreground md:table-cell">
                 {t("publicApi.adapter")}
               </TableHead>
-              <TableHead className="text-primary md:table-cell">
+              <TableHead className="text-foreground md:table-cell">
                 {t("publicApi.baseUrl")}
               </TableHead>
-              <TableHead className="text-primary">
+              <TableHead className="text-foreground">
                 {t("publicApi.apiKey")}
               </TableHead>
               {hasExtraHeaderKeys ? (
-                <TableHead className="text-primary">
+                <TableHead className="text-foreground">
                   {t("publicApi.extraHeaders")}
                 </TableHead>
               ) : null}

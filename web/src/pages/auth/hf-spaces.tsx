@@ -48,7 +48,7 @@ export default function HfSpaces({ deploymentDomain }: PageProps) {
               height={36}
             />
           </div>
-          <h2 className="text-primary mt-4 text-center text-2xl leading-9 font-bold tracking-tight">
+          <h2 className="text-foreground mt-4 text-center text-2xl leading-9 font-bold tracking-tight">
             {t("auth.hfSpaces.headTitle")}
           </h2>
         </div>

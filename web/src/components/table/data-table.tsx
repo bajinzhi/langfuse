@@ -678,7 +678,7 @@ function TableBodyComponent<TData>({
                     )}
                   >
                     {isStringCell && isSmallRowHeight ? (
-                      <div className="min-w-0 truncate leading-none">
+                      <div className="min-w-0 truncate leading-tight">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),

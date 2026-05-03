@@ -290,7 +290,7 @@ const Integrations = (props: { projectId: string }) => {
         <Card className="p-3">
           {}
           <PostHogLogo className="text-foreground mb-4 w-40" />
-          <p className="text-primary mb-4 text-sm">
+          <p className="text-foreground mb-4 text-sm">
             {t("integrations.posthog.cardDescription")}
           </p>
           <div className="flex items-center gap-2">
@@ -314,7 +314,7 @@ const Integrations = (props: { projectId: string }) => {
 
         <Card className="p-3">
           <MixpanelLogo className="text-foreground mb-4 w-20" />
-          <p className="text-primary mb-4 text-sm">
+          <p className="text-foreground mb-4 text-sm">
             {t("integrations.mixpanel.cardDescription")}
           </p>
           <div className="flex items-center gap-2">
@@ -341,7 +341,7 @@ const Integrations = (props: { projectId: string }) => {
             <span className="font-semibold">
               {t("integrations.blobStorage.cardTitle")}
             </span>
-            <p className="text-primary mb-4 text-sm">
+            <p className="text-foreground mb-4 text-sm">
               {t("integrations.blobStorage.cardDescription")}
             </p>
             <div className="flex items-center gap-2">
@@ -371,7 +371,7 @@ const Integrations = (props: { projectId: string }) => {
               {t("integrations.slack.cardTitle")}
             </span>
           </div>
-          <p className="text-primary mb-4 text-sm">
+          <p className="text-foreground mb-4 text-sm">
             {t("integrations.slack.cardDescription")}
           </p>
           <div className="flex items-center gap-2">

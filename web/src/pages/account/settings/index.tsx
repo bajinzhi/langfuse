@@ -81,14 +81,14 @@ function UpdateDisplayName() {
       <Header title={t("account.displayName")} />
       <Card className="p-3">
         {form.getValues().name !== "" ? (
-          <p className="text-primary mb-4 text-sm">
+          <p className="text-foreground mb-4 text-sm">
             {t("account.displayName.pending", {
               currentName: session?.user?.name ?? "",
               nextName: form.watch().name,
             })}
           </p>
         ) : (
-          <p className="text-primary mb-4 text-sm">
+          <p className="text-foreground mb-4 text-sm">
             {t("account.displayName.current", {
               name: session?.user?.name ?? "",
             })}
@@ -280,7 +280,7 @@ const getAccountSettingsPages = (
         <div>
           <Header title={t("account.email")} />
           <Card className="p-3">
-            <p className="text-primary text-sm">
+            <p className="text-foreground text-sm">
               {t("account.email.current", { email: userEmail })}
             </p>
           </Card>
@@ -298,7 +298,7 @@ const getAccountSettingsPages = (
         <div>
           <Header title={t("account.password")} />
           <Card className="p-3">
-            <p className="text-primary mb-4 text-sm">
+            <p className="text-foreground mb-4 text-sm">
               {t("account.password.description")}
             </p>
             <Button asChild variant="secondary">

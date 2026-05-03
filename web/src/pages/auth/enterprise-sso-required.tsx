@@ -141,7 +141,7 @@ export default function EnterpriseSsoRequiredPage() {
       <div className="min-h-screen-with-banner bg-background flex flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <LangfuseIcon className="mx-auto" />
-          <h1 className="text-primary mt-6 text-center text-2xl font-bold">
+          <h1 className="text-foreground mt-6 text-center text-2xl font-bold">
             {t("auth.enterprise.title")}
           </h1>
           <p className="text-muted-foreground mt-2 text-center text-sm leading-6">

@@ -123,12 +123,10 @@ export default function BlobStorageIntegrationSettings() {
         ),
       }}
     >
-      <p className="text-primary mb-4 text-sm">
+      <p className="text-foreground mb-4 text-sm">
         {t("integrations.blobStorage.description")}
       </p>
-      {!hasAccess && (
-        <p className="text-sm">{t("integrations.noAccess")}</p>
-      )}
+      {!hasAccess && <p className="text-sm">{t("integrations.noAccess")}</p>}
       {state.data && (
         <>
           <Header title={t("common.status")} />
@@ -200,9 +198,7 @@ export default function BlobStorageIntegrationSettings() {
                     <span className="text-muted-foreground">
                       {t("integrations.blobStorage.exportStartDate")}
                     </span>
-                    <span>
-                      {formatDate(state.data.exportStartDate)}
-                    </span>
+                    <span>{formatDate(state.data.exportStartDate)}</span>
                   </>
                 )}
             </div>
@@ -429,7 +425,9 @@ const BlobStorageIntegrationSettingsForm = ({
             name="endpoint"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("integrations.blobStorage.endpointUrl")}</FormLabel>
+                <FormLabel>
+                  {t("integrations.blobStorage.endpointUrl")}
+                </FormLabel>
                 <FormControl>
                   <Input {...field} value={field.value || ""} />
                 </FormControl>
@@ -567,7 +565,9 @@ const BlobStorageIntegrationSettingsForm = ({
                       : t(
                           "integrations.blobStorage.awsSecretAccessKeyDescription",
                         )
-                    : t("integrations.blobStorage.s3SecretAccessKeyDescription")}
+                    : t(
+                        "integrations.blobStorage.s3SecretAccessKeyDescription",
+                      )}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -579,7 +579,9 @@ const BlobStorageIntegrationSettingsForm = ({
           name="prefix"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("integrations.blobStorage.exportPrefix")}</FormLabel>
+              <FormLabel>
+                {t("integrations.blobStorage.exportPrefix")}
+              </FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -800,9 +802,7 @@ const BlobStorageIntegrationSettingsForm = ({
                         : null;
                       field.onChange(date);
                     }}
-                    placeholder={t(
-                      "integrations.blobStorage.selectStartDate",
-                    )}
+                    placeholder={t("integrations.blobStorage.selectStartDate")}
                   />
                 </FormControl>
                 <FormDescription>
@@ -880,9 +880,7 @@ const BlobStorageIntegrationSettingsForm = ({
           disabled={isLoading || !state?.enabled}
           title={t("integrations.blobStorage.runNowTooltip")}
           onClick={() => {
-            if (
-              confirm(t("integrations.blobStorage.runNowConfirm"))
-            )
+            if (confirm(t("integrations.blobStorage.runNowConfirm")))
               mutRunNow.mutate({ projectId });
           }}
         >
@@ -893,9 +891,7 @@ const BlobStorageIntegrationSettingsForm = ({
           loading={mutDelete.isPending}
           disabled={isLoading || !!!state}
           onClick={() => {
-            if (
-              confirm(t("integrations.blobStorage.resetConfirm"))
-            )
+            if (confirm(t("integrations.blobStorage.resetConfirm")))
               mutDelete.mutate({ projectId });
           }}
         >

@@ -112,7 +112,7 @@ export default function ProtectedLabelsSettings({
     <div>
       <Header title={t("prompts.labels.protectedTitle")} />
       <Card className="mb-4 p-3">
-        <p className="text-primary mb-4 text-sm">
+        <p className="text-foreground mb-4 text-sm">
           {t("prompts.labels.protectedDescription")}
         </p>
         <div className="mb-4 flex flex-wrap gap-2">

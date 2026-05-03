@@ -66,12 +66,12 @@ export default function ConfigureRetention() {
     <div>
       <Header title={t("projects.retention.title")} />
       <Card className="mb-4 p-3">
-        <p className="text-primary mb-4 text-sm">
+        <p className="text-foreground mb-4 text-sm">
           {t("projects.retention.description")}
         </p>
         {Boolean(form.getValues().retention) &&
         form.getValues().retention !== project?.retentionDays ? (
-          <p className="text-primary mb-4 text-sm">
+          <p className="text-foreground mb-4 text-sm">
             {t("projects.retention.preview", {
               current:
                 project?.retentionDays?.toString() ??
@@ -83,11 +83,11 @@ export default function ConfigureRetention() {
             })}
           </p>
         ) : !Boolean(project?.retentionDays) ? (
-          <p className="text-primary mb-4 text-sm">
+          <p className="text-foreground mb-4 text-sm">
             {t("projects.retention.currentIndefinite")}
           </p>
         ) : (
-          <p className="text-primary mb-4 text-sm">
+          <p className="text-foreground mb-4 text-sm">
             {t("projects.retention.current", {
               days: project?.retentionDays ?? "",
             })}

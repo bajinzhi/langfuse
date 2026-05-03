@@ -188,7 +188,7 @@ export default function Dataset() {
                     </span>
                     <Link
                       href={`/project/${projectId}/datasets/${datasetId}/items?version=${run.data.datasetVersion.toISOString()}`}
-                      className="text-accent-dark-blue hover:text-primary-accent/60 text-sm"
+                      className="text-accent-dark-blue hover:text-primary-accent text-sm"
                     >
                       <LocalIsoDate date={run.data.datasetVersion} />
                     </Link>

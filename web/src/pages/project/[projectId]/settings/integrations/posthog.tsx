@@ -88,16 +88,14 @@ export default function PosthogIntegrationSettings() {
         ),
       }}
     >
-      <p className="text-primary mb-4 text-sm">
+      <p className="text-foreground mb-4 text-sm">
         {t("integrations.posthog.descriptionPrefix")}{" "}
         <Link href="https://posthog.com" className="underline">
           PostHog
         </Link>{" "}
         {t("integrations.posthog.descriptionSuffix")}
       </p>
-      {!hasAccess && (
-        <p className="text-sm">{t("integrations.noAccess")}</p>
-      )}
+      {!hasAccess && <p className="text-sm">{t("integrations.noAccess")}</p>}
       {hasAccess && (
         <>
           <Header title={t("common.configuration")} />
@@ -114,7 +112,7 @@ export default function PosthogIntegrationSettings() {
       {state.data?.enabled && (
         <>
           <Header title={t("common.status")} className="mt-8" />
-          <p className="text-primary text-sm">
+          <p className="text-foreground text-sm">
             {t("integrations.dataSyncedUntil")}{" "}
             {state.data?.lastSyncAt
               ? formatDate(state.data.lastSyncAt, {
@@ -327,9 +325,7 @@ const PostHogIntegrationSettings = ({
           loading={mutDelete.isPending}
           disabled={isLoading || !!!state}
           onClick={() => {
-            if (
-              confirm(t("integrations.posthog.resetConfirm"))
-            )
+            if (confirm(t("integrations.posthog.resetConfirm")))
               mutDelete.mutate({ projectId });
           }}
         >

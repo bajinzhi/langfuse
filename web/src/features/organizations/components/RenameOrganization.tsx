@@ -68,7 +68,7 @@ export default function RenameOrganization() {
       <Header title={t("organizations.rename.title")} />
       <Card className="mb-4 p-3">
         {form.getValues().name !== "" ? (
-          <p className="text-primary mb-4 text-sm">
+          <p className="text-foreground mb-4 text-sm">
             {t("organizations.rename.pending", {
               currentName: orgName,
               nextName: form.watch().name,

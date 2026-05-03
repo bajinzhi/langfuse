@@ -22,7 +22,7 @@ export function DataTableSelectAllBanner({
           })}{" "}
           <Button
             variant="ghost"
-            className="text-accent-dark-blue hover:text-accent-dark-blue/80 h-auto p-0 font-semibold"
+            className="text-accent-dark-blue hover:text-primary-accent h-auto p-0 font-semibold"
             onClick={() => {
               setSelectAll(false);
               setRowSelection({});
@@ -36,7 +36,7 @@ export function DataTableSelectAllBanner({
           {t("table.selection.pageSelected", { pageSize })}{" "}
           <Button
             variant="ghost"
-            className="text-accent-dark-blue hover:text-accent-dark-blue/80 h-auto p-0 font-semibold"
+            className="text-accent-dark-blue hover:text-primary-accent h-auto p-0 font-semibold"
             onClick={() => {
               setSelectAll(true);
             }}

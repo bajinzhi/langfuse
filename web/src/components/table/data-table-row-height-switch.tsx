@@ -20,7 +20,7 @@ const heightOptions = [
 ] as const;
 
 const defaultHeights: Record<RowHeight, string> = {
-  s: "h-7", // after removing the container around IO, we want the row height a bit more than 6
+  s: "h-8",
   m: "h-24",
   l: "h-64",
 };

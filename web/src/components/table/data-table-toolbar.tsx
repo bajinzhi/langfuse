@@ -158,7 +158,7 @@ function getSearchDescription(
 
   if (tableAllowsFullTextSearch && searchType?.includes("content")) {
     return (
-      <p className="text-primary text-xs font-normal">
+      <p className="text-foreground text-xs font-normal">
         {t("table.search.description.content", {
           fields,
           warning: performanceWarning,
@@ -168,7 +168,7 @@ function getSearchDescription(
   }
   if (tableAllowsFullTextSearch && searchType?.includes("input")) {
     return (
-      <p className="text-primary text-xs font-normal">
+      <p className="text-foreground text-xs font-normal">
         {t("table.search.description.input", {
           fields,
           warning: performanceWarning,
@@ -178,7 +178,7 @@ function getSearchDescription(
   }
   if (tableAllowsFullTextSearch && searchType?.includes("output")) {
     return (
-      <p className="text-primary text-xs font-normal">
+      <p className="text-foreground text-xs font-normal">
         {t("table.search.description.output", {
           fields,
           warning: performanceWarning,
@@ -187,7 +187,7 @@ function getSearchDescription(
     );
   }
   return (
-    <p className="text-primary text-xs font-normal">
+    <p className="text-foreground text-xs font-normal">
       {t("table.search.description.metadata", { fields })}
     </p>
   );

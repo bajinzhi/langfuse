@@ -124,7 +124,7 @@ export function ResetPasswordPage({
           <Link href="/">
             <LangfuseIcon className="mx-auto" />
           </Link>
-          <h2 className="text-primary mt-4 text-center text-2xl leading-9 font-bold tracking-tight">
+          <h2 className="text-foreground mt-4 text-center text-2xl leading-9 font-bold tracking-tight">
             {t("auth.password.reset.title")}
           </h2>
           {session.status !== "authenticated" && (
