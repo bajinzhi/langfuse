@@ -33,6 +33,8 @@ export const DEMO_IDS = {
   dataset: "cn-marketplace-dataset-customer-loop",
   runBaseline: "cn-marketplace-run-baseline",
   runOptimized: "cn-marketplace-run-optimized",
+  promptfooRunAssistantV1: "cn-marketplace-promptfoo-run-assistant-v1",
+  promptfooRunAssistantV2: "cn-marketplace-promptfoo-run-assistant-v2",
   llmApiKey: "cn-marketplace-llm-api-key-ollama",
   defaultLlmModel: "cn-marketplace-default-llm-model",
   model: "cn-marketplace-model-chat",

@@ -20,7 +20,7 @@ pnpm db:seed:cn-marketplace
 - 默认 Ollama Base URL：`http://localhost:11434/v1`
 - 默认 Ollama 模型：优先使用 `CN_MARKETPLACE_OLLAMA_MODEL` 或 `OLLAMA_MODEL`；未设置时自动从本地 Ollama `/api/tags` 读取最近更新的模型；检测失败时回退到 `qwen2.5:7b`
 
-示例数据覆盖从项目创建到项目内业务数据的完整链路：中文 prompts、traces、observations、scores、score configs、dataset、dataset runs、experiments、evaluation templates、evaluation job executions、annotation queue、dashboard widgets、LLM schema/tool 和自定义模型价格。
+示例数据覆盖从项目创建到项目内业务数据的完整链路：中文 prompts、traces、observations、scores、score configs、dataset、dataset runs、experiments、Promptfoo 矩阵运行与报告、evaluation templates、evaluation job executions、annotation queue、dashboard widgets、LLM schema/tool 和自定义模型价格。
 
 如果您本地 Ollama 的地址或模型名不同，可以在执行前覆盖：
 
