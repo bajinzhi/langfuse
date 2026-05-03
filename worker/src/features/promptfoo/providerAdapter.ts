@@ -13,6 +13,7 @@ import {
 } from "@langfuse/shared/src/server";
 import {
   asRecord,
+  convertEventRecordToObservationForEval,
   type DatasetItemDomain,
   type PromptfooDatasetRunMetadata,
 } from "@langfuse/shared";
@@ -29,6 +30,7 @@ import {
   PROMPTFOO_LANGFUSE_PROMPT_ID_PREFIX,
 } from "./constants";
 import { createPromptfooDeterministicUuid } from "./ids";
+import { scheduleExperimentObservationEvals } from "../experiments/scheduleExperimentEvals";
 
 export type PromptfooDatasetRunForProvider = {
   id: string;
@@ -297,6 +299,11 @@ async function callLangfuseModel(params: {
         ),
         itemExpectedOutput: params.datasetItem.expectedOutput,
         itemMetadata: asRecord(params.datasetItem.metadata),
+      },
+      onRootEventRecordReady: async (rootEventRecord) => {
+        await scheduleExperimentObservationEvals({
+          observation: convertEventRecordToObservationForEval(rootEventRecord),
+        });
       },
     }),
   };

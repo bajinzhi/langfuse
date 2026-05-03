@@ -10,16 +10,36 @@ import {
 } from "./providerAdapter";
 
 const {
+  mockConvertEventRecordToObservationForEval,
+  mockCreateInternalEventsWriter,
   mockFetchLLMCompletion,
   mockFetchValidModelConfig,
   mockProcessEventBatch,
   mockQueryClickhouse,
+  mockScheduleExperimentObservationEvals,
 } = vi.hoisted(() => ({
+  mockConvertEventRecordToObservationForEval: vi.fn(),
+  mockCreateInternalEventsWriter: vi.fn(
+    (params: { experimentContext?: unknown }) => ({
+      experimentContext: params?.experimentContext,
+      write: vi.fn(),
+    }),
+  ),
   mockFetchLLMCompletion: vi.fn(),
   mockFetchValidModelConfig: vi.fn(),
   mockProcessEventBatch: vi.fn(),
   mockQueryClickhouse: vi.fn(),
+  mockScheduleExperimentObservationEvals: vi.fn(),
 }));
+
+vi.mock("@langfuse/shared", async () => {
+  const actual = await vi.importActual("@langfuse/shared");
+  return {
+    ...actual,
+    convertEventRecordToObservationForEval:
+      mockConvertEventRecordToObservationForEval,
+  };
+});
 
 vi.mock("@langfuse/shared/src/server", async () => {
   const actual = await vi.importActual("@langfuse/shared/src/server");
@@ -33,6 +53,14 @@ vi.mock("@langfuse/shared/src/server", async () => {
     queryClickhouse: mockQueryClickhouse,
   };
 });
+
+vi.mock("../internal-tracing/createInternalEventsWriter", () => ({
+  createInternalEventsWriter: mockCreateInternalEventsWriter,
+}));
+
+vi.mock("../experiments/scheduleExperimentEvals", () => ({
+  scheduleExperimentObservationEvals: mockScheduleExperimentObservationEvals,
+}));
 
 const prompts: LangfusePromptForPromptfoo[] = [
   {
@@ -123,6 +151,11 @@ beforeEach(() => {
     },
   });
   mockProcessEventBatch.mockResolvedValue({ successes: [], errors: [] });
+  mockConvertEventRecordToObservationForEval.mockReturnValue({
+    project_id: "project-1",
+    trace_id: "trace-1",
+    span_id: "generation-1",
+  });
 });
 
 describe("resolvePromptIndex", () => {
@@ -209,6 +242,39 @@ describe("LangfuseProviderAdapter idempotency", () => {
     });
     expect(mockProcessEventBatch).not.toHaveBeenCalled();
     expect(mockFetchLLMCompletion).toHaveBeenCalledTimes(1);
+  });
+
+  it("wires Promptfoo root observations into experiment evaluator scheduling", async () => {
+    mockQueryClickhouse.mockResolvedValue([]);
+
+    const [provider] = await createProviderAdapter();
+    await provider!.callApi("Direct France", {
+      promptIdx: 0,
+      vars: {
+        __langfuse_dataset_item_id: datasetItem.id,
+      },
+    });
+
+    const writerParams = mockCreateInternalEventsWriter.mock.calls[0]?.[0] as
+      | {
+          onRootEventRecordReady?: (rootEventRecord: unknown) => Promise<void>;
+        }
+      | undefined;
+    const rootEventRecord = { id: "root-event-record" };
+
+    expect(writerParams?.onRootEventRecordReady).toEqual(expect.any(Function));
+    await writerParams!.onRootEventRecordReady!(rootEventRecord);
+
+    expect(mockConvertEventRecordToObservationForEval).toHaveBeenCalledWith(
+      rootEventRecord,
+    );
+    expect(mockScheduleExperimentObservationEvals).toHaveBeenCalledWith({
+      observation: {
+        project_id: "project-1",
+        trace_id: "trace-1",
+        span_id: "generation-1",
+      },
+    });
   });
 
   it("caches validated model config across Promptfoo cells for the same run", async () => {

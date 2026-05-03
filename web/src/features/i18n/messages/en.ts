@@ -1976,7 +1976,7 @@ export const enMessages = {
   "promptfoo.matrix.run": "Run matrix",
   "promptfoo.matrix.title": "Promptfoo Matrix",
   "promptfoo.matrix.validation.callLimitExceeded":
-    "Promptfoo matrix would create {calls} model calls, above the {limit} limit.",
+    "Promptfoo matrix would create at least {calls} model calls, above the {limit} limit.",
   "promptfoo.matrix.validation.datasetEmpty":
     "Selected dataset is empty or all items are inactive.",
   "promptfoo.matrix.validation.datasetNotFound": "Selected dataset not found.",

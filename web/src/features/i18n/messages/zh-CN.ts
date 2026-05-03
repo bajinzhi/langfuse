@@ -1818,7 +1818,7 @@ export const zhCNMessages = {
   "promptfoo.matrix.run": "运行矩阵",
   "promptfoo.matrix.title": "Promptfoo 矩阵",
   "promptfoo.matrix.validation.callLimitExceeded":
-    "Promptfoo 矩阵会产生 {calls} 次模型调用，超过 {limit} 次限制。",
+    "Promptfoo 矩阵至少会产生 {calls} 次模型调用，超过 {limit} 次限制。",
   "promptfoo.matrix.validation.datasetEmpty":
     "所选数据集为空，或所有条目都处于非活跃状态。",
   "promptfoo.matrix.validation.datasetNotFound": "未找到所选数据集。",

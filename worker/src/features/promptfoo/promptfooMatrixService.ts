@@ -257,6 +257,9 @@ export class PromptfooMatrixService {
       const assertions = datasetRuns[0]?.metadata.assertions ?? [];
       const requiresExpectedOutput =
         promptfooAssertionsRequireExpectedOutput(assertions);
+      const maxTests = Math.floor(
+        PROMPTFOO_MATRIX_CALL_LIMIT_DEFAULT / datasetRuns.length,
+      );
 
       const tests = await this.datasetAdapter.getTests({
         projectId: event.projectId,
@@ -266,6 +269,7 @@ export class PromptfooMatrixService {
           : undefined,
         variables: prompts[0]?.variables ?? [],
         requiresExpectedOutput,
+        maxTests,
       });
 
       if (tests.length === 0) {

@@ -6,6 +6,7 @@ import {
   DefaultEvalModelService,
   getS3EventStorageClient,
   getDatasetItems,
+  getDatasetItemsCount,
   logger,
   PromptfooExperimentCreateQueue,
   PromptService,
@@ -23,7 +24,6 @@ import {
   promptfooAssertionsRequireExpectedOutput,
   validateDatasetItem,
   type CreatePromptfooMatrixExperimentInput,
-  type DatasetItemDomain,
   type PromptMessage,
   type PromptfooAssertion,
   type PromptfooDatasetRunMetadata,
@@ -83,6 +83,7 @@ type MatrixValidationResult =
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const PROMPTFOO_DATASET_ITEM_PAGE_SIZE = 100;
 
 function uniqueSorted(values: string[]) {
   return Array.from(new Set(values)).sort();
@@ -97,18 +98,82 @@ function areSameVariables(left: string[], right: string[]) {
   );
 }
 
-function countValidDatasetItems(
-  datasetItems: Omit<DatasetItemDomain, "status">[],
-  variables: string[],
-  requiresExpectedOutput: boolean,
-) {
-  return datasetItems.filter(
-    ({ input, expectedOutput }) =>
-      isPresent(input) &&
-      validateDatasetItem(input, variables) &&
-      (!requiresExpectedOutput ||
-        (expectedOutput !== null && expectedOutput !== undefined)),
-  ).length;
+export async function getPromptfooMatrixDatasetItemCounts(params: {
+  projectId: string;
+  datasetId: string;
+  datasetVersion?: Date;
+  variables: string[];
+  requiresExpectedOutput: boolean;
+  maxValidItems?: number;
+}) {
+  const filterState = createDatasetItemFilterState({
+    datasetIds: [params.datasetId],
+    status: "ACTIVE",
+  });
+  const totalItems = await getDatasetItemsCount({
+    projectId: params.projectId,
+    filterState,
+    version: params.datasetVersion,
+  });
+
+  if (totalItems === 0) {
+    return {
+      totalItems,
+      validItems: 0,
+      exceedsMaxValidItems: false,
+    };
+  }
+
+  let validItems = 0;
+  const seenDatasetItemIds = new Set<string>();
+
+  for (let page = 0; ; page += 1) {
+    const datasetItems = await getDatasetItems({
+      projectId: params.projectId,
+      filterState,
+      version: params.datasetVersion,
+      includeIO: true,
+      limit: PROMPTFOO_DATASET_ITEM_PAGE_SIZE,
+      page,
+    });
+
+    if (datasetItems.length === 0) {
+      break;
+    }
+
+    for (const item of datasetItems) {
+      if (seenDatasetItemIds.has(item.id)) {
+        continue;
+      }
+      seenDatasetItemIds.add(item.id);
+
+      if (
+        isPresent(item.input) &&
+        validateDatasetItem(item.input, params.variables) &&
+        (!params.requiresExpectedOutput ||
+          (item.expectedOutput !== null && item.expectedOutput !== undefined))
+      ) {
+        validItems += 1;
+      }
+
+      if (
+        params.maxValidItems !== undefined &&
+        validItems > params.maxValidItems
+      ) {
+        return {
+          totalItems,
+          validItems,
+          exceedsMaxValidItems: true,
+        };
+      }
+    }
+  }
+
+  return {
+    totalItems,
+    validItems,
+    exceedsMaxValidItems: false,
+  };
 }
 
 function invalidMatrixConfig(
@@ -393,29 +458,29 @@ export class PromptfooService {
       );
     }
 
-    const datasetItems = await getDatasetItems({
+    const requiresExpectedOutput = promptfooAssertionsRequireExpectedOutput(
+      input.assertions,
+    );
+    const matrixRunCount = input.promptIds.length * input.modelConfigs.length;
+    const maxValidItems = Math.floor(
+      PROMPTFOO_MATRIX_CALL_LIMIT_DEFAULT / matrixRunCount,
+    );
+    const datasetItemCounts = await getPromptfooMatrixDatasetItemCounts({
       projectId: input.projectId,
-      filterState: createDatasetItemFilterState({
-        datasetIds: [input.datasetId],
-        status: "ACTIVE",
-      }),
-      version: input.datasetVersion,
+      datasetId: input.datasetId,
+      datasetVersion: input.datasetVersion,
+      variables: baseVariables,
+      requiresExpectedOutput,
+      maxValidItems,
     });
 
-    if (datasetItems.length === 0) {
+    if (datasetItemCounts.totalItems === 0) {
       return invalidMatrixConfig(
         PromptfooMatrixValidationMessageKey.DatasetEmpty,
       );
     }
 
-    const requiresExpectedOutput = promptfooAssertionsRequireExpectedOutput(
-      input.assertions,
-    );
-    const validItems = countValidDatasetItems(
-      datasetItems,
-      baseVariables,
-      requiresExpectedOutput,
-    );
+    const validItems = datasetItemCounts.validItems;
     if (validItems === 0) {
       return invalidMatrixConfig(
         requiresExpectedOutput
@@ -424,9 +489,11 @@ export class PromptfooService {
       );
     }
 
-    const totalCalls =
-      validItems * input.promptIds.length * input.modelConfigs.length;
-    if (totalCalls > PROMPTFOO_MATRIX_CALL_LIMIT_DEFAULT) {
+    const totalCalls = validItems * matrixRunCount;
+    if (
+      datasetItemCounts.exceedsMaxValidItems ||
+      totalCalls > PROMPTFOO_MATRIX_CALL_LIMIT_DEFAULT
+    ) {
       return invalidMatrixConfig(
         PromptfooMatrixValidationMessageKey.CallLimitExceeded,
         {
@@ -453,7 +520,7 @@ export class PromptfooService {
 
     return {
       isValid: true,
-      totalItems: datasetItems.length,
+      totalItems: datasetItemCounts.totalItems,
       validItems,
       totalCalls,
       variables: baseVariables,

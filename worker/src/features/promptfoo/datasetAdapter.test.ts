@@ -59,16 +59,18 @@ describe("LangfuseDatasetAdapter", () => {
   });
 
   it("excludes matching dataset items without expected output when assertions require it", async () => {
-    mockGetDatasetItems.mockResolvedValue([
-      createDatasetItem({
-        id: "item-without-output",
-        expectedOutput: null,
-      }),
-      createDatasetItem({
-        id: "item-with-output",
-        expectedOutput: "Paris",
-      }),
-    ]);
+    mockGetDatasetItems
+      .mockResolvedValueOnce([
+        createDatasetItem({
+          id: "item-without-output",
+          expectedOutput: null,
+        }),
+        createDatasetItem({
+          id: "item-with-output",
+          expectedOutput: "Paris",
+        }),
+      ])
+      .mockResolvedValueOnce([]);
 
     const tests = await new LangfuseDatasetAdapter().getTests({
       projectId: "project-1",
@@ -87,16 +89,18 @@ describe("LangfuseDatasetAdapter", () => {
   });
 
   it("keeps matching dataset items without expected output when assertions do not require it", async () => {
-    mockGetDatasetItems.mockResolvedValue([
-      createDatasetItem({
-        id: "item-without-output",
-        expectedOutput: null,
-      }),
-      createDatasetItem({
-        id: "item-with-output",
-        expectedOutput: "Paris",
-      }),
-    ]);
+    mockGetDatasetItems
+      .mockResolvedValueOnce([
+        createDatasetItem({
+          id: "item-without-output",
+          expectedOutput: null,
+        }),
+        createDatasetItem({
+          id: "item-with-output",
+          expectedOutput: "Paris",
+        }),
+      ])
+      .mockResolvedValueOnce([]);
 
     const tests = await new LangfuseDatasetAdapter().getTests({
       projectId: "project-1",
@@ -111,6 +115,67 @@ describe("LangfuseDatasetAdapter", () => {
     expect(tests[1]?.vars).toHaveProperty(
       PROMPTFOO_EXPECTED_OUTPUT_VAR,
       "Paris",
+    );
+  });
+
+  it("stops collecting tests once the caller's max test count is exceeded", async () => {
+    mockGetDatasetItems.mockResolvedValue([
+      createDatasetItem({
+        id: "item-1",
+        input: { country: "France" },
+      }),
+      createDatasetItem({
+        id: "item-2",
+        input: { country: "Germany" },
+        expectedOutput: "Berlin",
+      }),
+    ]);
+
+    const tests = await new LangfuseDatasetAdapter().getTests({
+      projectId: "project-1",
+      datasetId: "dataset-1",
+      variables: ["country"],
+      requiresExpectedOutput: false,
+      maxTests: 1,
+    });
+
+    expect(tests).toHaveLength(2);
+    expect(mockGetDatasetItems).toHaveBeenCalledTimes(1);
+    expect(mockGetDatasetItems).toHaveBeenCalledWith(
+      expect.objectContaining({
+        includeIO: true,
+        limit: 100,
+        page: 0,
+      }),
+    );
+  });
+
+  it("continues scanning after a short page from repository-level deduplication", async () => {
+    mockGetDatasetItems
+      .mockResolvedValueOnce([createDatasetItem({ id: "short-page-item" })])
+      .mockResolvedValueOnce([
+        createDatasetItem({
+          id: "later-page-item",
+          input: { country: "Germany" },
+        }),
+      ])
+      .mockResolvedValueOnce([]);
+
+    const tests = await new LangfuseDatasetAdapter().getTests({
+      projectId: "project-1",
+      datasetId: "dataset-1",
+      variables: ["country"],
+      requiresExpectedOutput: false,
+    });
+
+    expect(tests.map((test) => test.datasetItem.id)).toEqual([
+      "short-page-item",
+      "later-page-item",
+    ]);
+    expect(mockGetDatasetItems).toHaveBeenCalledTimes(3);
+    expect(mockGetDatasetItems).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ page: 1 }),
     );
   });
 });
