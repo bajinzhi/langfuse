@@ -83,6 +83,7 @@ export function ObservationDetailView({
     selectedTab: globalSelectedTab,
     setSelectedTab: setGlobalSelectedTab,
   } = useSelection();
+  const utils = api.useUtils();
 
   // V4 beta mode and observations for log tab
   const { isBetaEnabled: isV4Enabled } = useV4Beta();
@@ -122,7 +123,21 @@ export function ObservationDetailView({
     return "preview" as const;
   }, [globalSelectedTab, showLogViewTab]);
 
+  const refreshTraceScores = useCallback(() => {
+    void utils.traces.byIdWithObservationsAndScores.invalidate({
+      projectId,
+      traceId,
+    });
+    void utils.events.scoresForTrace.invalidate({
+      projectId,
+      traceId,
+    });
+  }, [projectId, traceId, utils]);
+
   const setSelectedTab = (tab: "preview" | "log" | "scores") => {
+    if (tab === "scores") {
+      refreshTraceScores();
+    }
     setGlobalSelectedTab(tab);
   };
 
