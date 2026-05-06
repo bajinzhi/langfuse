@@ -12,6 +12,10 @@ export const MAX_CELL_DISPLAY_CHARS = 2000;
 const SMALL_ARRAY_THRESHOLD = 5;
 const ARRAY_PREVIEW_ITEMS = 3;
 const OBJECT_PREVIEW_KEYS = 2;
+// 12px mono. Used inside `PrettyJsonView`, whose key column also pins
+// 12px (`MONO_TEXT_CLASSES` declared in PrettyJsonView.tsx). Keeping
+// both columns at the same size avoids a key/value mismatch inside the
+// JSON tree view.
 const MONO_TEXT_CLASSES = "font-mono text-xs wrap-break-word";
 const PREVIEW_TEXT_CLASSES = "italic text-gray-500 dark:text-gray-400";
 type Translate = (

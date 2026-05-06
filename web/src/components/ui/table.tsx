@@ -14,8 +14,11 @@ const Table = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <table
     ref={ref}
+    // `tabular-nums` makes numeric columns (cost / tokens / duration) align
+    // vertically across rows; especially noticeable when CJK labels and
+    // numbers are mixed in the same cell.
     className={cn(
-      "w-full table-fixed caption-bottom border-separate border-spacing-0 space-y-4 overflow-auto text-sm",
+      "w-full table-fixed caption-bottom border-separate border-spacing-0 space-y-4 overflow-auto text-sm tabular-nums",
       className,
     )}
     {...props}
@@ -37,7 +40,10 @@ const TableBody = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn("text-xs [&_tr:last-child]:border-0", className)}
+    // 13px reads more comfortably for CJK glyphs than the previous 12px
+    // (`text-xs`) without enlarging the row height enough to disrupt
+    // existing English layouts.
+    className={cn("text-[13px] [&_tr:last-child]:border-0", className)}
     {...props}
   />
 ));

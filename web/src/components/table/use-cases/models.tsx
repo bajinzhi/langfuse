@@ -103,7 +103,7 @@ export default function ModelTable({ projectId }: { projectId: string }) {
       },
       cell: ({ row }) => {
         return (
-          <span className="truncate font-mono text-xs font-semibold">
+          <span className="truncate font-mono font-semibold">
             {row.original.modelName}
           </span>
         );
@@ -152,7 +152,7 @@ export default function ModelTable({ projectId }: { projectId: string }) {
         const value: string = row.getValue("matchPattern");
 
         return value ? (
-          <span className="truncate font-mono text-xs">{value}</span>
+          <span className="truncate font-mono">{value}</span>
         ) : null;
       },
     },

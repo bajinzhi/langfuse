@@ -116,7 +116,11 @@ export const PeekViewEvaluatorConfigDetail = ({
           <TableLink
             path={`/project/${projectId}/evals/templates/${evalConfig.evalTemplate.id}`}
             value={evalConfig.evalTemplate.name}
-            className="mr-1 flex min-h-6 items-center"
+            // TableLink no longer hard-codes text-xs so it can inherit
+            // the table body's 13 px in DataTable cells. Here the parent
+            // CardDescription is text-sm (14 px); pin 12 px explicitly to
+            // preserve the original peek-panel look.
+            className="mr-1 flex min-h-6 items-center text-xs"
           />
         )}
         {evalConfig.evalTemplate && (

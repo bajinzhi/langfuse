@@ -151,10 +151,16 @@
 
 @layer base {
   :root {
-    --background: 150 35% 98%;
+    /* WeChat-inspired light theme.
+     * Neutral surfaces (background / muted / borders) intentionally drop the
+     * green hue so the page reads as a clean white sheet, while interactive
+     * accents (primary, accent, sidebar-accent, ring) keep the WeChat green
+     * so navigation and hover states remain on-brand.
+     */
+    --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
-    --muted: 150 28% 96%;
+    --muted: 240 5% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
     --popover: 0 0% 100%;
@@ -163,22 +169,25 @@
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
 
-    --header: 150 38% 98%;
+    --header: 0 0% 100%;
     --header-foreground: var(--foreground);
 
-    --border: 150 22% 88%;
-    --input: 150 22% 88%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
 
     --primary: 149 93% 39%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 28% 96%;
+    --secondary: 240 5% 96%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --tertiary: 150 22% 91%;
+    --tertiary: 240 5% 92%;
     --tertiary-foreground: 222.2 47.4% 11.2%;
 
-    --accent: 150 36% 95%;
+    /* --accent is the row-hover / generic accent. We keep the WeChat green
+     * exclusively in the sidebar selection (`--sidebar-accent`) so the table
+     * hover stays neutral and does not paint long rows green. */
+    --accent: 240 5% 95%;
     --accent-foreground: 220 8.9% 46.1%;
 
     --destructive: 0 84.2% 60.2%;
@@ -192,7 +201,7 @@
     --muted-green: 149 70% 42%;
     --muted-magenta: 330 90% 70%;
     --muted-blue: 166 62% 43%;
-    --muted-gray: 150 26% 91%;
+    --muted-gray: 240 6% 91%;
 
     --accent-light-green: 150 56% 96%;
     --accent-dark-green: 149 93% 32%;
@@ -212,20 +221,26 @@
     --accent-light-blue: 150 56% 94%;
     --accent-dark-blue: 151 64% 24%;
     --radius: 0.5rem;
-    --sidebar-background: 150 36% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 151 18% 24%;
     --sidebar-primary: 149 93% 39%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 150 34% 95%;
     --sidebar-accent-foreground: 151 40% 22%;
-    --sidebar-border: 150 22% 88%;
+    --sidebar-border: 240 6% 90%;
     --sidebar-ring: 149 70% 42%;
 
     --find-match-background: 60 60% 85%;
     --find-match-selected-background: 60 100% 50%;
     --find-match-selected-foreground: 0 0% 0%;
 
-    --chart-1: 239 84% 58%;
+    /* WeChat-style theme: the default single-series chart color shares the
+     * brand green hue (149°) used by --primary / --ring / --sidebar-primary.
+     * Saturation is dialed back to 60% so subtle_fill bars and line strokes
+     * read calmly instead of competing with text. Multi-series palette
+     * (chart-2..8) is unchanged to preserve category distinguishability.
+     */
+    --chart-1: 149 60% 42%;
     --chart-2: 188 94% 43%;
     --chart-3: 240 4% 46%;
     --chart-4: 271 91% 65%;
@@ -325,7 +340,9 @@
     --find-match-selected-background: 60 100% 50%;
     --find-match-selected-foreground: 0 0% 0%;
 
-    --chart-1: 239 84% 58%;
+    /* Dark mode: brighten the green chart-1 a bit so it stays visible on
+     * dark backgrounds while keeping the same brand hue (149°). */
+    --chart-1: 149 60% 50%;
     --chart-2: 188 94% 43%;
     --chart-3: 240 4% 46%;
     --chart-4: 271 91% 65%;

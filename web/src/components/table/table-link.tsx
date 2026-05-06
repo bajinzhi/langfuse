@@ -27,8 +27,11 @@ export default function TableLink({
 
   return (
     <Link
+      // No explicit font-size here — the link inherits the table body's
+      // font size (13px in our DataTable) so cell text and link text line
+      // up. Callers can still override via `className` if needed.
       className={cn(
-        "text-accent-dark-blue hover:text-primary-accent inline-block max-w-full text-xs font-semibold",
+        "text-accent-dark-blue hover:text-primary-accent inline-block max-w-full font-semibold",
         className,
         icon && "max-h-4",
       )}

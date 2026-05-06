@@ -20,7 +20,9 @@ const heightOptions = [
 ] as const;
 
 const defaultHeights: Record<RowHeight, string> = {
-  s: "h-8",
+  // 36px (h-9) gives CJK characters at 13px the breathing room they need;
+  // matches the row density of WeChat-style desktop lists.
+  s: "h-9",
   m: "h-24",
   l: "h-64",
 };

@@ -10,8 +10,10 @@ export default function TableIdOrName({
   return (
     <div
       title={value}
+      // Inherits the table body font size (13px in DataTable) so id pills
+      // align with the rest of the row text.
       className={cn(
-        "inline-block max-w-full overflow-hidden rounded py-0.5 text-xs font-semibold text-nowrap text-ellipsis",
+        "inline-block max-w-full overflow-hidden rounded py-0.5 font-semibold text-nowrap text-ellipsis",
         className,
       )}
     >

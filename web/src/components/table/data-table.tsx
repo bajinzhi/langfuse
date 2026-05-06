@@ -408,8 +408,11 @@ export function DataTable<TData extends object, TValue>({
                               onDoubleClick={() => header.column.resetSize()}
                               onMouseDown={header.getResizeHandler()}
                               onTouchStart={header.getResizeHandler()}
+                              // `bg-border` is darker than `bg-secondary` so
+                              // the resize handle is actually noticeable on
+                              // the now-white page background.
                               className={cn(
-                                "bg-secondary absolute top-0 right-0 h-full w-1.5 cursor-col-resize touch-none opacity-0 select-none group-hover:opacity-100",
+                                "bg-border absolute top-0 right-0 h-full w-1.5 cursor-col-resize touch-none opacity-0 select-none group-hover:opacity-100",
                                 header.column.getIsResizing() &&
                                   "bg-primary-accent opacity-100",
                               )}
@@ -589,7 +592,7 @@ function TableBodyComponent<TData>({
               <TableCell
                 key={`${column.id}-loading-cell-${rowIndex}`}
                 className={cn(
-                  "overflow-hidden border-b text-xs first:pl-2",
+                  "overflow-hidden border-b text-[13px] first:pl-2",
                   cellPadding === "comfortable" ? "p-1" : "px-1",
                   (rowHeight ?? "s") === "s" && "whitespace-nowrap",
                   getPinningClasses(column),
@@ -607,6 +610,13 @@ function TableBodyComponent<TData>({
                       : "items-start",
                     (rowHeight ?? "s") !== "s" && "py-1",
                     rowheighttw,
+                    // Tables that do not opt into the row-height switcher
+                    // (e.g. prompts, datasets, evals) previously relied on
+                    // the cell's intrinsic content height and rendered as
+                    // very tight rows — visually inconsistent with the
+                    // checkbox tables. Apply the same `h-9` minimum so all
+                    // tables share the same baseline density.
+                    !rowheighttw && "min-h-9",
                   )}
                 >
                   {(() => {
@@ -653,11 +663,22 @@ function TableBodyComponent<TData>({
               const isStringCell = typeof cellValue === "string";
               const isSmallRowHeight = (rowHeight ?? "s") === "s";
 
+              // For string cells in small rows the value gets truncated. We
+              // surface the full text via the native `title` tooltip so
+              // hovering recovers the lost characters — particularly
+              // important for CJK content where one truncated character can
+              // be a whole semantic unit.
+              const truncatedTitle =
+                isStringCell && isSmallRowHeight
+                  ? (cellValue as string)
+                  : undefined;
+
               return (
                 <TableCell
                   key={cell.id}
+                  title={truncatedTitle}
                   className={cn(
-                    "overflow-hidden border-b text-xs first:pl-2",
+                    "overflow-hidden border-b text-[13px] first:pl-2",
                     cellPadding === "comfortable" ? "p-1" : "px-1",
                     isSmallRowHeight && "whitespace-nowrap",
                     getPinningClasses(cell.column),
@@ -675,10 +696,16 @@ function TableBodyComponent<TData>({
                         : "items-start",
                       !isSmallRowHeight && "py-1",
                       rowheighttw,
+                      // Mirror the loading-row fallback above so non-rowHeight
+                      // tables share the same 36 px baseline height.
+                      !rowheighttw && "min-h-9",
                     )}
                   >
                     {isStringCell && isSmallRowHeight ? (
-                      <div className="min-w-0 truncate leading-tight">
+                      // `leading-[1.45]` gives CJK glyphs adequate vertical
+                      // breathing room without breaking the single-line
+                      // layout of small rows.
+                      <div className="min-w-0 truncate leading-[1.45]">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),
