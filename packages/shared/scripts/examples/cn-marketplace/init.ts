@@ -17,6 +17,9 @@ import { encrypt } from "../../../src/encryption";
 import {
   PROMPTFOO_REPORT_HTML_FORMAT,
   PROMPTFOO_REPORT_JSON_FORMAT,
+  PROMPTFOO_DATASET_ITEM_ID_VAR,
+  PROMPTFOO_DATASET_ITEM_VERSION_VAR,
+  PROMPTFOO_EXPECTED_OUTPUT_VAR,
   PromptfooAssertionType,
   PromptfooDatasetRunMetadataSchema,
   PromptfooMatrixRunStatus,
@@ -25,7 +28,11 @@ import {
 import { env } from "../../../src/env";
 import { createAndAddApiKeysToDb } from "../../../src/server/auth/apiKeys";
 import { getS3EventStorageClient } from "../../../src/server/s3";
-import { queryClickhouse } from "../../../src/server/repositories/clickhouse";
+import { clickhouseClient } from "../../../src/server/clickhouse/client";
+import {
+  commandClickhouse,
+  queryClickhouse,
+} from "../../../src/server/repositories/clickhouse";
 import { deleteDatasetRunItemsByProjectId } from "../../../src/server/repositories/dataset-run-items";
 import { deleteEventsByProjectId } from "../../../src/server/repositories/events";
 import { deleteObservationsByProjectId } from "../../../src/server/repositories/observations";
@@ -37,6 +44,7 @@ import type {
   ObservationRecordInsertType,
   ScoreRecordInsertType,
   TraceRecordInsertType,
+  BlobStorageFileLogInsertType,
 } from "../../../src/server/repositories/definitions";
 import {
   createDatasetRunItemsCh,
@@ -60,6 +68,7 @@ import {
 
 const SCRIPT_PATH = "packages/shared/scripts/examples/cn-marketplace";
 const ENVIRONMENT = "中文二手集市演示";
+const PROMPTFOO_ENVIRONMENT = "langfuse-prompt-experiment";
 const RELEASE = "cn-marketplace-demo";
 const LLM_PROVIDER = "ollama";
 const LLM_ADAPTER = "openai";
@@ -76,6 +85,7 @@ const LLM_SECRET_KEY =
   cnMarketplaceOllamaApiKey ?? ollamaApiKey ?? "ollama-local-demo-key";
 const FALLBACK_OLLAMA_MODEL = "qwen2.5:7b";
 let MODEL_NAME = getConfiguredOllamaModelName() ?? FALLBACK_OLLAMA_MODEL;
+const BASE_TIME = new Date(Date.now() - 180 * 60_000);
 const DEFAULT_LLM_MODEL_PARAMS = {
   temperature: 0.2,
   max_tokens: 600,
@@ -88,11 +98,14 @@ const PROMPTFOO_MATRIX_RUN_ID = "11111111-1111-4111-8111-111111111111";
 const PROMPTFOO_MATRIX_NAME = "中文二手集市客服 Promptfoo 矩阵";
 const PROMPTFOO_REPORT_JSON_FILE_NAME = "evaluate-summary.json";
 const PROMPTFOO_REPORT_HTML_FILE_NAME = "evaluate-report.html";
-const PROMPTFOO_VERSION = "0.118.0-demo";
+const PROMPTFOO_VERSION = "0.121.8";
+const PROMPTFOO_REPORT_ENTITY_TYPE = "promptfoo_report";
+const PROMPTFOO_SENTENCE_ASSERTION_VALUE = "。";
 const PROMPTFOO_ASSERTIONS = [
   {
-    type: PromptfooAssertionType.Equals,
-    metricName: "expected-output",
+    type: PromptfooAssertionType.Contains,
+    value: PROMPTFOO_SENTENCE_ASSERTION_VALUE,
+    metricName: "中文完整句",
   },
 ] as const;
 const PROMPTFOO_RUNS = [
@@ -112,24 +125,47 @@ const PROMPTFOO_RUNS = [
   },
 ] as const;
 const EXPECTED = {
+  apiKeys: 1,
   prompts: 4,
+  promptDependencies: 1,
+  promptProtectedLabels: 1,
   scoreConfigs: 4,
   datasetItems: DEMO_CASES.length,
   datasetRuns: EVALUATION_RUNS.length + PROMPTFOO_RUNS.length,
   datasetRunItems:
     DEMO_CASES.length * (EVALUATION_RUNS.length + PROMPTFOO_RUNS.length),
+  experiments: EVALUATION_RUNS.length + PROMPTFOO_RUNS.length,
+  experimentItems:
+    DEMO_CASES.length * (EVALUATION_RUNS.length + PROMPTFOO_RUNS.length),
   llmApiKeys: 1,
   defaultLlmModels: 1,
-  traces: DEMO_CASES.length * EVALUATION_RUNS.length,
-  observations: DEMO_CASES.length * EVALUATION_RUNS.length * 2,
+  llmSchemas: 1,
+  llmTools: 1,
+  models: 1,
+  traces: DEMO_CASES.length * (EVALUATION_RUNS.length + PROMPTFOO_RUNS.length),
+  traceSessions: DEMO_CASES.length,
+  observations:
+    DEMO_CASES.length * EVALUATION_RUNS.length * 2 +
+    DEMO_CASES.length * PROMPTFOO_RUNS.length,
   scores:
     DEMO_CASES.length * EVALUATION_RUNS.length * 3 +
     DEMO_CASES.length +
-    DEMO_CASES.length * PROMPTFOO_RUNS.length * 2,
+    DEMO_CASES.length * PROMPTFOO_RUNS.length * 3,
+  evalTemplates: 1,
+  jobConfigurations: 1,
   jobExecutions: DEMO_CASES.length * EVALUATION_RUNS.length,
+  annotationQueues: 1,
+  annotationQueueAssignments: 1,
   annotationQueueItems: 3,
+  annotationScores: DEMO_CASES.length,
+  dashboards: 1,
   dashboardWidgets: 3,
-  events: DEMO_CASES.length * EVALUATION_RUNS.length * 2,
+  comments: 1,
+  commentReactions: 1,
+  events:
+    DEMO_CASES.length * EVALUATION_RUNS.length * 2 +
+    DEMO_CASES.length * PROMPTFOO_RUNS.length,
+  promptfooReportBlobs: 2,
 };
 
 type RunVariant = (typeof EVALUATION_RUNS)[number]["variant"];
@@ -151,6 +187,29 @@ type DuplicateIdRow = {
   id: string;
   count: string | number;
 };
+
+type PromptfooProviderResponseMetadata = {
+  projectId: string;
+  datasetRunId: string;
+  datasetItemId: string;
+  runItemId: string;
+  traceId: string;
+  promptId: string;
+  provider: string;
+  model: string;
+  promptfooProviderId: string;
+};
+
+type NavigationCoverageEvidence = Record<string, number | string | string[]>;
+
+type NavigationCoverageItem = {
+  path: string;
+  ready: boolean;
+  evidence: NavigationCoverageEvidence;
+  note?: string;
+};
+
+type NavigationCoverage = Record<string, NavigationCoverageItem>;
 
 type OllamaTagsResponse = {
   models?: Array<{
@@ -282,11 +341,20 @@ const datasetItemId = (demoCase: DemoCase) =>
 const traceId = (demoCase: DemoCase, variant: RunVariant) =>
   `cn-marketplace-trace-${demoCase.id}-${variant}`;
 
+const promptfooTraceId = (demoCase: DemoCase, promptfooRun: PromptfooRun) =>
+  `cn-marketplace-promptfoo-trace-${demoCase.id}-${promptfooRun.variant}`;
+
 const rootObservationId = (demoCase: DemoCase, variant: RunVariant) =>
   `cn-marketplace-root-${demoCase.id}-${variant}`;
 
 const generationObservationId = (demoCase: DemoCase, variant: RunVariant) =>
   `cn-marketplace-generation-${demoCase.id}-${variant}`;
+
+const promptfooGenerationObservationId = (
+  demoCase: DemoCase,
+  promptfooRun: PromptfooRun,
+) =>
+  `cn-marketplace-promptfoo-generation-${demoCase.id}-${promptfooRun.variant}`;
 
 const datasetRunItemId = (demoCase: DemoCase, variant: RunVariant) =>
   `cn-marketplace-run-item-${demoCase.id}-${variant}`;
@@ -305,7 +373,7 @@ const scoreId = (
 const promptfooScoreId = (
   demoCase: DemoCase,
   promptfooRun: PromptfooRun,
-  name: "pass" | "score",
+  name: "pass" | "score" | "sentence",
 ) =>
   `cn-marketplace-promptfoo-score-${demoCase.id}-${promptfooRun.variant}-${name}`;
 
@@ -346,6 +414,28 @@ const buildPromptfooRunName = (run: PromptfooRun) => {
 
 const buildPromptfooReportObjectKey = (fileName: string) =>
   `${env.LANGFUSE_S3_EVENT_UPLOAD_PREFIX}${DEMO_PROJECT.id}/promptfoo/${PROMPTFOO_MATRIX_RUN_ID}/${fileName}`;
+
+const isPromptfooSentenceAssertionPassed = (output: string) =>
+  output.includes(PROMPTFOO_SENTENCE_ASSERTION_VALUE);
+
+const buildPromptfooResponseMetadata = (
+  demoCase: DemoCase,
+  run: PromptfooRun,
+): PromptfooProviderResponseMetadata => {
+  const prompt = getPromptForVariant(run.variant);
+
+  return {
+    projectId: DEMO_PROJECT.id,
+    datasetRunId: run.id,
+    datasetItemId: datasetItemId(demoCase),
+    runItemId: promptfooDatasetRunItemId(demoCase, run),
+    traceId: promptfooTraceId(demoCase, run),
+    promptId: prompt.id,
+    provider: LLM_PROVIDER,
+    model: MODEL_NAME,
+    promptfooProviderId: buildPromptfooProviderId(run.modelIndex),
+  };
+};
 
 const buildPromptfooRunMetadata = (
   run: PromptfooRun,
@@ -489,6 +579,7 @@ async function resetExistingSeedProject() {
     deleteScoresByProjectId(DEMO_PROJECT.id),
     deleteObservationsByProjectId(DEMO_PROJECT.id),
     deleteTracesByProjectId(DEMO_PROJECT.id),
+    deletePromptfooReportBlobLogs(),
   ]);
 
   await waitForClickHouseProjectDataDeleted();
@@ -569,7 +660,7 @@ async function createProjectContext(orgMembershipId: string) {
 }
 
 async function seedPostgresData() {
-  const baseTime = addMinutes(new Date(), -180);
+  const baseTime = BASE_TIME;
   const datasetItems = DEMO_CASES.map((demoCase, index) => {
     const createdAt = addMinutes(baseTime, index * 12);
     return {
@@ -621,8 +712,8 @@ async function seedPostgresData() {
         projectId: DEMO_PROJECT.id,
         datasetRunId: run.id,
         datasetItemId: datasetItemId(demoCase),
-        traceId: traceId(demoCase, run.variant),
-        observationId: generationObservationId(demoCase, run.variant),
+        traceId: promptfooTraceId(demoCase, run),
+        observationId: null,
         createdAt,
         updatedAt: createdAt,
       };
@@ -643,7 +734,7 @@ async function seedPostgresData() {
     updatedAt: addMinutes(baseTime, index * 12),
   }));
 
-  const traces = EVALUATION_RUNS.flatMap((run) =>
+  const evaluationTraces = EVALUATION_RUNS.flatMap((run) =>
     DEMO_CASES.map((demoCase, index) => {
       const timestamp = addMinutes(
         baseTime,
@@ -677,8 +768,46 @@ async function seedPostgresData() {
       };
     }),
   );
+  const promptfooTraces = PROMPTFOO_RUNS.flatMap((run) =>
+    DEMO_CASES.map((demoCase, index) => {
+      const timestamp = addMinutes(
+        baseTime,
+        index * 12 + (run.variant === "v1" ? 9 : 11),
+      );
+      const prompt = getPromptForVariant(run.variant);
+      return {
+        id: promptfooTraceId(demoCase, run),
+        timestamp,
+        name: `${buildPromptfooRunName(run)} / ${demoCase.title}`,
+        userId: demoCase.userId,
+        metadata: {
+          ...demoCase.metadata,
+          promptfoo_matrix_run_id: PROMPTFOO_MATRIX_RUN_ID,
+          dataset_run_id: run.id,
+          prompt_id: prompt.id,
+          provider: LLM_PROVIDER,
+          model: MODEL_NAME,
+        },
+        release: RELEASE,
+        version: run.variant,
+        projectId: DEMO_PROJECT.id,
+        public: false,
+        bookmarked: false,
+        tags: ["中文示例", "二手集市", "Promptfoo", run.variant],
+        input: demoCase.input,
+        output: {
+          回复: getVariantOutput(demoCase, run.variant),
+          Promptfoo分数: getVariantScores(demoCase, run.variant).replyQuality,
+        },
+        sessionId: demoCase.sessionId,
+        createdAt: timestamp,
+        updatedAt: addMinutes(timestamp, 1),
+      };
+    }),
+  );
+  const traces = [...evaluationTraces, ...promptfooTraces];
 
-  const observations = EVALUATION_RUNS.flatMap((run) =>
+  const evaluationObservations = EVALUATION_RUNS.flatMap((run) =>
     DEMO_CASES.flatMap((demoCase, index) => {
       const startTime = addMinutes(
         baseTime,
@@ -765,6 +894,70 @@ async function seedPostgresData() {
       ];
     }),
   );
+  const promptfooObservations = PROMPTFOO_RUNS.flatMap((run) =>
+    DEMO_CASES.map((demoCase, index) => {
+      const startTime = addMinutes(
+        baseTime,
+        index * 12 + (run.variant === "v1" ? 9 : 11),
+      );
+      const endTime = addMinutes(startTime, 1);
+      const prompt = getPromptForVariant(run.variant);
+      const output = getVariantOutput(demoCase, run.variant);
+      const usage = run.variant === "v1" ? 1380 : 1560;
+
+      return {
+        id: promptfooGenerationObservationId(demoCase, run),
+        traceId: promptfooTraceId(demoCase, run),
+        projectId: DEMO_PROJECT.id,
+        type: LegacyPrismaObservationType.GENERATION,
+        startTime: addMinutes(startTime, 0.2),
+        endTime,
+        name: "Promptfoo 中文客服助手生成",
+        metadata: {
+          promptfoo_matrix_run_id: PROMPTFOO_MATRIX_RUN_ID,
+          dataset_run_id: run.id,
+          dataset_item_id: datasetItemId(demoCase),
+          提示词: prompt.name,
+          商品类目: demoCase.metadata.商品类目,
+        },
+        parentObservationId: null,
+        level: "DEFAULT" as const,
+        statusMessage: "Promptfoo 生成成功",
+        version: run.variant,
+        model: MODEL_NAME,
+        internalModel: MODEL_NAME,
+        internalModelId: DEMO_IDS.model,
+        modelParameters: DEFAULT_LLM_MODEL_PARAMS,
+        input: {
+          messages: [
+            {
+              role: "user",
+              content: demoCase.input.买家消息,
+            },
+          ],
+        },
+        output: {
+          role: "assistant",
+          content: output,
+        },
+        promptTokens: usage,
+        completionTokens: run.variant === "v1" ? 128 : 180,
+        totalTokens: usage + (run.variant === "v1" ? 128 : 180),
+        unit: "TOKENS",
+        inputCost: "0.0012",
+        outputCost: "0.0008",
+        totalCost: "0.0020",
+        calculatedInputCost: "0.0012",
+        calculatedOutputCost: "0.0008",
+        calculatedTotalCost: "0.0020",
+        completionStartTime: addMinutes(startTime, 0.4),
+        promptId: prompt.id,
+        createdAt: startTime,
+        updatedAt: endTime,
+      };
+    }),
+  );
+  const observations = [...evaluationObservations, ...promptfooObservations];
 
   const scores = buildPrismaScores(baseTime);
   const jobExecutions = EVALUATION_RUNS.flatMap((run) =>
@@ -1253,61 +1446,267 @@ async function seedPromptfooReports() {
 
   await storageClient.uploadJson(
     buildPromptfooReportObjectKey(PROMPTFOO_REPORT_JSON_FILE_NAME),
-    [reportSummary],
+    reportSummary,
   );
   await storageClient.uploadFile({
     fileName: buildPromptfooReportObjectKey(PROMPTFOO_REPORT_HTML_FILE_NAME),
     fileType: "text/html; charset=utf-8",
     data: buildPromptfooReportHtml(reportSummary),
   });
+  await registerPromptfooReportBlobLogs();
+}
+
+async function registerPromptfooReportBlobLogs() {
+  if (env.LANGFUSE_ENABLE_BLOB_STORAGE_FILE_LOG !== "true") {
+    return;
+  }
+
+  const timestamp = Date.now();
+  const objectKeys = [
+    buildPromptfooReportObjectKey(PROMPTFOO_REPORT_JSON_FILE_NAME),
+    buildPromptfooReportObjectKey(PROMPTFOO_REPORT_HTML_FILE_NAME),
+  ];
+  const values: BlobStorageFileLogInsertType[] = objectKeys.map(
+    (objectKey, index) => ({
+      id: `cn-marketplace-promptfoo-report-log-${index + 1}`,
+      project_id: DEMO_PROJECT.id,
+      entity_type: PROMPTFOO_REPORT_ENTITY_TYPE,
+      entity_id: PROMPTFOO_MATRIX_RUN_ID,
+      event_id: objectKey.split("/").pop() ?? objectKey,
+      bucket_name: env.LANGFUSE_S3_EVENT_UPLOAD_BUCKET,
+      bucket_path: objectKey,
+      created_at: timestamp,
+      updated_at: timestamp,
+      event_ts: timestamp,
+      is_deleted: 0,
+    }),
+  );
+
+  await clickhouseClient().insert({
+    table: "blob_storage_file_log",
+    values,
+    format: "JSONEachRow",
+  });
+}
+
+async function deletePromptfooReportBlobLogs() {
+  await commandClickhouse({
+    query: `
+      DELETE FROM blob_storage_file_log
+      WHERE project_id = {projectId: String}
+    `,
+    params: { projectId: DEMO_PROJECT.id },
+    clickhouseConfigs: {
+      request_timeout: env.LANGFUSE_CLICKHOUSE_DELETION_TIMEOUT_MS,
+    },
+    tags: {
+      feature: "cn-marketplace-seed",
+      type: "blob-storage-file-log",
+      kind: "delete",
+      projectId: DEMO_PROJECT.id,
+    },
+  });
 }
 
 function buildPromptfooReportSummary(): Record<string, unknown> {
-  const promptResults = PROMPTFOO_RUNS.map((run) => {
-    const scores = DEMO_CASES.map((demoCase) => ({
-      datasetItemId: datasetItemId(demoCase),
-      title: demoCase.title,
-      score: getVariantScores(demoCase, run.variant).replyQuality,
-      output: getVariantOutput(demoCase, run.variant),
-      expectedOutput: demoCase.expectedOutput,
-      traceId: traceId(demoCase, run.variant),
-      observationId: generationObservationId(demoCase, run.variant),
-    }));
+  const results = PROMPTFOO_RUNS.flatMap((run) =>
+    DEMO_CASES.map((demoCase, testIdx) =>
+      buildPromptfooEvaluateResult({
+        run,
+        demoCase,
+        testIdx,
+      }),
+    ),
+  );
+  const tokenUsage = results.reduce<{
+    prompt: number;
+    completion: number;
+    total: number;
+  }>(
+    (totals, result) => {
+      const usage = (
+        result.response as
+          | {
+              tokenUsage?: {
+                prompt?: number;
+                completion?: number;
+                total?: number;
+              };
+            }
+          | undefined
+      )?.tokenUsage;
 
-    return {
-      datasetRunId: run.id,
-      datasetRunName: buildPromptfooRunName(run),
-      prompt: getPromptForVariant(run.variant),
-      provider: LLM_PROVIDER,
-      model: MODEL_NAME,
-      passRate:
-        scores.filter((item) => item.score >= 0.8).length / scores.length,
-      averageScore:
-        scores.reduce((total, item) => total + item.score, 0) / scores.length,
-      cases: scores,
-    };
-  });
+      return {
+        prompt: totals.prompt + (usage?.prompt ?? 0),
+        completion: totals.completion + (usage?.completion ?? 0),
+        total: totals.total + (usage?.total ?? 0),
+      };
+    },
+    { prompt: 0, completion: 0, total: 0 },
+  );
+  const averageScore =
+    results.reduce((sum, result) => sum + (result.score as number), 0) /
+    results.length;
 
   return {
-    matrixRunId: PROMPTFOO_MATRIX_RUN_ID,
-    matrixName: PROMPTFOO_MATRIX_NAME,
-    projectId: DEMO_PROJECT.id,
-    datasetId: DEMO_IDS.dataset,
-    generatedAt: new Date().toISOString(),
-    promptfooVersion: PROMPTFOO_VERSION,
-    assertions: PROMPTFOO_ASSERTIONS.map((assertion) => ({ ...assertion })),
-    summary: {
-      totalCases: DEMO_CASES.length,
-      totalRuns: PROMPTFOO_RUNS.length,
-      totalCalls: DEMO_CASES.length * PROMPTFOO_RUNS.length,
-      bestRun: DEMO_IDS.promptfooRunAssistantV2,
+    version: 3,
+    timestamp: new Date().toISOString(),
+    description: PROMPTFOO_MATRIX_NAME,
+    prompts: PROMPTFOO_RUNS.map((run) => {
+      const prompt = getPromptForVariant(run.variant);
+      return {
+        id: prompt.id,
+        label: `${prompt.name} v${prompt.version}`,
+        raw: `${prompt.name} v${prompt.version}`,
+      };
+    }),
+    providers: PROMPTFOO_RUNS.map((run) => ({
+      id: buildPromptfooProviderId(run.modelIndex),
+      label: `${LLM_PROVIDER}/${MODEL_NAME}`,
+    })),
+    tests: DEMO_CASES.map((demoCase) => ({
+      description: demoCase.title,
+      vars: buildPromptfooVars(demoCase),
+      assert: PROMPTFOO_ASSERTIONS.map((assertion) => ({ ...assertion })),
+    })),
+    results,
+    stats: {
+      successes: results.filter((result) => result.success).length,
+      failures: results.filter((result) => !result.success).length,
+      errors: 0,
+      tokenUsage,
+      durationMs: results.reduce(
+        (sum, result) => sum + (result.latencyMs as number),
+        0,
+      ),
+      generationDurationMs: results.reduce(
+        (sum, result) => sum + (result.latencyMs as number),
+        0,
+      ),
+      evaluationDurationMs: 80,
     },
-    results: promptResults,
+    langfuse: {
+      matrixRunId: PROMPTFOO_MATRIX_RUN_ID,
+      matrixName: PROMPTFOO_MATRIX_NAME,
+      projectId: DEMO_PROJECT.id,
+      datasetId: DEMO_IDS.dataset,
+      promptfooVersion: PROMPTFOO_VERSION,
+      bestRun: DEMO_IDS.promptfooRunAssistantV2,
+      averageScore,
+      assertions: PROMPTFOO_ASSERTIONS.map((assertion) => ({ ...assertion })),
+    },
+  };
+}
+
+function buildPromptfooVars(demoCase: DemoCase): Record<string, string> {
+  const caseIndex = DEMO_CASES.findIndex((item) => item.id === demoCase.id);
+  const datasetItemVersion = addMinutes(BASE_TIME, caseIndex * 12);
+
+  return {
+    场景: demoCase.input.场景,
+    商品: demoCase.input.商品,
+    买家消息: demoCase.input.买家消息,
+    卖家约束: demoCase.input.卖家约束,
+    [PROMPTFOO_EXPECTED_OUTPUT_VAR]: serializeJson(demoCase.expectedOutput),
+    [PROMPTFOO_DATASET_ITEM_ID_VAR]: datasetItemId(demoCase),
+    [PROMPTFOO_DATASET_ITEM_VERSION_VAR]: datasetItemVersion.toISOString(),
+  };
+}
+
+function buildPromptfooEvaluateResult(params: {
+  run: PromptfooRun;
+  demoCase: DemoCase;
+  testIdx: number;
+}): Record<string, unknown> {
+  const { run, demoCase } = params;
+  const prompt = getPromptForVariant(run.variant);
+  const output = getVariantOutput(demoCase, run.variant);
+  const replyQuality = getVariantScores(demoCase, run.variant).replyQuality;
+  const success = isPromptfooSentenceAssertionPassed(output);
+  const tokenUsage = {
+    prompt: run.variant === "v1" ? 1380 : 1560,
+    completion: run.variant === "v1" ? 128 : 180,
+    total:
+      (run.variant === "v1" ? 1380 : 1560) + (run.variant === "v1" ? 128 : 180),
+  };
+  const metadata = buildPromptfooResponseMetadata(demoCase, run);
+
+  return {
+    id: `cn-marketplace-promptfoo-result-${demoCase.id}-${run.variant}`,
+    description: demoCase.title,
+    promptId: prompt.id,
+    promptIdx: run.promptIndex,
+    testIdx: params.testIdx,
+    provider: {
+      id: buildPromptfooProviderId(run.modelIndex),
+      label: `${LLM_PROVIDER}/${MODEL_NAME}`,
+    },
+    prompt: {
+      raw: `${prompt.name} v${prompt.version}`,
+      label: `${prompt.name} v${prompt.version}`,
+    },
+    vars: buildPromptfooVars(demoCase),
+    testCase: {
+      description: demoCase.title,
+      vars: buildPromptfooVars(demoCase),
+      assert: PROMPTFOO_ASSERTIONS.map((assertion) => ({ ...assertion })),
+    },
+    response: {
+      output,
+      tokenUsage,
+      cost: 0.002,
+      metadata,
+    },
+    tokenUsage,
+    success,
+    score: replyQuality,
+    namedScores: {
+      中文完整句: success ? 1 : 0,
+    },
+    latencyMs: run.variant === "v1" ? 1380 : 1120,
+    cost: 0.002,
+    error: null,
+    failureReason: success ? 0 : 1,
+    gradingResult: {
+      pass: success,
+      score: replyQuality,
+      reason: success
+        ? "回复为完整中文句子，并已记录回复质量分。"
+        : "回复缺少完整中文句号，建议人工复核。",
+      namedScores: {
+        中文完整句: success ? 1 : 0,
+      },
+      namedScoreWeights: {
+        中文完整句: 1,
+      },
+      tokensUsed: 0,
+      componentResults: [
+        {
+          pass: success,
+          score: success ? 1 : 0,
+          reason: success ? "包含中文句号，满足演示断言。" : "未包含中文句号。",
+          assertion: {
+            type: PromptfooAssertionType.Contains,
+            value: PROMPTFOO_SENTENCE_ASSERTION_VALUE,
+            metric: "中文完整句",
+          },
+        },
+      ],
+    },
+    metadata: {
+      datasetRunId: run.id,
+      datasetItemId: datasetItemId(demoCase),
+      traceId: metadata.traceId,
+      observationId: promptfooGenerationObservationId(demoCase, run),
+      runItemId: metadata.runItemId,
+    },
   };
 }
 
 function buildPromptfooReportHtml(summary: Record<string, unknown>): string {
-  const results = Array.isArray(summary.results) ? summary.results : [];
+  const results = Array.isArray(summary.results)
+    ? (summary.results as Record<string, unknown>[])
+    : [];
   const rows = PROMPTFOO_RUNS.map((run) => {
     const averageScore =
       DEMO_CASES.reduce(
@@ -1321,15 +1720,27 @@ function buildPromptfooReportHtml(summary: Record<string, unknown>): string {
     )}</td><td>${Math.round(averageScore * 100)}%</td><td>${DEMO_CASES.length}</td></tr>`;
   }).join("");
 
-  const caseRows = DEMO_CASES.map((demoCase) => {
-    const v1 = getVariantScores(demoCase, "v1").replyQuality;
-    const v2 = getVariantScores(demoCase, "v2").replyQuality;
-    return `<tr><td>${escapeHtml(demoCase.title)}</td><td>${escapeHtml(
-      demoCase.input.场景,
-    )}</td><td>${Math.round(v1 * 100)}%</td><td>${Math.round(
-      v2 * 100,
-    )}%</td></tr>`;
-  }).join("");
+  const caseRows = results
+    .map((result) => {
+      const response = result.response as
+        | { output?: unknown; metadata?: PromptfooProviderResponseMetadata }
+        | undefined;
+      const gradingResult = result.gradingResult as
+        | { reason?: unknown }
+        | undefined;
+      const vars = result.vars as Record<string, string> | undefined;
+      const score =
+        typeof result.score === "number" ? Math.round(result.score * 100) : 0;
+
+      return `<tr><td>${escapeHtml(String(result.description ?? ""))}</td><td>${escapeHtml(
+        response?.metadata?.datasetRunId ?? "",
+      )}</td><td>${escapeHtml(vars?.场景 ?? "")}</td><td>${score}%</td><td>${escapeHtml(
+        String(result.success ? "通过" : "未通过"),
+      )}</td><td>${escapeHtml(String(response?.output ?? ""))}</td><td>${escapeHtml(
+        String(gradingResult?.reason ?? ""),
+      )}</td></tr>`;
+    })
+    .join("");
 
   return `<!doctype html>
 <html lang="zh-CN">
@@ -1346,21 +1757,22 @@ function buildPromptfooReportHtml(summary: Record<string, unknown>): string {
     th, td { padding: 12px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
     th { color: #374151; background: #f3f4f6; font-weight: 600; }
     .meta { color: #6b7280; font-size: 13px; }
+    .output { max-width: 360px; }
   </style>
 </head>
 <body>
   <main>
     <h1>${escapeHtml(PROMPTFOO_MATRIX_NAME)}</h1>
     <p class="meta">Matrix Run ID: ${PROMPTFOO_MATRIX_RUN_ID} · Promptfoo ${PROMPTFOO_VERSION} · ${results.length} 组结果</p>
-    <p>这是随中文示例项目初始化的 Promptfoo 报告，用于演示从数据集、提示词、模型配置、矩阵运行到报告下载的闭环。</p>
+    <p>这是随中文示例项目初始化的 Promptfoo 报告，用于演示从数据集、提示词、模型配置、矩阵运行、Trace、Score 到报告下载的闭环。</p>
     <h2>运行概览</h2>
     <table>
       <thead><tr><th>Dataset Run</th><th>模型</th><th>平均回复质量</th><th>用例数</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <h2>中文用例对比</h2>
+    <h2>评估明细</h2>
     <table>
-      <thead><tr><th>用例</th><th>场景</th><th>v1</th><th>v2</th></tr></thead>
+      <thead><tr><th>用例</th><th>Dataset Run</th><th>场景</th><th>分数</th><th>断言</th><th class="output">模型输出</th><th>评估理由</th></tr></thead>
       <tbody>${caseRows}</tbody>
     </table>
   </main>
@@ -1483,7 +1895,10 @@ function buildPrismaScores(baseTime: Date) {
         index * 12 + (run.variant === "v1" ? 9.5 : 11.5),
       );
       const replyQuality = getVariantScores(demoCase, run.variant).replyQuality;
-      const currentTraceId = traceId(demoCase, run.variant);
+      const assertionPassed = isPromptfooSentenceAssertionPassed(
+        getVariantOutput(demoCase, run.variant),
+      );
+      const currentTraceId = promptfooTraceId(demoCase, run);
 
       return [
         {
@@ -1491,14 +1906,14 @@ function buildPrismaScores(baseTime: Date) {
           timestamp,
           projectId: DEMO_PROJECT.id,
           name: "promptfoo/pass",
-          value: replyQuality >= 0.8 ? 1 : 0,
+          value: assertionPassed ? 1 : 0,
           source: LegacyPrismaScoreSource.EVAL,
           authorUserId: DEMO_USER.id,
           comment: "Promptfoo 断言是否通过。",
           traceId: currentTraceId,
           observationId: null,
           configId: null,
-          stringValue: replyQuality >= 0.8 ? "true" : "false",
+          stringValue: assertionPassed ? "true" : "false",
           dataType: ScoreConfigDataType.BOOLEAN,
           createdAt: timestamp,
           updatedAt: timestamp,
@@ -1512,6 +1927,23 @@ function buildPrismaScores(baseTime: Date) {
           source: LegacyPrismaScoreSource.EVAL,
           authorUserId: DEMO_USER.id,
           comment: "Promptfoo 中文回复质量归一化分数。",
+          traceId: currentTraceId,
+          observationId: null,
+          configId: null,
+          stringValue: null,
+          dataType: ScoreConfigDataType.NUMERIC,
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        },
+        {
+          id: promptfooScoreId(demoCase, run, "sentence"),
+          timestamp,
+          projectId: DEMO_PROJECT.id,
+          name: "promptfoo/中文完整句",
+          value: assertionPassed ? 1 : 0,
+          source: LegacyPrismaScoreSource.EVAL,
+          authorUserId: DEMO_USER.id,
+          comment: "Promptfoo 命名断言：回复是否包含完整中文句号。",
           traceId: currentTraceId,
           observationId: null,
           configId: null,
@@ -1631,7 +2063,7 @@ async function seedDashboard() {
 }
 
 function buildClickHouseArtifacts(): SeededArtifacts {
-  const baseTime = addMinutes(new Date(), -180);
+  const baseTime = BASE_TIME;
   const artifacts: SeededArtifacts = {
     traces: [],
     observations: [],
@@ -1856,16 +2288,115 @@ function buildClickHouseArtifacts(): SeededArtifacts {
         baseTime,
         caseIndex * 12 + (promptfooRun.variant === "v1" ? 9 : 11),
       );
+      const endTime = addMinutes(timestamp, 1);
+      const prompt = getPromptForVariant(promptfooRun.variant);
+      const output = getVariantOutput(demoCase, promptfooRun.variant);
       const replyQuality = getVariantScores(
         demoCase,
         promptfooRun.variant,
       ).replyQuality;
+      const assertionPassed = isPromptfooSentenceAssertionPassed(output);
+      const currentPromptfooTraceId = promptfooTraceId(demoCase, promptfooRun);
+      const currentPromptfooObservationId = promptfooGenerationObservationId(
+        demoCase,
+        promptfooRun,
+      );
+
+      artifacts.traces.push({
+        id: currentPromptfooTraceId,
+        name: `${buildPromptfooRunName(promptfooRun)} / ${demoCase.title}`,
+        user_id: demoCase.userId,
+        metadata: asStringMap({
+          ...demoCase.metadata,
+          promptfoo_matrix_run_id: PROMPTFOO_MATRIX_RUN_ID,
+          dataset_run_id: promptfooRun.id,
+          prompt_id: prompt.id,
+          provider: LLM_PROVIDER,
+          model: MODEL_NAME,
+        }),
+        release: RELEASE,
+        version: promptfooRun.variant,
+        project_id: DEMO_PROJECT.id,
+        environment: PROMPTFOO_ENVIRONMENT,
+        public: false,
+        bookmarked: false,
+        tags: ["中文示例", "二手集市", "Promptfoo", promptfooRun.variant],
+        input: serializeJson(demoCase.input),
+        output: serializeJson({
+          回复: output,
+          Promptfoo分数: replyQuality,
+        }),
+        session_id: demoCase.sessionId,
+        timestamp: toMs(timestamp),
+        created_at: toMs(timestamp),
+        updated_at: toMs(endTime),
+        event_ts: toMs(endTime),
+        is_deleted: 0,
+      });
+
+      artifacts.observations.push(
+        buildObservationRecord({
+          demoCase,
+          variant: promptfooRun.variant,
+          id: currentPromptfooObservationId,
+          type: "GENERATION",
+          name: "Promptfoo 中文客服助手生成",
+          traceId: currentPromptfooTraceId,
+          parentObservationId: null,
+          startTime: addMinutes(timestamp, 0.2),
+          endTime,
+          input: {
+            messages: [
+              {
+                role: "user",
+                content: demoCase.input.买家消息,
+              },
+            ],
+          },
+          output: {
+            role: "assistant",
+            content: output,
+          },
+          metadata: {
+            promptfoo_matrix_run_id: PROMPTFOO_MATRIX_RUN_ID,
+            dataset_run_id: promptfooRun.id,
+            dataset_item_id: datasetItemId(demoCase),
+            提示词: prompt.name,
+            商品类目: demoCase.metadata.商品类目,
+          },
+          prompt,
+          environment: PROMPTFOO_ENVIRONMENT,
+        }),
+      );
+
+      artifacts.events.push(
+        buildPromptfooEventRecord({
+          demoCase,
+          run: promptfooRun,
+          spanId: currentPromptfooObservationId,
+          traceId: currentPromptfooTraceId,
+          startTime: addMinutes(timestamp, 0.2),
+          endTime,
+          input: {
+            messages: [
+              {
+                role: "user",
+                content: demoCase.input.买家消息,
+              },
+            ],
+          },
+          output: {
+            role: "assistant",
+            content: output,
+          },
+        }),
+      );
 
       artifacts.datasetRunItems.push({
         id: promptfooDatasetRunItemId(demoCase, promptfooRun),
         project_id: DEMO_PROJECT.id,
-        trace_id: traceId(demoCase, promptfooRun.variant),
-        observation_id: generationObservationId(demoCase, promptfooRun.variant),
+        trace_id: promptfooTraceId(demoCase, promptfooRun),
+        observation_id: null,
         dataset_id: DEMO_IDS.dataset,
         dataset_run_id: promptfooRun.id,
         dataset_item_id: datasetItemId(demoCase),
@@ -1898,9 +2429,9 @@ function buildClickHouseArtifacts(): SeededArtifacts {
           demoCase,
           run: promptfooRun,
           name: "promptfoo/pass",
-          value: replyQuality >= 0.8 ? 1 : 0,
+          value: assertionPassed ? 1 : 0,
           dataType: "BOOLEAN",
-          stringValue: replyQuality >= 0.8 ? "true" : "false",
+          stringValue: assertionPassed ? "true" : "false",
           timestamp: addMinutes(timestamp, 0.5),
           comment: "Promptfoo 断言是否通过。",
         }),
@@ -1914,6 +2445,17 @@ function buildClickHouseArtifacts(): SeededArtifacts {
           stringValue: null,
           timestamp: addMinutes(timestamp, 0.5),
           comment: "Promptfoo 中文回复质量归一化分数。",
+        }),
+        buildPromptfooScoreRecord({
+          id: promptfooScoreId(demoCase, promptfooRun, "sentence"),
+          demoCase,
+          run: promptfooRun,
+          name: "promptfoo/中文完整句",
+          value: assertionPassed ? 1 : 0,
+          dataType: "NUMERIC",
+          stringValue: null,
+          timestamp: addMinutes(timestamp, 0.5),
+          comment: "Promptfoo 命名断言：回复是否包含完整中文句号。",
         }),
       );
     }
@@ -1953,6 +2495,7 @@ function buildObservationRecord(params: {
   output: unknown;
   metadata: Record<string, string>;
   prompt?: { id: string; name: string; version: number } | null;
+  environment?: string;
 }): ObservationRecordInsertType {
   const inputTokens = params.variant === "v1" ? 1380 : 1560;
   const outputTokens = params.variant === "v1" ? 128 : 180;
@@ -1964,7 +2507,7 @@ function buildObservationRecord(params: {
     project_id: DEMO_PROJECT.id,
     type: params.type,
     parent_observation_id: params.parentObservationId,
-    environment: ENVIRONMENT,
+    environment: params.environment ?? ENVIRONMENT,
     name: params.name,
     metadata: asStringMap(params.metadata),
     level: "DEFAULT",
@@ -2085,7 +2628,7 @@ function buildPromptfooScoreRecord(params: {
   id: string;
   demoCase: DemoCase;
   run: PromptfooRun;
-  name: "promptfoo/pass" | "promptfoo/score";
+  name: "promptfoo/pass" | "promptfoo/score" | "promptfoo/中文完整句";
   value: number;
   dataType: "BOOLEAN" | "NUMERIC";
   stringValue: string | null;
@@ -2097,7 +2640,7 @@ function buildPromptfooScoreRecord(params: {
   return {
     id: params.id,
     project_id: DEMO_PROJECT.id,
-    trace_id: traceId(params.demoCase, params.run.variant),
+    trace_id: promptfooTraceId(params.demoCase, params.run),
     session_id: params.demoCase.sessionId,
     observation_id: null,
     dataset_run_id: params.run.id,
@@ -2125,7 +2668,7 @@ function buildPromptfooScoreRecord(params: {
     string_value: params.stringValue,
     long_string_value: "",
     queue_id: null,
-    execution_trace_id: traceId(params.demoCase, params.run.variant),
+    execution_trace_id: promptfooTraceId(params.demoCase, params.run),
     created_at: toMs(params.timestamp),
     updated_at: toMs(params.timestamp),
     timestamp: toMs(params.timestamp),
@@ -2280,6 +2823,127 @@ function buildEventRecord(params: {
   };
 }
 
+function buildPromptfooEventRecord(params: {
+  demoCase: DemoCase;
+  run: PromptfooRun;
+  spanId: string;
+  traceId: string;
+  startTime: Date;
+  endTime: Date;
+  input: unknown;
+  output: unknown;
+}): EventRecordInsertType {
+  const prompt = getPromptForVariant(params.run.variant);
+  const metadata = metadataArrays({
+    ...params.demoCase.metadata,
+    promptfoo_matrix_run_id: PROMPTFOO_MATRIX_RUN_ID,
+    dataset_run_id: params.run.id,
+    prompt_id: prompt.id,
+    provider: LLM_PROVIDER,
+    model: MODEL_NAME,
+  });
+  const experimentMetadata = metadataArrays({
+    execution_mode: "promptfoo",
+    promptfoo_matrix_run_id: PROMPTFOO_MATRIX_RUN_ID,
+    prompt_id: prompt.id,
+    prompt_version: prompt.version,
+    provider: LLM_PROVIDER,
+    model: MODEL_NAME,
+    status: PromptfooMatrixRunStatus.Completed,
+  });
+  const datasetItemMetadata = metadataArrays({
+    ...params.demoCase.metadata,
+    用例标题: params.demoCase.title,
+    数据来源: params.demoCase.source,
+  });
+  const inputTokens = params.run.variant === "v1" ? 1380 : 1560;
+  const outputTokens = params.run.variant === "v1" ? 128 : 180;
+
+  return {
+    org_id: DEMO_ORG.id,
+    project_id: DEMO_PROJECT.id,
+    trace_id: params.traceId,
+    span_id: params.spanId,
+    id: params.spanId,
+    parent_span_id: null,
+    name: "Promptfoo 中文客服助手生成",
+    type: "GENERATION",
+    environment: PROMPTFOO_ENVIRONMENT,
+    version: params.run.variant,
+    release: RELEASE,
+    trace_name: `${buildPromptfooRunName(params.run)} / ${params.demoCase.title}`,
+    user_id: params.demoCase.userId,
+    session_id: params.demoCase.sessionId,
+    tags: ["中文示例", "二手集市", "Promptfoo", params.run.variant],
+    bookmarked: false,
+    public: false,
+    level: "DEFAULT",
+    status_message: "Promptfoo 处理完成",
+    prompt_id: prompt.id,
+    prompt_name: prompt.name,
+    prompt_version: prompt.version,
+    model_id: DEMO_IDS.model,
+    provided_model_name: MODEL_NAME,
+    model_parameters: serializeJson(DEFAULT_LLM_MODEL_PARAMS),
+    provided_usage_details: {
+      input: inputTokens,
+      output: outputTokens,
+      total: inputTokens + outputTokens,
+    },
+    usage_details: {
+      input: inputTokens,
+      output: outputTokens,
+      total: inputTokens + outputTokens,
+    },
+    provided_cost_details: { input: 0.0012, output: 0.0008, total: 0.002 },
+    cost_details: { input: 0.0012, output: 0.0008, total: 0.002 },
+    usage_pricing_tier_id: null,
+    usage_pricing_tier_name: null,
+    tool_definitions: {
+      检查交易安全风险: serializeJson({
+        description: "检查中文回复中的交易安全风险",
+      }),
+    },
+    tool_calls: [],
+    tool_call_names: [],
+    input: serializeJson(params.input),
+    output: serializeJson(params.output),
+    metadata_names: metadata.names,
+    metadata_values: metadata.values,
+    experiment_id: params.run.id,
+    experiment_name: buildPromptfooRunName(params.run),
+    experiment_metadata_names: experimentMetadata.names,
+    experiment_metadata_values: experimentMetadata.values,
+    experiment_description: params.run.description,
+    experiment_dataset_id: DEMO_IDS.dataset,
+    experiment_item_id: datasetItemId(params.demoCase),
+    experiment_item_version: null,
+    experiment_item_expected_output: serializeJson(
+      params.demoCase.expectedOutput,
+    ),
+    experiment_item_metadata_names: datasetItemMetadata.names,
+    experiment_item_metadata_values: datasetItemMetadata.values,
+    experiment_item_root_span_id: params.spanId,
+    source: "API",
+    service_name: "cn-marketplace-demo",
+    service_version: params.run.variant,
+    scope_name: SCRIPT_PATH,
+    scope_version: SEED_MARKER,
+    telemetry_sdk_language: "typescript",
+    telemetry_sdk_name: "langfuse-seed-script",
+    telemetry_sdk_version: "1",
+    blob_storage_file_path: "",
+    event_bytes: Buffer.byteLength(serializeJson(params.output)),
+    is_deleted: 0,
+    start_time: toMicro(params.startTime),
+    end_time: toMicro(params.endTime),
+    completion_start_time: toMicro(addMinutes(params.startTime, 0.2)),
+    created_at: toMicro(params.startTime),
+    updated_at: toMicro(params.endTime),
+    event_ts: toMicro(params.endTime),
+  };
+}
+
 async function seedClickHouseData(artifacts: SeededArtifacts) {
   console.log(
     "写入 ClickHouse 示例 traces、observations、scores、dataset run items 和 events...",
@@ -2302,6 +2966,7 @@ async function waitForClickHouseProjectDataDeleted() {
     "dataset_run_items_rmt",
     "events_full",
     "events_core",
+    "blob_storage_file_log",
   ];
 
   for (let attempt = 1; attempt <= 20; attempt += 1) {
@@ -2334,7 +2999,19 @@ async function validateSeed() {
     project: await prisma.project.count({
       where: { id: DEMO_PROJECT.id },
     }),
+    apiKeys: await prisma.apiKey.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
+    models: await prisma.model.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
     prompts: await prisma.prompt.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
+    promptDependencies: await prisma.promptDependency.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
+    promptProtectedLabels: await prisma.promptProtectedLabels.count({
       where: { projectId: DEMO_PROJECT.id },
     }),
     scoreConfigs: await prisma.scoreConfig.count({
@@ -2355,6 +3032,15 @@ async function validateSeed() {
     defaultLlmModels: await prisma.defaultLlmModel.count({
       where: { projectId: DEMO_PROJECT.id },
     }),
+    llmSchemas: await prisma.llmSchema.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
+    llmTools: await prisma.llmTool.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
+    traceSessions: await prisma.traceSession.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
     traces: await prisma.legacyPrismaTrace.count({
       where: { projectId: DEMO_PROJECT.id },
     }),
@@ -2364,30 +3050,105 @@ async function validateSeed() {
     scores: await prisma.legacyPrismaScore.count({
       where: { projectId: DEMO_PROJECT.id },
     }),
+    evalTemplates: await prisma.evalTemplate.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
+    jobConfigurations: await prisma.jobConfiguration.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
     jobExecutions: await prisma.jobExecution.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
+    annotationQueues: await prisma.annotationQueue.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
+    annotationQueueAssignments: await prisma.annotationQueueAssignment.count({
       where: { projectId: DEMO_PROJECT.id },
     }),
     annotationQueueItems: await prisma.annotationQueueItem.count({
       where: { projectId: DEMO_PROJECT.id },
     }),
+    annotationScores: await prisma.legacyPrismaScore.count({
+      where: {
+        projectId: DEMO_PROJECT.id,
+        source: LegacyPrismaScoreSource.ANNOTATION,
+      },
+    }),
+    dashboards: await prisma.dashboard.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
     dashboardWidgets: await prisma.dashboardWidget.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
+    comments: await prisma.comment.count({
+      where: { projectId: DEMO_PROJECT.id },
+    }),
+    commentReactions: await prisma.commentReaction.count({
       where: { projectId: DEMO_PROJECT.id },
     }),
   };
 
   const clickhouseCounts = {
     traces: await countClickHouseRows("traces"),
+    traceSessions: await countDistinctClickHouseValues("traces", "session_id"),
+    traceUsers: await countDistinctClickHouseValues("traces", "user_id"),
     observations: await countClickHouseRows("observations"),
+    promptLinkedObservations: await countClickHouseRowsWhere(
+      "observations",
+      "ifNull(prompt_id, '') != ''",
+    ),
     scores: await countClickHouseRows("scores"),
+    scoreNames: await countDistinctClickHouseValues("scores", "name"),
     datasetRunItems: await countClickHouseRows("dataset_run_items_rmt"),
     eventsFull: await countClickHouseRows("events_full"),
     eventsCore: await countClickHouseRows("events_core"),
+    eventsSessions: await countDistinctClickHouseValues(
+      "events_core",
+      "session_id",
+    ),
+    eventsUsers: await countDistinctClickHouseValues("events_core", "user_id"),
+    experimentEvents: await countClickHouseRowsWhere(
+      "events_core",
+      "ifNull(experiment_id, '') != ''",
+    ),
+    experimentIds: await countDistinctClickHouseValues(
+      "events_core",
+      "experiment_id",
+    ),
+    experimentItems: await countDistinctClickHouseTuples(
+      "events_core",
+      ["experiment_id", "experiment_item_id"],
+      "ifNull(experiment_id, '') != '' AND ifNull(experiment_item_id, '') != ''",
+    ),
+    experimentTraces: await countDistinctClickHouseValues(
+      "events_core",
+      "trace_id",
+      "ifNull(experiment_id, '') != ''",
+    ),
+    promptfooReportBlobs: await countClickHouseRows("blob_storage_file_log"),
   };
   const duplicateTraceIds = await findDuplicateClickHouseTraceIds();
   const promptfooReport = await validatePromptfooReportFiles();
+  const navigationCoverage = buildNavigationCoverage({
+    postgresCounts,
+    clickhouseCounts,
+    promptfooReport,
+  });
 
   assertCount("Postgres project", postgresCounts.project, 1);
+  assertCount("Postgres API keys", postgresCounts.apiKeys, EXPECTED.apiKeys);
+  assertCount("Postgres models", postgresCounts.models, EXPECTED.models);
   assertCount("Postgres prompts", postgresCounts.prompts, EXPECTED.prompts);
+  assertCount(
+    "Postgres prompt dependencies",
+    postgresCounts.promptDependencies,
+    EXPECTED.promptDependencies,
+  );
+  assertCount(
+    "Postgres prompt protected labels",
+    postgresCounts.promptProtectedLabels,
+    EXPECTED.promptProtectedLabels,
+  );
   assertCount(
     "Postgres score configs",
     postgresCounts.scoreConfigs,
@@ -2418,6 +3179,17 @@ async function validateSeed() {
     postgresCounts.defaultLlmModels,
     EXPECTED.defaultLlmModels,
   );
+  assertCount(
+    "Postgres LLM schemas",
+    postgresCounts.llmSchemas,
+    EXPECTED.llmSchemas,
+  );
+  assertCount("Postgres LLM tools", postgresCounts.llmTools, EXPECTED.llmTools);
+  assertCount(
+    "Postgres trace sessions",
+    postgresCounts.traceSessions,
+    EXPECTED.traceSessions,
+  );
   assertCount("Postgres traces", postgresCounts.traces, EXPECTED.traces);
   assertCount(
     "Postgres observations",
@@ -2426,9 +3198,29 @@ async function validateSeed() {
   );
   assertCount("Postgres scores", postgresCounts.scores, EXPECTED.scores);
   assertCount(
+    "Postgres eval templates",
+    postgresCounts.evalTemplates,
+    EXPECTED.evalTemplates,
+  );
+  assertCount(
+    "Postgres job configurations",
+    postgresCounts.jobConfigurations,
+    EXPECTED.jobConfigurations,
+  );
+  assertCount(
     "Postgres job executions",
     postgresCounts.jobExecutions,
     EXPECTED.jobExecutions,
+  );
+  assertCount(
+    "Postgres annotation queues",
+    postgresCounts.annotationQueues,
+    EXPECTED.annotationQueues,
+  );
+  assertCount(
+    "Postgres annotation queue assignments",
+    postgresCounts.annotationQueueAssignments,
+    EXPECTED.annotationQueueAssignments,
   );
   assertCount(
     "Postgres annotation queue items",
@@ -2436,18 +3228,45 @@ async function validateSeed() {
     EXPECTED.annotationQueueItems,
   );
   assertCount(
+    "Postgres annotation scores",
+    postgresCounts.annotationScores,
+    EXPECTED.annotationScores,
+  );
+  assertCount(
+    "Postgres dashboards",
+    postgresCounts.dashboards,
+    EXPECTED.dashboards,
+  );
+  assertCount(
     "Postgres dashboard widgets",
     postgresCounts.dashboardWidgets,
     EXPECTED.dashboardWidgets,
   );
+  assertCount("Postgres comments", postgresCounts.comments, EXPECTED.comments);
+  assertCount(
+    "Postgres comment reactions",
+    postgresCounts.commentReactions,
+    EXPECTED.commentReactions,
+  );
 
   assertCount("ClickHouse traces", clickhouseCounts.traces, EXPECTED.traces);
+  assertCount(
+    "ClickHouse trace sessions",
+    clickhouseCounts.traceSessions,
+    EXPECTED.traceSessions,
+  );
+  assertCount(
+    "ClickHouse trace users",
+    clickhouseCounts.traceUsers,
+    DEMO_CASES.length,
+  );
   assertCount(
     "ClickHouse observations",
     clickhouseCounts.observations,
     EXPECTED.observations,
   );
   assertCount("ClickHouse scores", clickhouseCounts.scores, EXPECTED.scores);
+  assertMinimum("ClickHouse score names", clickhouseCounts.scoreNames, 1);
   assertCount(
     "ClickHouse dataset run items",
     clickhouseCounts.datasetRunItems,
@@ -2463,12 +3282,55 @@ async function validateSeed() {
     clickhouseCounts.eventsCore,
     EXPECTED.events,
   );
+  assertCount(
+    "ClickHouse events sessions",
+    clickhouseCounts.eventsSessions,
+    EXPECTED.traceSessions,
+  );
+  assertCount(
+    "ClickHouse events users",
+    clickhouseCounts.eventsUsers,
+    DEMO_CASES.length,
+  );
+  assertMinimum(
+    "ClickHouse prompt linked observations",
+    clickhouseCounts.promptLinkedObservations,
+    1,
+  );
+  assertMinimum(
+    "ClickHouse experiment events",
+    clickhouseCounts.experimentEvents,
+    1,
+  );
+  assertCount(
+    "ClickHouse experiment ids",
+    clickhouseCounts.experimentIds,
+    EXPECTED.experiments,
+  );
+  assertCount(
+    "ClickHouse experiment items",
+    clickhouseCounts.experimentItems,
+    EXPECTED.experimentItems,
+  );
+  assertCount(
+    "ClickHouse experiment traces",
+    clickhouseCounts.experimentTraces,
+    EXPECTED.traces,
+  );
+  assertCount(
+    "ClickHouse Promptfoo report blob logs",
+    clickhouseCounts.promptfooReportBlobs,
+    env.LANGFUSE_ENABLE_BLOB_STORAGE_FILE_LOG === "true"
+      ? EXPECTED.promptfooReportBlobs
+      : 0,
+  );
 
   if (duplicateTraceIds.length > 0) {
     throw new Error(
       `ClickHouse traces 存在重复 ID：${duplicateTraceIds.join(", ")}`,
     );
   }
+  assertNavigationCoverage(navigationCoverage);
 
   return {
     seed: SEED_MARKER,
@@ -2478,6 +3340,7 @@ async function validateSeed() {
     },
     postgresCounts,
     clickhouseCounts,
+    navigationCoverage,
     promptfooReport,
   };
 }
@@ -2499,6 +3362,245 @@ async function countClickHouseRows(table: string) {
   });
 
   return Number(rows[0]?.count ?? 0);
+}
+
+async function countDistinctClickHouseValues(
+  table: string,
+  column: string,
+  condition?: string,
+) {
+  const rows = await queryClickhouse<CountRow>({
+    query: `
+      SELECT countDistinct(${column}) AS count
+      FROM ${table}
+      WHERE project_id = {projectId: String}
+        AND ifNull(${column}, '') != ''
+        ${condition ? `AND (${condition})` : ""}
+    `,
+    params: { projectId: DEMO_PROJECT.id },
+    tags: {
+      feature: "cn-marketplace-seed",
+      type: table,
+      kind: `validate-distinct-${column}`,
+      projectId: DEMO_PROJECT.id,
+    },
+  });
+
+  return Number(rows[0]?.count ?? 0);
+}
+
+async function countDistinctClickHouseTuples(
+  table: string,
+  columns: string[],
+  condition: string,
+) {
+  const rows = await queryClickhouse<CountRow>({
+    query: `
+      SELECT countDistinct(${columns.join(", ")}) AS count
+      FROM ${table}
+      WHERE project_id = {projectId: String}
+        AND (${condition})
+    `,
+    params: { projectId: DEMO_PROJECT.id },
+    tags: {
+      feature: "cn-marketplace-seed",
+      type: table,
+      kind: `validate-distinct-${columns.join("-")}`,
+      projectId: DEMO_PROJECT.id,
+    },
+  });
+
+  return Number(rows[0]?.count ?? 0);
+}
+
+async function countClickHouseRowsWhere(table: string, condition: string) {
+  const rows = await queryClickhouse<CountRow>({
+    query: `
+      SELECT count() AS count
+      FROM ${table}
+      WHERE project_id = {projectId: String}
+        AND (${condition})
+    `,
+    params: { projectId: DEMO_PROJECT.id },
+    tags: {
+      feature: "cn-marketplace-seed",
+      type: table,
+      kind: "validate-filtered",
+      projectId: DEMO_PROJECT.id,
+    },
+  });
+
+  return Number(rows[0]?.count ?? 0);
+}
+
+function buildNavigationCoverage(params: {
+  postgresCounts: Record<string, number>;
+  clickhouseCounts: Record<string, number>;
+  promptfooReport: {
+    resultCount: number;
+    datasetRunIds: string[];
+  };
+}): NavigationCoverage {
+  const { postgresCounts: pg, clickhouseCounts: ch, promptfooReport } = params;
+
+  return {
+    仪表盘: {
+      path: `/project/${DEMO_PROJECT.id}`,
+      ready:
+        pg.dashboards >= EXPECTED.dashboards &&
+        pg.dashboardWidgets >= EXPECTED.dashboardWidgets &&
+        ch.traces >= EXPECTED.traces &&
+        ch.scores >= EXPECTED.scores,
+      evidence: {
+        dashboards: pg.dashboards,
+        dashboardWidgets: pg.dashboardWidgets,
+        traces: ch.traces,
+        scores: ch.scores,
+      },
+    },
+    追踪: {
+      path: `/project/${DEMO_PROJECT.id}/traces`,
+      ready:
+        pg.traces >= EXPECTED.traces &&
+        ch.traces >= EXPECTED.traces &&
+        ch.observations >= EXPECTED.observations &&
+        ch.eventsCore >= EXPECTED.events,
+      evidence: {
+        postgresTraces: pg.traces,
+        clickhouseTraces: ch.traces,
+        observations: ch.observations,
+        eventsCore: ch.eventsCore,
+      },
+    },
+    会话: {
+      path: `/project/${DEMO_PROJECT.id}/sessions`,
+      ready:
+        pg.traceSessions >= EXPECTED.traceSessions &&
+        ch.traceSessions >= EXPECTED.traceSessions &&
+        ch.eventsSessions >= EXPECTED.traceSessions,
+      evidence: {
+        traceSessions: pg.traceSessions,
+        clickhouseTraceSessions: ch.traceSessions,
+        eventSessions: ch.eventsSessions,
+      },
+    },
+    用户: {
+      path: `/project/${DEMO_PROJECT.id}/users`,
+      ready:
+        ch.traceUsers >= DEMO_CASES.length &&
+        ch.eventsUsers >= DEMO_CASES.length,
+      evidence: {
+        traceUsers: ch.traceUsers,
+        eventUsers: ch.eventsUsers,
+      },
+    },
+    提示词: {
+      path: `/project/${DEMO_PROJECT.id}/prompts`,
+      ready:
+        pg.prompts >= EXPECTED.prompts &&
+        pg.promptDependencies >= EXPECTED.promptDependencies &&
+        ch.promptLinkedObservations > 0,
+      evidence: {
+        prompts: pg.prompts,
+        promptDependencies: pg.promptDependencies,
+        promptLinkedObservations: ch.promptLinkedObservations,
+      },
+    },
+    调试台: {
+      path: `/project/${DEMO_PROJECT.id}/playground`,
+      ready:
+        pg.llmApiKeys >= EXPECTED.llmApiKeys &&
+        pg.defaultLlmModels >= EXPECTED.defaultLlmModels &&
+        pg.llmSchemas >= EXPECTED.llmSchemas &&
+        pg.llmTools >= EXPECTED.llmTools &&
+        pg.prompts >= 1,
+      evidence: {
+        llmApiKeys: pg.llmApiKeys,
+        defaultLlmModels: pg.defaultLlmModels,
+        llmSchemas: pg.llmSchemas,
+        llmTools: pg.llmTools,
+        playgroundPrompts: pg.prompts,
+      },
+      note: "调试台窗口内容保存在浏览器 sessionStorage；脚本准备可运行的 Ollama 模型连接、中文 Prompt、Schema 和 Tool。",
+    },
+    评分: {
+      path: `/project/${DEMO_PROJECT.id}/scores`,
+      ready:
+        pg.scoreConfigs >= EXPECTED.scoreConfigs &&
+        pg.scores >= EXPECTED.scores &&
+        ch.scores >= EXPECTED.scores &&
+        ch.scoreNames > 0,
+      evidence: {
+        scoreConfigs: pg.scoreConfigs,
+        postgresScores: pg.scores,
+        clickhouseScores: ch.scores,
+        scoreNames: ch.scoreNames,
+      },
+    },
+    "LLM 评审": {
+      path: `/project/${DEMO_PROJECT.id}/evals`,
+      ready:
+        pg.defaultLlmModels >= EXPECTED.defaultLlmModels &&
+        pg.evalTemplates >= EXPECTED.evalTemplates &&
+        pg.jobConfigurations >= EXPECTED.jobConfigurations &&
+        pg.jobExecutions >= EXPECTED.jobExecutions,
+      evidence: {
+        defaultLlmModels: pg.defaultLlmModels,
+        evalTemplates: pg.evalTemplates,
+        jobConfigurations: pg.jobConfigurations,
+        jobExecutions: pg.jobExecutions,
+      },
+    },
+    人工标注: {
+      path: `/project/${DEMO_PROJECT.id}/annotation-queues`,
+      ready:
+        pg.annotationQueues >= EXPECTED.annotationQueues &&
+        pg.annotationQueueAssignments >= EXPECTED.annotationQueueAssignments &&
+        pg.annotationQueueItems >= EXPECTED.annotationQueueItems &&
+        pg.annotationScores >= EXPECTED.annotationScores,
+      evidence: {
+        annotationQueues: pg.annotationQueues,
+        annotationQueueAssignments: pg.annotationQueueAssignments,
+        annotationQueueItems: pg.annotationQueueItems,
+        annotationScores: pg.annotationScores,
+      },
+    },
+    数据集: {
+      path: `/project/${DEMO_PROJECT.id}/datasets`,
+      ready:
+        pg.datasetItems >= EXPECTED.datasetItems &&
+        pg.datasetRuns >= EXPECTED.datasetRuns &&
+        pg.datasetRunItems >= EXPECTED.datasetRunItems &&
+        ch.datasetRunItems >= EXPECTED.datasetRunItems &&
+        promptfooReport.resultCount >=
+          DEMO_CASES.length * PROMPTFOO_RUNS.length,
+      evidence: {
+        datasetItems: pg.datasetItems,
+        datasetRuns: pg.datasetRuns,
+        postgresDatasetRunItems: pg.datasetRunItems,
+        clickhouseDatasetRunItems: ch.datasetRunItems,
+        promptfooResults: promptfooReport.resultCount,
+        promptfooDatasetRunIds: promptfooReport.datasetRunIds,
+      },
+    },
+    实验: {
+      path: `/project/${DEMO_PROJECT.id}/experiments`,
+      ready:
+        pg.datasetRuns >= EXPECTED.experiments &&
+        ch.experimentIds >= EXPECTED.experiments &&
+        ch.experimentItems >= EXPECTED.experimentItems &&
+        ch.experimentTraces >= EXPECTED.traces &&
+        ch.experimentEvents >= EXPECTED.events,
+      evidence: {
+        datasetRuns: pg.datasetRuns,
+        experimentIds: ch.experimentIds,
+        experimentItems: ch.experimentItems,
+        experimentTraces: ch.experimentTraces,
+        experimentEvents: ch.experimentEvents,
+      },
+      note: "实验页面受 Beta 开关控制；脚本已准备 dataset runs 与 events_core 中的 experiment_id / experiment_item_id / trace_id 闭环数据。",
+    },
+  };
 }
 
 async function validatePromptfooReportFiles() {
@@ -2554,14 +3656,43 @@ async function validatePromptfooReportFiles() {
   const reportHtml = await storageClient.download(
     buildPromptfooReportObjectKey(PROMPTFOO_REPORT_HTML_FILE_NAME),
   );
-  const parsedReport = JSON.parse(reportJson) as unknown;
+  const parsedReport = JSON.parse(reportJson) as {
+    results?: Array<{
+      response?: { metadata?: PromptfooProviderResponseMetadata };
+      gradingResult?: unknown;
+    }>;
+  };
 
-  if (!Array.isArray(parsedReport) || parsedReport.length === 0) {
-    throw new Error("Promptfoo JSON 报告为空或格式不符合预期。");
+  if (!Array.isArray(parsedReport.results)) {
+    throw new Error("Promptfoo JSON 报告缺少 results，格式不符合预期。");
   }
 
-  if (!reportHtml.includes(PROMPTFOO_MATRIX_RUN_ID)) {
-    throw new Error("Promptfoo HTML 报告缺少 matrix run id。");
+  assertCount(
+    "Promptfoo JSON results",
+    parsedReport.results.length,
+    DEMO_CASES.length * PROMPTFOO_RUNS.length,
+  );
+
+  const resultsWithoutLangfuseLinks = parsedReport.results.filter((result) => {
+    const metadata = result.response?.metadata;
+    return !(
+      metadata?.traceId &&
+      metadata.runItemId &&
+      metadata.datasetRunId &&
+      metadata.datasetItemId &&
+      result.gradingResult
+    );
+  });
+
+  if (resultsWithoutLangfuseLinks.length > 0) {
+    throw new Error("Promptfoo JSON 报告存在缺少 Langfuse 链接的结果。");
+  }
+
+  if (
+    !reportHtml.includes(PROMPTFOO_MATRIX_RUN_ID) ||
+    !reportHtml.includes("评估明细")
+  ) {
+    throw new Error("Promptfoo HTML 报告缺少 matrix run id 或评估明细。");
   }
 
   return {
@@ -2573,6 +3704,7 @@ async function validatePromptfooReportFiles() {
     reportHtmlObjectKey: buildPromptfooReportObjectKey(
       PROMPTFOO_REPORT_HTML_FILE_NAME,
     ),
+    resultCount: parsedReport.results.length,
     reportJsonBytes: Buffer.byteLength(reportJson),
     reportHtmlBytes: Buffer.byteLength(reportHtml),
   };
@@ -2605,6 +3737,24 @@ function assertCount(label: string, actual: number, expected: number) {
   if (actual !== expected) {
     throw new Error(
       `${label} 数量不符合预期：实际 ${actual}，预期 ${expected}`,
+    );
+  }
+}
+
+function assertMinimum(label: string, actual: number, minimum: number) {
+  if (actual < minimum) {
+    throw new Error(`${label} 数量不符合预期：实际 ${actual}，至少 ${minimum}`);
+  }
+}
+
+function assertNavigationCoverage(coverage: NavigationCoverage) {
+  const missingItems = Object.entries(coverage)
+    .filter(([, item]) => !item.ready)
+    .map(([name, item]) => `${name}: ${JSON.stringify(item.evidence)}`);
+
+  if (missingItems.length > 0) {
+    throw new Error(
+      `左侧菜单存在未闭环的初始化数据：${missingItems.join("；")}`,
     );
   }
 }
