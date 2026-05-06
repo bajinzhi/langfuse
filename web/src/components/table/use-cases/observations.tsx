@@ -42,7 +42,8 @@ import {
 } from "@langfuse/shared";
 import { cn } from "@/src/utils/tailwind";
 import { LevelColors } from "@/src/components/level-colors";
-import { numberFormatter, usdFormatter } from "@/src/utils/numbers";
+import { numberFormatter } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { useOrderByState } from "@/src/features/orderBy/hooks/useOrderByState";
 import { useRowHeightLocalStorage } from "@/src/components/table/data-table-row-height-switch";
 import { MemoizedIOTableCell } from "../../ui/IOTableCell";
@@ -807,7 +808,7 @@ export default function ObservationsTable({
             pricingTierName={row.original.usagePricingTierName ?? undefined}
           >
             <div className="flex items-center gap-1">
-              <span>{usdFormatter(value)}</span>
+              <CurrencyAmount usdValue={value} hideTooltip />
               <InfoIcon className="h-3 w-3" />
             </div>
           </BreakdownTooltip>
@@ -1230,7 +1231,7 @@ export default function ObservationsTable({
             } = row.getValue("cost");
 
             return value.inputCost !== undefined ? (
-              <span>{usdFormatter(value.inputCost)}</span>
+              <CurrencyAmount usdValue={value.inputCost} />
             ) : undefined;
           },
           enableHiding: true,
@@ -1250,7 +1251,7 @@ export default function ObservationsTable({
             } = row.getValue("cost");
 
             return value.outputCost !== undefined ? (
-              <span>{usdFormatter(value.outputCost)}</span>
+              <CurrencyAmount usdValue={value.outputCost} />
             ) : undefined;
           },
           enableHiding: true,

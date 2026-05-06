@@ -25,8 +25,8 @@ import type Decimal from "decimal.js";
 import {
   compactNumberFormatter,
   numberFormatter,
-  usdFormatter,
 } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { DeleteTraceButton } from "@/src/components/deleteButton";
 import {
   formatAsLabel,
@@ -813,7 +813,7 @@ export default function TracesTable({
           <BreakdownTooltip details={row.original.costDetails ?? []} isCost>
             <div className="flex items-center gap-1">
               {cost ? (
-                <span>{usdFormatter(cost.toNumber())}</span>
+                <CurrencyAmount usdValue={cost} hideTooltip />
               ) : (
                 <span>-</span>
               )}
@@ -1067,7 +1067,7 @@ export default function TracesTable({
             return (
               <div>
                 {cost?.inputCost ? (
-                  <span>{usdFormatter(cost.inputCost.toNumber())}</span>
+                  <CurrencyAmount usdValue={cost.inputCost} />
                 ) : (
                   <span>-</span>
                 )}
@@ -1090,7 +1090,7 @@ export default function TracesTable({
             return (
               <div>
                 {cost?.outputCost ? (
-                  <span>{usdFormatter(cost.outputCost.toNumber())}</span>
+                  <CurrencyAmount usdValue={cost.outputCost} />
                 ) : (
                   <span>-</span>
                 )}

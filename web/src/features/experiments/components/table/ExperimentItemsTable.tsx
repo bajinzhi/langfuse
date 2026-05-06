@@ -31,7 +31,8 @@ import { useOrderByState } from "@/src/features/orderBy/hooks/useOrderByState";
 import { useRowHeightLocalStorage } from "@/src/components/table/data-table-row-height-switch";
 import useColumnOrder from "@/src/features/column-visibility/hooks/useColumnOrder";
 import { LocalIsoDate } from "@/src/components/LocalIsoDate";
-import { usdFormatter, latencyFormatter } from "@/src/utils/numbers";
+import { latencyFormatter } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { type RowSelectionState } from "@tanstack/react-table";
 import TableIdOrName from "@/src/components/table/table-id";
 import { usePeekNavigation } from "@/src/components/table/peek/hooks/usePeekNavigation";
@@ -712,7 +713,11 @@ export default function ExperimentItemsTable({
             renderValue={(exp) => (
               <span>
                 {exp.totalCost != null ? (
-                  usdFormatter(exp.totalCost, 2, 6)
+                  <CurrencyAmount
+                    usdValue={exp.totalCost}
+                    minimumFractionDigits={2}
+                    maximumFractionDigits={6}
+                  />
                 ) : (
                   <span className="text-muted-foreground">-</span>
                 )}

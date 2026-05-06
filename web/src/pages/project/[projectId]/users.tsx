@@ -19,7 +19,8 @@ import { useQueryFilterState } from "@/src/features/filters/hooks/useFilterState
 import { useDetailPageLists } from "@/src/features/navigate-detail-pages/context";
 import { useV4Beta } from "@/src/features/events/hooks/useV4Beta";
 import { api } from "@/src/utils/api";
-import { compactNumberFormatter, usdFormatter } from "@/src/utils/numbers";
+import { compactNumberFormatter } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { type RouterOutput } from "@/src/utils/types";
 import { type FilterState, usersTableCols } from "@langfuse/shared";
 import { joinTableCoreAndMetrics } from "@/src/components/table/utils/joinTableCoreAndMetrics";
@@ -42,7 +43,7 @@ type RowData = {
   lastEvent: string;
   totalEvents: string;
   totalTokens: string;
-  totalCost: string;
+  totalCost: number | undefined;
 };
 
 export default function UsersPage() {
@@ -392,7 +393,13 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
         if (!userMetrics.isSuccess) {
           return <TableTextLoadingCell />;
         }
-        return typeof value === "string" ? value : undefined;
+        return value !== undefined ? (
+          <CurrencyAmount
+            usdValue={value}
+            minimumFractionDigits={2}
+            maximumFractionDigits={2}
+          />
+        ) : undefined;
       },
     },
   ];
@@ -460,11 +467,7 @@ const UsersTable = ({ isBetaEnabled }: { isBetaEnabled: boolean }) => {
                       totalTokens: compactNumberFormatter(
                         user.totalTokens ?? 0,
                       ),
-                      totalCost: usdFormatter(
-                        user.sumCalculatedTotalCost ?? 0,
-                        2,
-                        2,
-                      ),
+                      totalCost: Number(user.sumCalculatedTotalCost ?? 0),
                     };
                   }),
                 }

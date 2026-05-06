@@ -15,7 +15,8 @@ import {
   getVisibleCellRows,
 } from "@/src/features/experiments/components/table/types";
 import { LocalIsoDate } from "@/src/components/LocalIsoDate";
-import { usdFormatter, latencyFormatter } from "@/src/utils/numbers";
+import { latencyFormatter } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import {
   HoverCard,
   HoverCardContent,
@@ -465,7 +466,11 @@ export const ExperimentGridCell = ({
               <MetadataItem label={t("experiments.grid.totalCost")}>
                 <span className="text-xs">
                   {data.totalCost != null ? (
-                    usdFormatter(data.totalCost, 2, 6)
+                    <CurrencyAmount
+                      usdValue={data.totalCost}
+                      minimumFractionDigits={2}
+                      maximumFractionDigits={6}
+                    />
                   ) : (
                     <span className="text-muted-foreground">-</span>
                   )}

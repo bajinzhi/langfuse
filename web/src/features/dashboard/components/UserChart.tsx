@@ -5,7 +5,7 @@ import { TabComponent } from "@/src/features/dashboard/components/TabsComponent"
 import { TotalMetric } from "@/src/features/dashboard/components/TotalMetric";
 import { ExpandListButton } from "@/src/features/dashboard/components/cards/ChevronButton";
 import { useState } from "react";
-import { totalCostDashboardFormatted } from "@/src/features/dashboard/lib/dashboard-utils";
+import { useCurrencyFormatter } from "@/src/features/currency/useCurrencyFormatter";
 import { NoDataOrLoading } from "@/src/components/NoDataOrLoading";
 import {
   type QueryType,
@@ -43,6 +43,7 @@ export const UserChart = ({
   schedulerId?: string;
 }) => {
   const { t } = useI18n();
+  const { formatDashboardTotal } = useCurrencyFormatter();
   const [isExpanded, setIsExpanded] = useState(false);
   const maxNumberOfEntries = { collapsed: 5, expanded: 20 } as const;
 
@@ -169,18 +170,15 @@ export const UserChart = ({
   const BAR_ROW_HEIGHT = 36;
   const CHART_AXIS_PADDING = 32;
 
-  const localUsdFormatter = (value: number) =>
-    totalCostDashboardFormatted(value);
-
   const data = [
     {
       tabTitle: t("dashboard.userConsumption.tokenCost"),
       data: isExpanded
         ? transformedCost.slice(0, maxNumberOfEntries.expanded)
         : transformedCost.slice(0, maxNumberOfEntries.collapsed),
-      totalMetric: totalCostDashboardFormatted(totalCost),
+      totalMetric: formatDashboardTotal(totalCost),
       metricDescription: t("dashboard.userConsumption.totalCost"),
-      formatter: localUsdFormatter,
+      formatter: formatDashboardTotal,
     },
     {
       tabTitle: t("dashboard.userConsumption.countOfTraces"),

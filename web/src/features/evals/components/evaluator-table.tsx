@@ -56,7 +56,7 @@ import { DeleteEvalConfigButton } from "@/src/components/deleteButton";
 import { MaintainerTooltip } from "@/src/features/evals/components/maintainer-tooltip";
 import { useHasProjectAccess } from "@/src/features/rbac/utils/checkProjectAccess";
 import { Skeleton } from "@/src/components/ui/skeleton";
-import { usdFormatter } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { Callout } from "@/src/components/ui/callout";
 import Link from "next/link";
 import { Badge } from "@/src/components/ui/badge";
@@ -222,7 +222,14 @@ export default function EvaluatorTable({ projectId }: { projectId: string }) {
           return <Skeleton className="h-4 w-16" />;
         }
 
-        if (totalCost != null) return usdFormatter(totalCost, 2, 4);
+        if (totalCost != null)
+          return (
+            <CurrencyAmount
+              usdValue={totalCost}
+              minimumFractionDigits={2}
+              maximumFractionDigits={4}
+            />
+          );
 
         return "–";
       },

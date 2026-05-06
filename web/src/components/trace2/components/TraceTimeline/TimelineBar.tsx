@@ -9,7 +9,7 @@ import { ItemBadge } from "@/src/components/ItemBadge";
 import { CommentCountIcon } from "@/src/features/comments/CommentCountIcon";
 import { GroupedScoreBadges } from "@/src/components/grouped-score-badge";
 import { formatIntervalSeconds } from "@/src/utils/dates";
-import { usdFormatter } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { heatMapTextColor } from "@/src/components/trace2/lib/helpers";
 import { isPresent } from "@langfuse/shared";
 import { useI18n } from "@/src/features/i18n";
@@ -111,7 +111,10 @@ export function TimelineBar({
                       }),
                   )}
                 >
-                  {usdFormatter(node.totalCost.toNumber())}
+                  <CurrencyAmount
+                    usdValue={node.totalCost.toNumber()}
+                    hideTooltip
+                  />
                 </span>
               )}
               {showScores && scores && scores.length > 0 && (
@@ -185,7 +188,10 @@ export function TimelineBar({
                     }),
                 )}
               >
-                {usdFormatter(node.totalCost.toNumber())}
+                <CurrencyAmount
+                  usdValue={node.totalCost.toNumber()}
+                  hideTooltip
+                />
               </span>
             )}
             {showScores && scores && scores.length > 0 && (

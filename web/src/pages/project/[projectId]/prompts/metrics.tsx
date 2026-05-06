@@ -8,7 +8,8 @@ import { api } from "@/src/utils/api";
 import { NumberParam, useQueryParams, withDefault } from "use-query-params";
 import { type RouterOutput } from "@/src/utils/types";
 import TableLink from "@/src/components/table/table-link";
-import { numberFormatter, usdFormatter } from "@/src/utils/numbers";
+import { numberFormatter } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { formatIntervalSeconds } from "@/src/utils/dates";
 import useColumnVisibility from "@/src/features/column-visibility/hooks/useColumnVisibility";
 import { Skeleton } from "@/src/components/ui/skeleton";
@@ -265,7 +266,7 @@ export default function PromptVersionTable({
           return <Skeleton className="h-3 w-1/2" />;
         }
 
-        return !!value ? <span>{usdFormatter(value)}</span> : undefined;
+        return !!value ? <CurrencyAmount usdValue={value} /> : undefined;
       },
       enableHiding: true,
     },

@@ -16,7 +16,11 @@ export type DatasetRunItemByItemRowData = {
   // scores holds grouped column with individual scores
   scores: ScoreAggregate;
   latency?: number;
-  totalCost?: string;
+  /**
+   * USD cost (raw). Cells render via `<CurrencyAmount>` so the active
+   * project currency is applied at the UI layer.
+   */
+  totalCost?: number;
 };
 
 export type DatasetRunItemByRunRowData = {
@@ -36,5 +40,6 @@ export type DatasetRunItemByRunRowData = {
   // scores holds grouped column with individual scores
   scores: ScoreAggregate;
   latency?: number;
-  totalCost?: string;
+  /** USD cost (raw); see DatasetRunItemByItemRowData.totalCost. */
+  totalCost?: number;
 };

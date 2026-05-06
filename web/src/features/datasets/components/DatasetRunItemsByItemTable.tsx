@@ -1,4 +1,5 @@
 import { DataTable } from "@/src/components/table/data-table";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import TableLink from "@/src/components/table/table-link";
 import { type LangfuseColumnDef } from "@/src/components/table/types";
 import { api } from "@/src/utils/api";
@@ -203,7 +204,9 @@ export function DatasetRunItemsByItemTable(props: {
       cell: ({ row }) => {
         const totalCost: DatasetRunItemByItemRowData["totalCost"] =
           row.getValue("totalCost");
-        return totalCost ?? undefined;
+        return totalCost !== undefined ? (
+          <CurrencyAmount usdValue={totalCost} />
+        ) : undefined;
       },
     },
     {

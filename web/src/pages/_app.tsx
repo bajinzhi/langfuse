@@ -5,6 +5,7 @@ import { setUser } from "@sentry/nextjs";
 import { useSession } from "next-auth/react";
 import { TooltipProvider } from "@/src/components/ui/tooltip";
 import { CommandMenuProvider } from "@/src/features/command-k-menu/CommandMenuProvider";
+import { CurrencyPreferenceSyncer } from "@/src/features/currency/CurrencyPreferenceSyncer";
 
 import { api } from "@/src/utils/api";
 
@@ -153,6 +154,12 @@ const MyApp: AppType<{ session: Session | null }> = ({
                         <CorrectionCacheProvider>
                           <SupportDrawerProvider defaultOpen={false}>
                             <AppLayout>
+                              {/* Hydrates the per-project currency
+                               * preference from localStorage and installs
+                               * the cross-tab storage listener. Renders
+                               * nothing — placed inside AppLayout so it
+                               * has access to the router. */}
+                              <CurrencyPreferenceSyncer />
                               <Component {...pageProps} />
                               <UserTracking />
                             </AppLayout>

@@ -23,7 +23,8 @@ import { LevelColors } from "@/src/components/level-colors";
 import { CommentCountIcon } from "@/src/features/comments/CommentCountIcon";
 import { cn } from "@/src/utils/tailwind";
 import { formatIntervalSeconds } from "@/src/utils/dates";
-import { usdFormatter, formatTokenCounts } from "@/src/utils/numbers";
+import { formatTokenCounts } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { heatMapTextColor } from "@/src/components/trace2/lib/helpers";
 import { useViewPreferences } from "../contexts/ViewPreferencesContext";
 import { useTraceData } from "../contexts/TraceDataContext";
@@ -201,7 +202,7 @@ export function SpanContent({
                 )}
               >
                 {node.children.length > 0 || node.type === "TRACE" ? "∑ " : ""}
-                {usdFormatter(totalCost.toNumber())}
+                <CurrencyAmount usdValue={totalCost.toNumber()} hideTooltip />
               </span>
             ) : null}
           </div>

@@ -24,6 +24,7 @@ import { BatchActionsSettingsPage } from "@/src/features/batch-actions/component
 import { AuditLogsSettingsPage } from "@/src/ee/features/audit-log-viewer/AuditLogsSettingsPage";
 import { ModelsSettings } from "@/src/features/models/components/ModelSettings";
 import ConfigureRetention from "@/src/features/projects/components/ConfigureRetention";
+import { CurrencySetting } from "@/src/features/projects/components/CurrencySetting";
 import ContainerPage from "@/src/components/layouts/container-page";
 import ProtectedLabelsSettings from "@/src/features/prompts/components/ProtectedLabelsSettings";
 import { SiSlack } from "react-icons/si";
@@ -85,11 +86,25 @@ export const getProjectSettingsPages = ({
   {
     title: t("nav.general"),
     slug: "index",
-    cmdKKeywords: ["name", "id", "delete", "transfer", "ownership"],
+    cmdKKeywords: [
+      "name",
+      "id",
+      "delete",
+      "transfer",
+      "ownership",
+      "currency",
+      "cny",
+      "usd",
+      "rate",
+      "币种",
+      "汇率",
+      "人民币",
+    ],
     content: (
       <div className="flex flex-col gap-6">
         <HostNameProject />
         <RenameProject />
+        <CurrencySetting />
         {showRetentionSettings && <ConfigureRetention />}
         <SettingsDangerZone
           items={[

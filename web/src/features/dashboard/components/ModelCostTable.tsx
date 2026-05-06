@@ -6,7 +6,8 @@ import { DashboardTable } from "@/src/features/dashboard/components/cards/Dashbo
 import { type FilterState, getGenerationLikeTypes } from "@langfuse/shared";
 import { compactNumberFormatter } from "@/src/utils/numbers";
 import { TotalMetric } from "./TotalMetric";
-import { totalCostDashboardFormatted } from "@/src/features/dashboard/lib/dashboard-utils";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
+import { useCurrencyFormatter } from "@/src/features/currency/useCurrencyFormatter";
 import { truncate } from "@/src/utils/string";
 import {
   type QueryType,
@@ -36,6 +37,12 @@ export const ModelCostTable = ({
   schedulerId?: string;
 }) => {
   const { t } = useI18n();
+  const {
+    formatDashboardTotal,
+    symbol: activeSymbol,
+    activeCurrency,
+  } = useCurrencyFormatter();
+
   const modelCostQuery: QueryType = {
     view: "observations",
     dimensions: [{ field: "providedModelName" }],
@@ -98,9 +105,17 @@ export const ModelCostTable = ({
               : "0"}
           </RightAlignedCell>,
           <RightAlignedCell key={`${i}-cost`}>
-            {item.sum_totalCost
-              ? totalCostDashboardFormatted(item.sum_totalCost as number)
-              : "$0"}
+            {item.sum_totalCost ? (
+              <CurrencyAmount
+                usdValue={item.sum_totalCost as number}
+                minimumFractionDigits={2}
+                maximumFractionDigits={
+                  (item.sum_totalCost as number) < 5 ? 6 : 2
+                }
+              />
+            ) : (
+              <CurrencyAmount usdValue={0} hideTooltip />
+            )}
           </RightAlignedCell>,
         ])
     : [];
@@ -118,7 +133,10 @@ export const ModelCostTable = ({
             {t("dashboard.modelCosts.tokens")}
           </RightAlignedCell>,
           <RightAlignedCell key="cost">
-            {t("dashboard.modelCosts.usd")}
+            {/* Header reflects the active display currency rather than
+             * being hard-coded to "USD" — the underlying numbers stay
+             * the same, only the rendered symbol changes. */}
+            {`${activeSymbol} (${activeCurrency})`}
           </RightAlignedCell>,
         ]}
         rows={metricsData}
@@ -126,7 +144,7 @@ export const ModelCostTable = ({
         collapse={{ collapsed: 5, expanded: 20 }}
       >
         <TotalMetric
-          metric={totalCostDashboardFormatted(totalTokenCost)}
+          metric={formatDashboardTotal(totalTokenCost)}
           description={t("dashboard.modelCosts.totalCost")}
         >
           <DocPopup

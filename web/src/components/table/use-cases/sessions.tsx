@@ -39,7 +39,8 @@ import { useDetailPageLists } from "@/src/features/navigate-detail-pages/context
 import { useOrderByState } from "@/src/features/orderBy/hooks/useOrderByState";
 import { api } from "@/src/utils/api";
 import { formatIntervalSeconds } from "@/src/utils/dates";
-import { numberFormatter, usdFormatter } from "@/src/utils/numbers";
+import { numberFormatter } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { type RouterOutput } from "@/src/utils/types";
 import type Decimal from "decimal.js";
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
@@ -627,9 +628,7 @@ export default function SessionsTable({
         if (!sessionMetrics.isSuccess) {
           return <TableTextLoadingCell />;
         }
-        return value ? (
-          <span>{usdFormatter(value.toNumber())}</span>
-        ) : undefined;
+        return value ? <CurrencyAmount usdValue={value} /> : undefined;
       },
     },
     {
@@ -646,9 +645,7 @@ export default function SessionsTable({
         if (!sessionMetrics.isSuccess) {
           return <TableTextLoadingCell />;
         }
-        return value ? (
-          <span>{usdFormatter(value.toNumber())}</span>
-        ) : undefined;
+        return value ? <CurrencyAmount usdValue={value} /> : undefined;
       },
     },
     {
@@ -664,9 +661,7 @@ export default function SessionsTable({
         if (!sessionMetrics.isSuccess) {
           return <TableTextLoadingCell />;
         }
-        return value ? (
-          <span>{usdFormatter(value.toNumber())}</span>
-        ) : undefined;
+        return value ? <CurrencyAmount usdValue={value} /> : undefined;
       },
     },
     {

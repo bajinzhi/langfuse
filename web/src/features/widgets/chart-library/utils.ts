@@ -1,6 +1,8 @@
+import { useCallback } from "react";
 import { type DataPoint } from "./chart-props";
 import { type DashboardWidgetChartType } from "@langfuse/shared/src/db";
 import { translateClientMessage, type MessageKey } from "@/src/features/i18n";
+import { useCurrencyFormatter } from "@/src/features/currency/useCurrencyFormatter";
 import {
   compactNumberFormatter,
   compactSmallNumberFormatter,
@@ -145,4 +147,39 @@ export function valueFormatter(
       if (compact) return compactNumberFormatter(value);
       return numberFormatter(value, 0, 2);
   }
+}
+
+/**
+ * Currency-aware variant of `valueFormatter` for React components.
+ *
+ * Subscribes to the active project's currency preference so any chart that
+ * renders a `USD` unit metric will auto-update when the user switches
+ * display currency. Non-currency branches fall back to the plain formatters
+ * used by the strict `valueFormatter` above.
+ *
+ * Strict-USD callers (CSV exports, billing, anywhere we *want* to keep
+ * dollars regardless of preference) should keep using `valueFormatter`.
+ */
+export function useValueFormatter() {
+  const { format: formatActiveCurrency } = useCurrencyFormatter();
+  return useCallback(
+    (value: number | string, unit?: string, compact?: boolean): string => {
+      if (typeof value === "string") return value;
+      switch (unit) {
+        case "millisecond":
+          return latencyFormatter(value);
+        case "USD":
+          return formatActiveCurrency(value, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 6,
+          });
+        default:
+          if (value !== 0 && Math.abs(value) < 1)
+            return compactSmallNumberFormatter(value);
+          if (compact) return compactNumberFormatter(value);
+          return numberFormatter(value, 0, 2);
+      }
+    },
+    [formatActiveCurrency],
+  );
 }

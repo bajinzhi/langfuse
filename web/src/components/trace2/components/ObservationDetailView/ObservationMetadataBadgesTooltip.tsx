@@ -6,7 +6,8 @@
 import { type ObservationType, isGenerationLike } from "@langfuse/shared";
 import { Badge } from "@/src/components/ui/badge";
 import { BreakdownTooltip } from "@/src/components/trace2/components/_shared/BreakdownToolTip";
-import { usdFormatter, formatTokenCounts } from "@/src/utils/numbers";
+import { formatTokenCounts } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { InfoIcon } from "lucide-react";
 
 export function CostBadge({
@@ -22,7 +23,7 @@ export function CostBadge({
   return (
     <BreakdownTooltip details={costDetails} isCost={true}>
       <Badge variant="tertiary" className="flex items-center gap-1">
-        <span>{usdFormatter(totalCost)}</span>
+        <CurrencyAmount usdValue={totalCost} hideTooltip />
         <InfoIcon className="h-3 w-3" />
       </Badge>
     </BreakdownTooltip>

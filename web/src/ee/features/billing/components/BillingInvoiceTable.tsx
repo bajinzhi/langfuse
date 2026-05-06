@@ -4,7 +4,7 @@ import { type LangfuseColumnDef } from "@/src/components/table/types";
 import { Button } from "@/src/components/ui/button";
 import { Badge, type BadgeProps } from "@/src/components/ui/badge";
 import { api } from "@/src/utils/api";
-import { usdFormatter } from "@/src/utils/numbers";
+import { formatUsdStrict } from "@/src/features/currency/format";
 import { Download, ExternalLink } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -151,7 +151,10 @@ export function BillingInvoiceTable() {
       size: 100,
       cell: ({ row }) => {
         const cents = row.original.breakdown?.subscriptionCents ?? 0;
-        return usdFormatter(cents / 100, 2, 2);
+        return formatUsdStrict(cents / 100, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
       },
     },
     {
@@ -161,7 +164,10 @@ export function BillingInvoiceTable() {
       size: 90,
       cell: ({ row }) => {
         const cents = row.original.breakdown?.usageCents ?? 0;
-        return usdFormatter(cents / 100, 2, 2);
+        return formatUsdStrict(cents / 100, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
       },
     },
     {
@@ -171,7 +177,10 @@ export function BillingInvoiceTable() {
       size: 90,
       cell: ({ row }) => {
         const cents = row.original.breakdown?.discountCents ?? 0;
-        return usdFormatter(cents / 100, 2, 2);
+        return formatUsdStrict(cents / 100, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
       },
     },
     {
@@ -181,7 +190,10 @@ export function BillingInvoiceTable() {
       size: 90,
       cell: ({ row }) => {
         const cents = row.original.breakdown?.taxCents ?? 0;
-        return usdFormatter(cents / 100, 2, 2);
+        return formatUsdStrict(cents / 100, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
       },
     },
     {
@@ -191,7 +203,10 @@ export function BillingInvoiceTable() {
       size: 90,
       cell: ({ row }) => {
         const cents = row.original.breakdown?.totalCents ?? 0;
-        return usdFormatter(cents / 100, 2, 2);
+        return formatUsdStrict(cents / 100, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
       },
     },
     {

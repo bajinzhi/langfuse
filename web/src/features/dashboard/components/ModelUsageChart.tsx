@@ -7,7 +7,7 @@ import {
 } from "@/src/features/dashboard/components/hooks";
 import { TabComponent } from "@/src/features/dashboard/components/TabsComponent";
 import { TotalMetric } from "@/src/features/dashboard/components/TotalMetric";
-import { totalCostDashboardFormatted } from "@/src/features/dashboard/lib/dashboard-utils";
+import { useCurrencyFormatter } from "@/src/features/currency/useCurrencyFormatter";
 import { api } from "@/src/utils/api";
 import {
   type DashboardDateRangeAggregationOption,
@@ -54,6 +54,7 @@ export const ModelUsageChart = ({
   schedulerId?: string;
 }) => {
   const { t } = useI18n();
+  const { formatDashboardTotal } = useCurrencyFormatter();
   const {
     allModels,
     selectedModels,
@@ -304,16 +305,16 @@ export const ModelUsageChart = ({
     {
       tabTitle: t("dashboard.modelUsage.costByModel"),
       data: costByModel,
-      totalMetric: totalCostDashboardFormatted(totalCost),
+      totalMetric: formatDashboardTotal(totalCost),
       metricDescription: t("dashboard.modelUsage.cost"),
-      formatter: totalCostDashboardFormatted,
+      formatter: formatDashboardTotal,
     },
     {
       tabTitle: t("dashboard.modelUsage.costByType"),
       data: costByType,
-      totalMetric: totalCostDashboardFormatted(totalCost),
+      totalMetric: formatDashboardTotal(totalCost),
       metricDescription: t("dashboard.modelUsage.cost"),
-      formatter: totalCostDashboardFormatted,
+      formatter: formatDashboardTotal,
     },
     {
       tabTitle: t("dashboard.modelUsage.usageByModel"),

@@ -21,7 +21,8 @@ import {
 } from "@/src/features/dashboard/lib/score-analytics-utils";
 import { compareViewChartDataToDataPoints } from "@/src/features/dashboard/lib/chart-data-adapters";
 import { Chart } from "@/src/features/widgets/chart-library/Chart";
-import { compactNumberFormatter, usdFormatter } from "@/src/utils/numbers";
+import { compactNumberFormatter } from "@/src/utils/numbers";
+import { useCurrencyFormatter } from "@/src/features/currency/useCurrencyFormatter";
 import { formatIntervalSeconds } from "@/src/utils/dates";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
 import Page from "@/src/components/layouts/page";
@@ -50,6 +51,7 @@ import { PromptfooReportButtons } from "@/src/features/promptfoo/components/Prom
 
 export default function DatasetCompare() {
   const { t } = useI18n();
+  const { format: formatActiveCurrency } = useCurrencyFormatter();
   const resourceMetrics = getResourceMetrics(t);
   const router = useRouter();
   const capture = usePostHogClientCapture();
@@ -295,7 +297,7 @@ export default function DatasetCompare() {
                     key === "latency"
                       ? formatIntervalSeconds
                       : key === "cost"
-                        ? usdFormatter
+                        ? (v: number) => formatActiveCurrency(v)
                         : (v: number) =>
                             compactNumberFormatter(
                               v,

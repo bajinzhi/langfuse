@@ -20,7 +20,7 @@ import { api } from "@/src/utils/api";
 import { NewDatasetItemFromExistingObject } from "@/src/features/datasets/components/NewDatasetItemFromExistingObject";
 import { CreateNewAnnotationQueueItem } from "@/src/features/annotation-queues/components/CreateNewAnnotationQueueItem";
 import { useMemo, useState, useEffect } from "react";
-import { usdFormatter } from "@/src/utils/numbers";
+import { useCurrencyFormatter } from "@/src/features/currency/useCurrencyFormatter";
 import { useIsAuthenticatedAndProjectMember } from "@/src/features/auth/hooks";
 import type Decimal from "decimal.js";
 import {
@@ -94,6 +94,7 @@ export const TracePreview = ({
   precomputedCost: Decimal | undefined;
 }) => {
   const { t } = useI18n();
+  const { format: formatActiveCurrency } = useCurrencyFormatter();
   const [selectedTab, setSelectedTab] = useQueryParam(
     "view",
     withDefault(StringParam, "preview"),
@@ -339,7 +340,7 @@ export const TracePreview = ({
                       <Badge variant="tertiary">
                         <span className="flex items-center gap-1">
                           {t("trace.totalCostLabel", {
-                            value: usdFormatter(totalCost.toNumber()),
+                            value: formatActiveCurrency(totalCost.toNumber()),
                           })}
                           <InfoIcon className="h-3 w-3" />
                         </span>

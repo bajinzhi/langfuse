@@ -7,7 +7,8 @@ import { api } from "@/src/utils/api";
 import { formatIntervalSeconds } from "@/src/utils/dates";
 import { cn } from "@/src/utils/tailwind";
 import { ClockIcon, ListTree } from "lucide-react";
-import { usdFormatter } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
+import { useCurrencyFormatter } from "@/src/features/currency/useCurrencyFormatter";
 import { type EnrichedDatasetRunItem } from "@langfuse/shared/src/server";
 import { ScoreRow } from "@/src/features/scores/components/ScoreRow";
 import { type ScoreColumn } from "@/src/features/scores/types";
@@ -42,6 +43,7 @@ const DatasetAggregateCellContent = ({
 }) => {
   const router = useRouter();
   const { t } = useI18n();
+  const { format: formatActiveCurrency } = useCurrencyFormatter();
   const silentHttpCodes = [404];
   const { selectedFields } = useDatasetCompareFields();
   const { activeCell, setActiveCell } = useActiveCell();
@@ -225,12 +227,19 @@ const DatasetAggregateCellContent = ({
                 <DiffLabel
                   diff={totalCostDiff}
                   preferNegativeDiff={true}
-                  formatValue={(value) => usdFormatter(value, 2, 4)}
+                  formatValue={(value) =>
+                    formatActiveCurrency(value, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 4,
+                    })
+                  }
                   className="ml-1"
                 />
               ) : (
                 <Badge variant="tertiary" size="sm" className="font-normal">
-                  <span className="mr-0.5">{usdFormatter(totalCost)}</span>
+                  <span className="mr-0.5">
+                    <CurrencyAmount usdValue={totalCost} />
+                  </span>
                 </Badge>
               ))}
           </div>

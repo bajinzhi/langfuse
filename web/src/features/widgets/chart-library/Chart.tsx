@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { type DataPoint } from "@/src/features/widgets/chart-library/chart-props";
-import { valueFormatter as valueFormatterByUnit } from "@/src/features/widgets/chart-library/utils";
+import { useValueFormatter } from "@/src/features/widgets/chart-library/utils";
 import { CardContent } from "@/src/components/ui/card";
 import LineChartTimeSeries from "@/src/features/widgets/chart-library/LineChartTimeSeries";
 import AreaChartTimeSeries from "@/src/features/widgets/chart-library/AreaChartTimeSeries";
@@ -56,11 +56,12 @@ export const Chart = ({
   const [forceRender, setForceRender] = useState(overrideWarning);
   const shouldWarn = data.length > 2000 && !forceRender;
 
+  const valueFormatterByUnit = useValueFormatter();
   const valueFormatter = useMemo(
     () =>
       valueFormatterOverride ??
       ((v: number) => valueFormatterByUnit(v, chartConfig?.unit, true)),
-    [valueFormatterOverride, chartConfig?.unit],
+    [valueFormatterOverride, valueFormatterByUnit, chartConfig?.unit],
   );
 
   const renderedData = useMemo(() => {

@@ -7,7 +7,9 @@ import { formatIntervalSeconds } from "@/src/utils/dates";
 import { useQueryParams, withDefault, NumberParam } from "use-query-params";
 import { type RouterOutput } from "@/src/utils/types";
 import { useEffect, useMemo, useState } from "react";
-import { compactNumberFormatter, usdFormatter } from "@/src/utils/numbers";
+import { compactNumberFormatter } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
+import { useCurrencyFormatter } from "@/src/features/currency/useCurrencyFormatter";
 import { DataTableToolbar } from "@/src/components/table/data-table-toolbar";
 import useColumnVisibility from "@/src/features/column-visibility/hooks/useColumnVisibility";
 import { type Prisma, datasetRunsTableColsWithOptions } from "@langfuse/shared";
@@ -72,8 +74,10 @@ export type DatasetRunRowData = {
   createdAt: Date;
   countRunItems: string;
   avgLatency: number | undefined;
-  avgTotalCost: string | undefined;
-  totalCost: string | undefined;
+  /** USD cost (raw); cells render via `<CurrencyAmount>`. */
+  avgTotalCost: number | undefined;
+  /** USD cost (raw); cells render via `<CurrencyAmount>`. */
+  totalCost: number | undefined;
   // scores holds grouped column with individual scores
   runItemScores?: ScoreAggregate | undefined;
   runScores?: ScoreAggregate | undefined;
@@ -191,6 +195,7 @@ export function DatasetRunsTable(props: {
   setScoreOptions: (options: { key: string; value: string }[]) => void;
 }) {
   const { t } = useI18n();
+  const { format: formatActiveCurrency } = useCurrencyFormatter();
   const resourceMetrics = useMemo(() => getResourceMetrics(t), [t]);
   const [paginationState, setPaginationState] = useQueryParams({
     pageIndex: withDefault(NumberParam, 0),
@@ -469,9 +474,9 @@ export function DatasetRunsTable(props: {
       cell: ({ row }) => {
         const avgTotalCost: DatasetRunRowData["avgTotalCost"] =
           row.getValue("avgTotalCost");
-        if (!avgTotalCost || runsMetrics.isPending)
+        if (avgTotalCost === undefined || runsMetrics.isPending)
           return <Skeleton className="h-3 w-1/2" />;
-        return <>{avgTotalCost}</>;
+        return <CurrencyAmount usdValue={avgTotalCost} />;
       },
     },
     {
@@ -483,9 +488,9 @@ export function DatasetRunsTable(props: {
       cell: ({ row }) => {
         const totalCost: DatasetRunRowData["totalCost"] =
           row.getValue("totalCost");
-        if (!totalCost || runsMetrics.isPending)
+        if (totalCost === undefined || runsMetrics.isPending)
           return <Skeleton className="h-3 w-1/2" />;
-        return <>{totalCost}</>;
+        return <CurrencyAmount usdValue={totalCost} />;
       },
     },
     {
@@ -576,12 +581,8 @@ export function DatasetRunsTable(props: {
       createdAt: item.createdAt,
       countRunItems: item.countRunItems?.toString() ?? "0",
       avgLatency: item.avgLatency ?? 0,
-      avgTotalCost: item.avgTotalCost
-        ? usdFormatter(item.avgTotalCost.toNumber())
-        : usdFormatter(0),
-      totalCost: item.totalCost
-        ? usdFormatter(item.totalCost.toNumber())
-        : usdFormatter(0),
+      avgTotalCost: item.avgTotalCost ? item.avgTotalCost.toNumber() : 0,
+      totalCost: item.totalCost ? item.totalCost.toNumber() : 0,
       runItemScores: item.scores,
       runScores: item.runScores
         ? addPrefixToScoreKeys(item.runScores, t("datasets.runLevel"))
@@ -657,7 +658,7 @@ export function DatasetRunsTable(props: {
                     key === "latency"
                       ? formatIntervalSeconds
                       : key === "cost"
-                        ? usdFormatter
+                        ? (v: number) => formatActiveCurrency(v)
                         : compactNumberFormatter;
 
                   const dataPoints =

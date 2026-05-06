@@ -2,7 +2,8 @@ import { useRouter } from "next/router";
 import { api } from "@/src/utils/api";
 import TracesTable from "@/src/components/table/use-cases/traces";
 import ScoresTable from "@/src/components/table/use-cases/scores";
-import { compactNumberFormatter, usdFormatter } from "@/src/utils/numbers";
+import { compactNumberFormatter } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { StringParam, useQueryParam, withDefault } from "use-query-params";
 import { DetailPageNav } from "@/src/features/navigate-detail-pages/DetailPageNav";
 import SessionsTable from "@/src/components/table/use-cases/sessions";
@@ -121,7 +122,7 @@ export default function UserPage() {
             <Badge variant="outline">
               <span className="flex items-center gap-1">
                 {t("users.totalCost")}{" "}
-                {usdFormatter(user.data.sumCalculatedTotalCost)}
+                <CurrencyAmount usdValue={user.data.sumCalculatedTotalCost} />
               </span>
             </Badge>
             <Badge variant="outline">

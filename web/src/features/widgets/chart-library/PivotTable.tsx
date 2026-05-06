@@ -41,7 +41,7 @@ import {
   DEFAULT_ROW_LIMIT,
 } from "@/src/features/widgets/utils/pivot-table-utils";
 import { type ChartProps } from "@/src/features/widgets/chart-library/chart-props";
-import { valueFormatter } from "@/src/features/widgets/chart-library/utils";
+import { useValueFormatter } from "@/src/features/widgets/chart-library/utils";
 import { formatMetricName } from "@/src/features/widgets/utils";
 import { type OrderByState } from "@langfuse/shared";
 import {
@@ -162,6 +162,7 @@ const PivotTableRowComponent: React.FC<{
   t: (key: MessageKey, values?: MessageValues) => string;
   units?: (string | undefined)[];
 }> = ({ row, metrics, t, units }) => {
+  const valueFormatter = useValueFormatter();
   const label = row.isTotal
     ? t("widgets.table.total")
     : row.isSubtotal && row.label.endsWith(" (Subtotal)")

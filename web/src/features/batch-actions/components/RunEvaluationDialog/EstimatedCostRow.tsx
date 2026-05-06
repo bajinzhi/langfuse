@@ -1,6 +1,5 @@
 import { InfoIcon } from "lucide-react";
 import { api } from "@/src/utils/api";
-import { usdFormatter } from "@/src/utils/numbers";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import {
   Tooltip,
@@ -9,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/src/components/ui/tooltip";
 import { useI18n } from "@/src/features/i18n";
+import { useCurrencyFormatter } from "@/src/features/currency/useCurrencyFormatter";
 
 type EstimatedCostRowProps = {
   projectId: string;
@@ -16,14 +16,25 @@ type EstimatedCostRowProps = {
   observationCount: number;
 };
 
-function formatCostEstimate(cost: number): string {
-  if (cost > 0 && cost < 0.005) return "< $0.01";
-  return `~${usdFormatter(cost, 2, 2)}`;
-}
-
 export function EstimatedCostRow(props: EstimatedCostRowProps) {
   const { projectId, evaluators, observationCount } = props;
   const { t } = useI18n();
+  const { format: formatActiveCurrency, symbol: activeSymbol } =
+    useCurrencyFormatter();
+
+  /**
+   * Tiny aggregates round to "0.00" with the standard 2-digit precision; we
+   * surface a "< {symbol}0.01" hint instead so users don't think the cost is
+   * literally zero. The threshold scales by the currency symbol so CNY shows
+   * "< ¥0.01", USD shows "< $0.01".
+   */
+  const formatCostEstimate = (cost: number): string => {
+    if (cost > 0 && cost < 0.005) return `< ${activeSymbol}0.01`;
+    return `~${formatActiveCurrency(cost, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
 
   const evaluatorIds = evaluators.map((e) => e.id);
 

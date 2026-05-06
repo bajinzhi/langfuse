@@ -16,7 +16,7 @@ import { DeleteSpendAlertDialog } from "./DeleteSpendAlertDialog";
 import { DataTable } from "@/src/components/table/data-table";
 import { DataTableToolbar } from "@/src/components/table/data-table-toolbar";
 import { type LangfuseColumnDef } from "@/src/components/table/types";
-import { usdFormatter } from "@/src/utils/numbers";
+import { formatUsdStrict } from "@/src/features/currency/format";
 import { useI18n } from "@/src/features/i18n";
 import { enUS, zhCN } from "date-fns/locale";
 
@@ -86,7 +86,11 @@ export function SpendAlertsTable({ orgId }: SpendAlertsTableProps) {
       id: "limit",
       header: t("spendAlerts.columns.limitUsd"),
       size: 140,
-      cell: ({ row }) => usdFormatter(row.original.threshold, 2, 2),
+      cell: ({ row }) =>
+        formatUsdStrict(row.original.threshold, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }),
     },
     {
       accessorKey: "status",

@@ -10,7 +10,8 @@ import { api } from "@/src/utils/api";
 import { IOPreview } from "@/src/components/trace2/components/IOPreview/IOPreview";
 import { formatIntervalSeconds } from "@/src/utils/dates";
 import Link from "next/link";
-import { usdFormatter, formatTokenCounts } from "@/src/utils/numbers";
+import { formatTokenCounts } from "@/src/utils/numbers";
+import { CurrencyAmount } from "@/src/features/currency/CurrencyAmount";
 import { withDefault, StringParam, useQueryParam } from "use-query-params";
 import ScoresTable from "@/src/components/table/use-cases/scores";
 import { JumpToPlaygroundButton } from "@/src/features/playground/page/components/JumpToPlaygroundButton";
@@ -321,14 +322,18 @@ export const ObservationPreview = ({
                         variant="tertiary"
                         className="flex items-center gap-1"
                       >
-                        <span>{usdFormatter(thisCost.toNumber())}</span>
+                        <CurrencyAmount
+                          usdValue={thisCost.toNumber()}
+                          hideTooltip
+                        />
                         <InfoIcon className="h-3 w-3" />
                       </Badge>
                     </BreakdownTooltip>
                   ) : undefined}
                   {totalCost && (!thisCost || !totalCost.equals(thisCost)) ? (
                     <Badge variant="tertiary">
-                      ∑ {usdFormatter(totalCost.toNumber())}
+                      <span className="mr-1">∑</span>
+                      <CurrencyAmount usdValue={totalCost.toNumber()} />
                     </Badge>
                   ) : undefined}
 

@@ -11,7 +11,7 @@ import {
   useDetailPageLists,
 } from "@/src/features/navigate-detail-pages/context";
 import { api } from "@/src/utils/api";
-import { usdFormatter } from "@/src/utils/numbers";
+import { useCurrencyFormatter } from "@/src/features/currency/useCurrencyFormatter";
 import { getNumberFromMap } from "@/src/utils/map-utils";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -220,6 +220,7 @@ export const SessionPage: React.FC<{
 }> = ({ sessionId, projectId }) => {
   const router = useRouter();
   const { t } = useI18n();
+  const { format: formatActiveCurrency } = useCurrencyFormatter();
   const { setDetailPageList, detailPagelists } = useDetailPageLists();
   const userSession = useSession();
   const capture = usePostHogClientCapture();
@@ -470,7 +471,9 @@ export const SessionPage: React.FC<{
           {session.data && (
             <Badge variant="outline">
               {t("sessions.totalCost", {
-                cost: usdFormatter(session.data.totalCost, 2),
+                cost: formatActiveCurrency(session.data.totalCost, {
+                  minimumFractionDigits: 2,
+                }),
               })}
             </Badge>
           )}
@@ -541,6 +544,7 @@ export const SessionEventsPage: React.FC<{
 }> = ({ sessionId, projectId }) => {
   const router = useRouter();
   const { t } = useI18n();
+  const { format: formatActiveCurrency } = useCurrencyFormatter();
   const { setDetailPageList, detailPagelists } = useDetailPageLists();
   const userSession = useSession();
   const parentRef = useRef<HTMLDivElement>(null);
@@ -1006,7 +1010,9 @@ export const SessionEventsPage: React.FC<{
           {session.data && (
             <Badge variant="outline">
               {t("sessions.totalCost", {
-                cost: usdFormatter(session.data.totalCost ?? 0, 2),
+                cost: formatActiveCurrency(session.data.totalCost ?? 0, {
+                  minimumFractionDigits: 2,
+                }),
               })}
             </Badge>
           )}
