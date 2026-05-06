@@ -3,7 +3,6 @@ import { type ProjectScope } from "@/src/features/rbac/constants/projectAccessRi
 import {
   Database,
   LayoutDashboard,
-  LifeBuoy,
   ListTree,
   type LucideIcon,
   Settings,
@@ -11,7 +10,6 @@ import {
   TerminalIcon,
   Lightbulb,
   Grid2X2,
-  Sparkle,
   FileJson,
   Search,
   Home,
@@ -24,8 +22,6 @@ import { type ReactNode } from "react";
 import { type Entitlement } from "@/src/features/entitlements/constants/entitlements";
 import { type User } from "next-auth";
 import { type OrganizationScope } from "@/src/features/rbac/constants/organizationAccessRights";
-import { SupportButton } from "@/src/components/nav/support-button";
-import { BookACallButton } from "@/src/components/nav/book-a-call-button";
 import { V4SidebarToggle } from "@/src/features/events/components/V4SidebarToggle";
 import { SidebarMenuButton } from "@/src/components/ui/sidebar";
 import { useCommandMenu } from "@/src/features/command-k-menu/CommandMenuProvider";
@@ -206,26 +202,6 @@ export const ROUTES: Route[] = [
     labelKey: "trace.beta",
   },
   {
-    title: "Upgrade",
-    titleKey: "nav.upgrade",
-    icon: Sparkle,
-    pathname: "/project/[projectId]/settings/billing",
-    section: RouteSection.Secondary,
-    entitlements: ["cloud-billing"],
-    organizationRbacScope: "langfuseCloudBilling:CRUD",
-    show: ({ organization }) => organization?.plan === "cloud:hobby",
-  },
-  {
-    title: "Upgrade",
-    titleKey: "nav.upgrade",
-    icon: Sparkle,
-    pathname: "/organization/[organizationId]/settings/billing",
-    section: RouteSection.Secondary,
-    entitlements: ["cloud-billing"],
-    organizationRbacScope: "langfuseCloudBilling:CRUD",
-    show: ({ organization }) => organization?.plan === "cloud:hobby",
-  },
-  {
     title: "Cloud Status",
     titleKey: "nav.cloudStatus",
     section: RouteSection.Secondary,
@@ -253,21 +229,6 @@ export const ROUTES: Route[] = [
     pathname: "/organization/[organizationId]/settings",
     icon: Settings,
     section: RouteSection.Secondary,
-  },
-  {
-    title: "Book a call",
-    titleKey: "nav.bookCall",
-    section: RouteSection.Secondary,
-    pathname: "",
-    menuNode: <BookACallButton />,
-  },
-  {
-    title: "Support",
-    titleKey: "nav.support",
-    icon: LifeBuoy,
-    section: RouteSection.Secondary,
-    pathname: "", // Empty pathname since this is a dropdown
-    menuNode: <SupportButton />,
   },
 ];
 

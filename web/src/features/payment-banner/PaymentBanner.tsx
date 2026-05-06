@@ -102,16 +102,16 @@ export function PaymentBanner() {
             {t("paymentBanner.billingIssue")}
           </span>
           <span className="text-sm">
-            {t("paymentBanner.description", { organization: organization.name })}
+            {t("paymentBanner.description", {
+              organization: organization.name,
+            })}
           </span>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         <Button size="sm" variant="ghost" asChild>
-          <Link
-            href={`${basePath}/organization/${organization.id}/settings/billing`}
-          >
+          <Link href={`${basePath}/organization/${organization.id}/settings`}>
             <CreditCard className="mr-2 h-4 w-4" />
             {t("paymentBanner.updatePayment")}
           </Link>

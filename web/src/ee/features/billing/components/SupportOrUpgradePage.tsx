@@ -11,8 +11,7 @@ export const SupportOrUpgradePage = () => {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>{t("billing.accessRestricted")}</AlertTitle>
           <AlertDescription>
-            <p className="mb-2">{t("billing.additionalPermissions")}</p>
-            <p>{t("billing.supportOrUpgradeDescription")}</p>
+            <p>{t("billing.additionalPermissions")}</p>
           </AlertDescription>
         </Alert>
       </div>

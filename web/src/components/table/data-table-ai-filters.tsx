@@ -7,10 +7,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/src/components/ui/tooltip";
-import { Info, ExternalLink } from "lucide-react";
+import { Info } from "lucide-react";
 import { useQueryProject } from "@/src/features/projects/hooks";
 import useProjectIdFromURL from "@/src/hooks/useProjectIdFromURL";
-import { useHasOrganizationAccess } from "@/src/features/rbac/utils/checkOrganizationAccess";
 import { api } from "@/src/utils/api";
 import { type FilterState } from "@langfuse/shared";
 import { useI18n } from "@/src/features/i18n";
@@ -27,11 +26,6 @@ export function DataTableAIFilters({
   const [aiError, setAiError] = useState<string | null>(null);
   const projectId = useProjectIdFromURL();
   const { organization } = useQueryProject();
-
-  const hasAdminAccess = useHasOrganizationAccess({
-    organizationId: organization?.id ?? undefined,
-    scope: "organization:update",
-  });
 
   const createFilterMutation =
     api.naturalLanguageFilters.createCompletion.useMutation();
@@ -69,35 +63,10 @@ export function DataTableAIFilters({
     }
   };
 
-  // When AI features are not enabled
   if (!organization?.aiFeaturesEnabled) {
-    return (
-      <div className="flex flex-col gap-3">
-        <p className="text-muted-foreground text-sm">
-          {t("table.filters.aiInfo")}
-          {!hasAdminAccess && ` ${t("table.filters.aiAskAdmin")}`}
-        </p>
-        {hasAdminAccess && organization?.id && (
-          <Button
-            onClick={() => {
-              window.open(
-                `/organization/${organization.id}/settings`,
-                "_blank",
-              );
-            }}
-            variant="outline"
-            size="sm"
-            className="w-fit"
-          >
-            {t("table.filters.aiEnableSettings")}
-            <ExternalLink className="ml-2 h-4 w-4" />
-          </Button>
-        )}
-      </div>
-    );
+    return null;
   }
 
-  // When AI features are enabled
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">

@@ -2,22 +2,17 @@ import { PagedSettingsContainer } from "@/src/components/PagedSettingsContainer"
 import Header from "@/src/components/layouts/header";
 import { MembershipInvitesPage } from "@/src/features/rbac/components/MembershipInvitesPage";
 import { MembersTable } from "@/src/features/rbac/components/MembersTable";
-import { JSONView } from "@/src/components/ui/CodeJsonViewer";
 import RenameOrganization from "@/src/features/organizations/components/RenameOrganization";
 import { useQueryOrganization } from "@/src/features/organizations/hooks";
 import { useRouter } from "next/router";
 import { SettingsDangerZone } from "@/src/components/SettingsDangerZone";
 import { DeleteOrganizationButton } from "@/src/features/organizations/components/DeleteOrganizationButton";
-import { BillingSettings } from "@/src/ee/features/billing/components/BillingSettings";
 import { useHasEntitlement, usePlan } from "@/src/features/entitlements/hooks";
 import ContainerPage from "@/src/components/layouts/container-page";
 import { SSOSettings } from "@/src/ee/features/sso-settings/components/SSOSettings";
 import { isCloudPlan } from "@langfuse/shared";
 import { useQueryProjectOrOrganization } from "@/src/features/projects/hooks";
 import { ApiKeyList } from "@/src/features/public-api/components/ApiKeyList";
-import AIFeatureSwitch from "@/src/features/organizations/components/AIFeatureSwitch";
-import { useIsCloudBillingAvailable } from "@/src/ee/features/billing/utils/isCloudBilling";
-import { env } from "@/src/env.mjs";
 import { OrgAuditLogsSettingsPage } from "@/src/ee/features/audit-log-viewer/OrgAuditLogsSettingsPage";
 import { useI18n } from "@/src/features/i18n";
 
@@ -32,20 +27,17 @@ type OrganizationSettingsPage = {
 
 export function useOrganizationSettingsPages(): OrganizationSettingsPage[] {
   const { organization } = useQueryProjectOrOrganization();
-  const showBillingSettings = useHasEntitlement("cloud-billing");
   const showOrgApiKeySettings = useHasEntitlement("admin-api");
   const showAuditLogs = useHasEntitlement("audit-logs");
   const showSsoSettings = useHasEntitlement("cloud-multi-tenant-sso");
   const plan = usePlan();
   const isLangfuseCloud = isCloudPlan(plan) ?? false;
-  const isCloudBillingAvailable = useIsCloudBillingAvailable();
   const { t } = useI18n();
 
   if (!organization) return [];
 
   return getOrganizationSettingsPages({
     organization,
-    showBillingSettings: showBillingSettings && isCloudBillingAvailable,
     showOrgApiKeySettings,
     showAuditLogs,
     showSsoSettings: isLangfuseCloud && showSsoSettings,
@@ -55,14 +47,12 @@ export function useOrganizationSettingsPages(): OrganizationSettingsPage[] {
 
 export const getOrganizationSettingsPages = ({
   organization,
-  showBillingSettings,
   showOrgApiKeySettings,
   showAuditLogs,
   showSsoSettings,
   t,
 }: {
   organization: { id: string; name: string; metadata: Record<string, unknown> };
-  showBillingSettings: boolean;
   showOrgApiKeySettings: boolean;
   showAuditLogs: boolean;
   showSsoSettings: boolean;
@@ -75,21 +65,6 @@ export const getOrganizationSettingsPages = ({
     content: (
       <div className="flex flex-col gap-6">
         <RenameOrganization />
-        <div>
-          <Header title={t("settings.debugInformation")} />
-          <JSONView
-            title={t("observability.columns.metadata")}
-            json={{
-              name: organization.name,
-              id: organization.id,
-              ...organization.metadata,
-              ...(env.NEXT_PUBLIC_LANGFUSE_CLOUD_REGION && {
-                cloudRegion: env.NEXT_PUBLIC_LANGFUSE_CLOUD_REGION,
-              }),
-            }}
-          />
-        </div>
-        <AIFeatureSwitch />
         <SettingsDangerZone
           items={[
             {
@@ -134,13 +109,6 @@ export const getOrganizationSettingsPages = ({
     cmdKKeywords: ["audit", "logs", "history", "changes"],
     content: <OrgAuditLogsSettingsPage orgId={organization.id} />,
     show: showAuditLogs,
-  },
-  {
-    title: t("nav.billing"),
-    slug: "billing",
-    cmdKKeywords: ["payment", "subscription", "plan", "invoice"],
-    content: <BillingSettings />,
-    show: showBillingSettings,
   },
   {
     title: t("nav.sso"),

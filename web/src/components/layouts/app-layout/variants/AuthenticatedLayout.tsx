@@ -1,6 +1,6 @@
 /**
  * Authenticated layout variant
- * Full application layout with sidebar, navigation, support drawer, and payment banner
+ * Full application layout with sidebar, navigation, and support drawer
  * Used for all main application pages when user is authenticated
  */
 
@@ -32,16 +32,6 @@ const CommandMenu = dynamic(
   () =>
     import("@/src/features/command-k-menu/CommandMenu").then((mod) => ({
       default: mod.CommandMenu,
-    })),
-  {
-    ssr: false,
-  },
-);
-
-const PaymentBanner = dynamic(
-  () =>
-    import("@/src/features/payment-banner").then((mod) => ({
-      default: mod.PaymentBanner,
     })),
   {
     ssr: false,
@@ -94,7 +84,6 @@ type AuthenticatedLayoutProps = PropsWithChildren<{
 /**
  * Full authenticated layout with all features:
  * - AppSidebar with navigation
- * - Payment banner (conditional)
  * - Support drawer
  * - Command menu (Cmd/Ctrl+K)
  * - Toast notifications
@@ -193,7 +182,6 @@ export function AuthenticatedLayout({
       <TopBannerProvider>
         <SidebarProvider>
           <div className="flex h-dvh w-full flex-col">
-            <PaymentBanner />
             <V4EnabledBanner />
             <V4PromoBanner />
             <div className="pt-banner-offset flex min-h-0 flex-1">

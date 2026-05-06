@@ -30,9 +30,7 @@ import {
   createOrganizationRoute,
   createProjectRoute,
 } from "@/src/features/setup/setupRoutes";
-import { isCloudPlan, planLabels } from "@langfuse/shared";
 import Link from "next/link";
-import { Badge } from "@/src/components/ui/badge";
 import { useI18n } from "@/src/features/i18n";
 
 const LoadingMenuItem = () => {
@@ -106,15 +104,6 @@ const BreadcrumbComponent = ({
           <DropdownMenu>
             <DropdownMenuTrigger className="text-primary flex items-center gap-1 text-sm">
               {organization?.name ?? t("organizations.organization")}
-              {isCloudPlan(organization?.plan) &&
-                organization.id !== env.NEXT_PUBLIC_DEMO_ORG_ID && (
-                  <Badge
-                    className="ml-1 px-1 py-0 text-xs font-normal"
-                    variant="secondary"
-                  >
-                    {planLabels[organization.plan]}
-                  </Badge>
-                )}
               <ChevronDownIcon className="h-4 w-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">

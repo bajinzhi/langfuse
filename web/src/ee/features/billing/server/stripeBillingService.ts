@@ -588,7 +588,7 @@ class BillingService {
           const billingPortalSession =
             await client.billingPortal.sessions.create({
               customer: stripeCustomerId,
-              return_url: `${env.NEXTAUTH_URL}/organization/${orgId}/settings/billing`,
+              return_url: `${env.NEXTAUTH_URL}/organization/${orgId}/settings`,
             });
 
           return billingPortalSession.url;
@@ -676,7 +676,7 @@ class BillingService {
           ];
         })();
 
-        const returnUrl = `${env.NEXTAUTH_URL}/organization/${orgId}/settings/billing`;
+        const returnUrl = `${env.NEXTAUTH_URL}/organization/${orgId}/settings`;
         const stripeCustomerId =
           parsedOrg.cloudConfig?.stripe?.customerId ?? undefined;
         const clientReferenceId = createStripeClientReference(orgId);

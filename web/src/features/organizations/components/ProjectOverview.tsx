@@ -29,7 +29,6 @@ import {
   createOrganizationRoute,
   createProjectRoute,
 } from "@/src/features/setup/setupRoutes";
-import { isCloudPlan, planLabels } from "@langfuse/shared";
 import ContainerPage from "@/src/components/layouts/container-page";
 import { type User } from "next-auth";
 import { usePostHogClientCapture } from "@/src/features/posthog-analytics/usePostHogClientCapture";
@@ -237,14 +236,6 @@ const SingleOrganizationProjectOverviewTile = ({
         status={
           orgId === env.NEXT_PUBLIC_DEMO_ORG_ID
             ? t("organizations.demo.status")
-            : undefined
-        }
-        label={
-          isCloudPlan(org.plan)
-            ? {
-                text: planLabels[org.plan],
-                href: `/organization/${org.id}/settings/billing`,
-              }
             : undefined
         }
         actionButtons={

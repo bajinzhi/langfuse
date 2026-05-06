@@ -43,6 +43,7 @@ import { DataTableAIFilters } from "@/src/components/table/data-table-ai-filters
 import { type FilterState } from "@langfuse/shared";
 import { useLangfuseCloudRegion } from "@/src/features/organizations/hooks";
 import { useI18n, type MessageKey } from "@/src/features/i18n";
+import { useQueryProject } from "@/src/features/projects/hooks";
 
 type Translate = ReturnType<typeof useI18n>["t"];
 
@@ -184,6 +185,7 @@ export function DataTableControls({
   const { isLangfuseCloud } = useLangfuseCloudRegion();
   const { t } = useI18n();
   const [aiPopoverOpen, setAiPopoverOpen] = useState(false);
+  const { organization } = useQueryProject();
 
   const handleFiltersGenerated = useCallback(
     (filters: FilterState) => {
@@ -233,27 +235,29 @@ export function DataTableControls({
               </TooltipContent>
             </Tooltip>
           )}
-          {filterWithAI && isLangfuseCloud && (
-            <Popover open={aiPopoverOpen} onOpenChange={setAiPopoverOpen}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <WandSparkles className="h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {t("table.filters.filterWithAI")}
-                </TooltipContent>
-              </Tooltip>
-              <PopoverContent align="center" className="w-[400px]">
-                <DataTableAIFilters
-                  onFiltersGenerated={handleFiltersGenerated}
-                />
-              </PopoverContent>
-            </Popover>
-          )}
+          {filterWithAI &&
+            isLangfuseCloud &&
+            organization?.aiFeaturesEnabled && (
+              <Popover open={aiPopoverOpen} onOpenChange={setAiPopoverOpen}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <PopoverTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <WandSparkles className="h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {t("table.filters.filterWithAI")}
+                  </TooltipContent>
+                </Tooltip>
+                <PopoverContent align="center" className="w-[400px]">
+                  <DataTableAIFilters
+                    onFiltersGenerated={handleFiltersGenerated}
+                  />
+                </PopoverContent>
+              </Popover>
+            )}
         </div>
       </div>
       <div className="pb-10">

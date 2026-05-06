@@ -2,7 +2,6 @@ import {
   ArrowUp10,
   BadgeCheck,
   HardDriveDownload,
-  Info,
   Map,
   Newspaper,
 } from "lucide-react";
@@ -173,14 +172,6 @@ export const VersionLabel = ({ className }: { className?: string }) => {
             {t("version.roadmap")}
           </Link>
         </DropdownMenuItem>
-        {!isLangfuseCloud && (
-          <DropdownMenuItem asChild>
-            <Link href="https://langfuse.com/pricing-self-host" target="_blank">
-              <Info size={16} className="mr-2" />
-              {t("version.compareVersions")}
-            </Link>
-          </DropdownMenuItem>
-        )}
         {hasUpdate && (
           <>
             <DropdownMenuSeparator />

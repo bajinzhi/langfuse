@@ -10,7 +10,6 @@ import { PagedSettingsContainer } from "@/src/components/PagedSettingsContainer"
 import { useQueryProject } from "@/src/features/projects/hooks";
 import { MembershipInvitesPage } from "@/src/features/rbac/components/MembershipInvitesPage";
 import { MembersTable } from "@/src/features/rbac/components/MembersTable";
-import { JSONView } from "@/src/components/ui/CodeJsonViewer";
 import { PostHogLogo } from "@/src/components/PosthogLogo";
 import { MixpanelLogo } from "@/src/components/MixpanelLogo";
 import { Card } from "@/src/components/ui/card";
@@ -29,7 +28,6 @@ import ContainerPage from "@/src/components/layouts/container-page";
 import ProtectedLabelsSettings from "@/src/features/prompts/components/ProtectedLabelsSettings";
 import { SiSlack } from "react-icons/si";
 import { ScoreConfigSettings } from "@/src/features/score-configs/components/ScoreConfigSettings";
-import { env } from "@/src/env.mjs";
 import { NotificationSettings } from "@/src/features/notifications/components/NotificationSettings";
 import { useI18n } from "@/src/features/i18n";
 
@@ -45,7 +43,6 @@ type ProjectSettingsPage = {
 export function useProjectSettingsPages(): ProjectSettingsPage[] {
   const router = useRouter();
   const { project, organization } = useQueryProject();
-  const showBillingSettings = useHasEntitlement("cloud-billing");
   const showRetentionSettings = useHasEntitlement("data-retention");
   const showAuditLogsSettings = useHasEntitlement("audit-logs");
   const showProtectedLabelsSettings = useHasEntitlement(
@@ -60,7 +57,6 @@ export function useProjectSettingsPages(): ProjectSettingsPage[] {
   return getProjectSettingsPages({
     project,
     organization,
-    showBillingSettings,
     showRetentionSettings,
     showAuditLogsSettings,
     showLLMConnectionsSettings: true,
@@ -72,7 +68,6 @@ export function useProjectSettingsPages(): ProjectSettingsPage[] {
 export const getProjectSettingsPages = ({
   project,
   organization,
-  showBillingSettings,
   showRetentionSettings,
   showAuditLogsSettings,
   showLLMConnectionsSettings,
@@ -81,7 +76,6 @@ export const getProjectSettingsPages = ({
 }: {
   project: { id: string; name: string; metadata: Record<string, unknown> };
   organization: { id: string; name: string; metadata: Record<string, unknown> };
-  showBillingSettings: boolean;
   showRetentionSettings: boolean;
   showAuditLogsSettings: boolean;
   showLLMConnectionsSettings: boolean;
@@ -97,27 +91,6 @@ export const getProjectSettingsPages = ({
         <HostNameProject />
         <RenameProject />
         {showRetentionSettings && <ConfigureRetention />}
-        <div>
-          <Header title={t("settings.debugInformation")} />
-          <JSONView
-            title={t("observability.columns.metadata")}
-            json={{
-              project: {
-                name: project.name,
-                id: project.id,
-                ...project.metadata,
-              },
-              org: {
-                name: organization.name,
-                id: organization.id,
-                ...organization.metadata,
-              },
-              ...(env.NEXT_PUBLIC_LANGFUSE_CLOUD_REGION && {
-                cloudRegion: env.NEXT_PUBLIC_LANGFUSE_CLOUD_REGION,
-              }),
-            }}
-          />
-        </div>
         <SettingsDangerZone
           items={[
             {
@@ -236,12 +209,6 @@ export const getProjectSettingsPages = ({
     slug: "notifications",
     cmdKKeywords: ["inbox", "email", "mention", "alert"],
     content: <NotificationSettings />,
-  },
-  {
-    title: t("nav.billing"),
-    slug: "billing",
-    href: `/organization/${organization.id}/settings/billing`,
-    show: showBillingSettings,
   },
   {
     title: t("nav.organizationSettings"),

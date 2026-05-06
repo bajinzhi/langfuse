@@ -21,7 +21,6 @@ import { api } from "@/src/utils/api";
 import {
   Check,
   ChevronDown,
-  ExternalLink,
   FilterIcon,
   Info,
   Plus,
@@ -439,6 +438,11 @@ function FilterBuilderForm({
   const [aiError, setAiError] = useState<string | null>(null);
   const projectId = useProjectIdFromURL();
   const { organization } = useQueryProject();
+  const canUseAiFilter =
+    !disabled &&
+    isLangfuseCloud &&
+    filterWithAI &&
+    Boolean(organization?.aiFeaturesEnabled);
 
   const createFilterMutation =
     api.naturalLanguageFilters.createCompletion.useMutation();
@@ -505,44 +509,31 @@ function FilterBuilderForm({
     }
   };
 
+  useEffect(() => {
+    if (!canUseAiFilter && showAiFilter) {
+      setShowAiFilter(false);
+    }
+  }, [canUseAiFilter, showAiFilter]);
+
   return (
     <>
       {/* AI Filter Section at the top */}
-      {!disabled && isLangfuseCloud && filterWithAI && (
+      {canUseAiFilter && (
         <div className="flex flex-col gap-2">
           <Button
             onClick={() => {
-              if (!organization?.aiFeaturesEnabled && organization?.id) {
-                window.open(
-                  `/organization/${organization.id}/settings`,
-                  "_blank",
-                );
-              } else {
-                setShowAiFilter(!showAiFilter);
-              }
+              setShowAiFilter(!showAiFilter);
             }}
             type="button"
             variant="outline"
             size="default"
             disabled={false}
-            title={
-              !organization?.aiFeaturesEnabled
-                ? t("table.filters.aiDisabled")
-                : undefined
-            }
             className="text-muted-foreground w-full justify-start"
           >
             <WandSparkles className="mr-2 h-4 w-4" />
-            {!organization?.aiFeaturesEnabled ? (
-              <>
-                {t("table.filters.aiDisabledButton")}
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </>
-            ) : showAiFilter ? (
-              t("common.cancel")
-            ) : (
-              t("table.filters.createWithAI")
-            )}
+            {showAiFilter
+              ? t("common.cancel")
+              : t("table.filters.createWithAI")}
           </Button>
           {showAiFilter && (
             <div className="flex flex-col gap-3">
